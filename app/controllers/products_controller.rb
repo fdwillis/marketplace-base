@@ -65,6 +65,7 @@ class ProductsController < ApplicationController
   def destroy
     @product.destroy
     authorize @product
+    redirect_to root_path
   end
 
   private
