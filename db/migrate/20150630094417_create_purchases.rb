@@ -4,9 +4,12 @@ class CreatePurchases < ActiveRecord::Migration
       t.string :title
       t.integer :price
       t.belongs_to :user, index: true
+      t.belongs_to :product, index: true
+      t.boolean :refunded
 
       t.timestamps null: false
     end
     add_foreign_key :purchases, :users
+    add_foreign_key :purchases, :products
   end
 end

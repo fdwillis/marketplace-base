@@ -26,7 +26,7 @@ class ChargesController < ApplicationController
        currency:    'usd'
       )
 
-      Purchase.create(title: params[:title], price: params[:price], user_id: current_user.id)
+      Purchase.create(title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
       redirect_to root_path, notice: "Thanks for the purchase!"
     else
       redirect_to edit_user_registration_path
