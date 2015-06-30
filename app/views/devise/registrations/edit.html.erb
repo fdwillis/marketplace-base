@@ -50,7 +50,11 @@
       <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
       <div class="form-group">
         <%= f.label :card_number %>
-        <%= f.text_field :card_number, class: 'form-control', placeholder: "Enter card number", maxlength: 16, value: crypt.decrypt_and_verify(current_user.card_number) %>
+        <% if current_user.card_number? %>
+          <%= f.text_field :card_number, class: 'form-control', placeholder: "Enter card number", maxlength: 16, value: crypt.decrypt_and_verify(current_user.card_number) %>
+        <% else %>
+          <%= f.text_field :card_number, class: 'form-control', placeholder: "Enter card number", maxlength: 16 %>
+        <% end %>
       </div>
       <div class="form-group">
         <%= f.label :exp_month %>

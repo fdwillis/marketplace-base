@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150630042018) do
+ActiveRecord::Schema.define(version: 20150630094417) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "products", force: :cascade do |t|
     t.string   "title"
-    t.float    "price"
+    t.integer  "price"
     t.integer  "user_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
@@ -26,6 +26,16 @@ ActiveRecord::Schema.define(version: 20150630042018) do
   end
 
   add_index "products", ["user_id"], name: "index_products_on_user_id", using: :btree
+
+  create_table "purchases", force: :cascade do |t|
+    t.string   "title"
+    t.integer  "price"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "purchases", ["user_id"], name: "index_purchases_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "card_number"
@@ -58,4 +68,5 @@ ActiveRecord::Schema.define(version: 20150630042018) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   add_foreign_key "products", "users"
+  add_foreign_key "purchases", "users"
 end
