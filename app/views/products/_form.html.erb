@@ -19,6 +19,10 @@
     <%= f.input :price, class: 'form-control', placeholder: "Enter price", label: false %>
   </div>
 
+  <div class="form-group">
+    <%= f.file_field :product_image, class: 'form-control', placeholder: "Enter price", label: false, html: { multipart: true } %>
+  </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>
