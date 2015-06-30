@@ -5,7 +5,7 @@ class CreatePurchases < ActiveRecord::Migration
       t.integer :price
       t.belongs_to :user, index: true
       t.belongs_to :product, index: true
-      t.boolean :refunded
+      t.boolean :refunded, default: :false
 
       t.timestamps null: false
     end
