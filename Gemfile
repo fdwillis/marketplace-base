@@ -16,6 +16,7 @@ gem 'lazy_high_charts'
 gem "highcharts-rails"
 gem 'acts_as_votable'
 gem 'ransack'
+gem 'carrierwave'
 gem 'faker'
 gem 'keen'
 gem 'stripe'
