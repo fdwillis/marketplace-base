@@ -7,6 +7,23 @@ admin = User.create!(
               password: 'pa', 
               role: 'admin'
 )
+
+merchant = User.create!(
+              name: "Merchant", 
+              email: 'merchant@test.com', 
+              password: 'pa', 
+              role: 'merchant'
+)
+
+buyer = User.create!(
+              name: "Buyer", 
+              email: 'buyer@test.com', 
+              password: 'pa', 
+              role: 'buyer'
+)
+
+merchant.save!
+buyer.save!
 admin.save!
 
 users = User.all.map(&:id)

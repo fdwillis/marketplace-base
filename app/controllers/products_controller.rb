@@ -6,36 +6,42 @@ class ProductsController < ApplicationController
   # GET /products.json
   def index
     @products = Product.all
+    authorize @products
   end
 
   # GET /products/1
   # GET /products/1.json
   def show
+    @product = Product.find(params[:id])
+    authorize @product
   end
 
   # GET /products/new
   def new
     @product = Product.new
+    authorize @product
   end
 
   # GET /products/1/edit
   def edit
+    @product = Product.find(params[:id])
+    authorize @product
   end
 
   # POST /products
   # POST /products.json
   def create
-    @product = Product.new(product_params)
+    @product = current_user.products.build(product_params)
 
     respond_to do |format|
       if @product.save
-        format.html { redirect_to @product, notice: 'Product was successfully created.' }
-        format.json { render :show, status: :created, location: @product }
+        redirect_to @product, notice: 'Product was successfully created.'
       else
-        format.html { render :new }
-        format.json { render json: @product.errors, status: :unprocessable_entity }
+        flash[:error] = "Error creating Product. Try again"
+        render :new
       end
     end
+    authorize @product
   end
 
   # PATCH/PUT /products/1
@@ -43,13 +49,13 @@ class ProductsController < ApplicationController
   def update
     respond_to do |format|
       if @product.update(product_params)
-        format.html { redirect_to @product, notice: 'Product was successfully updated.' }
-        format.json { render :show, status: :ok, location: @product }
+        redirect_to @product, notice: 'Product was successfully updated.'
       else
-        format.html { render :edit }
-        format.json { render json: @product.errors, status: :unprocessable_entity }
+        flash[:error] = "Error saving Product. Try again"
+        render :edit
       end
     end
+    authorize @product
   end
 
   # DELETE /products/1
@@ -60,6 +66,7 @@ class ProductsController < ApplicationController
       format.html { redirect_to products_url, notice: 'Product was successfully destroyed.' }
       format.json { head :no_content }
     end
+    authorize @product
   end
 
   private
