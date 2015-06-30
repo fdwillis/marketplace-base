@@ -19,8 +19,13 @@ class ProductsController < ApplicationController
 
   # GET /products/new
   def new
-    @product = Product.new
-    authorize @product
+    if current_user.recipient?
+      @product = Product.new
+      authorize @product
+    else
+      redirect_to edit_user_registration_path
+      flash[:error] = "You must link a bank account before you can sell products"
+    end
   end
 
   # GET /products/1/edit

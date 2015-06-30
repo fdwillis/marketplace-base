@@ -35,17 +35,17 @@
 
     <h3>Edit personal information</h3>
     <%= form_for(current_user) do |f| %>
-      <div class="form-group">
+<!--       <div class="form-group">
         <%= f.label :name %>
-        <%= f.text_field :name, class: 'form-control', placeholder: "Enter name"%>
-      </div>
+        <%= f.text_field :name, class: 'form-control', placeholder: "Enter"%>
+      </div> -->
       <div class="form-group">
         <%= f.label :username %>
-        <%= f.text_field :username, class: 'form-control', placeholder: "Enter name"%>
+        <%= f.text_field :username, class: 'form-control', placeholder: "Enter Username"%>
       </div>
       <div class="form-group">
         <%= f.label :legal_name %>
-        <%= f.text_field :legal_name, class: 'form-control', placeholder: "Enter card number"%>
+        <%= f.text_field :legal_name, class: 'form-control', placeholder: "John G Doe"%>
       </div>
       <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
       <div class="form-group">
@@ -58,15 +58,15 @@
       </div>
       <div class="form-group">
         <%= f.label :exp_month %>
-        <%= f.text_field :exp_month, class: 'form-control', placeholder: "Enter card number", maxlength: 2%>
+        <%= f.text_field :exp_month, class: 'form-control', placeholder: "Enter Expiration Month", maxlength: 2%>
       </div>
       <div class="form-group">
         <%= f.label :exp_year %>
-        <%= f.text_field :exp_year, class: 'form-control', placeholder: "Enter card number", maxlength: 2%>
+        <%= f.text_field :exp_year, class: 'form-control', placeholder: "Enter Expiration Year", maxlength: 2%>
       </div>
       <div class="form-group">
         <%= f.label :cvc_number %>
-        <%= f.text_field :cvc_number, class: 'form-control', placeholder: "Enter card number", maxlength: 4%>
+        <%= f.text_field :cvc_number, class: 'form-control', placeholder: "Enter CVC number", maxlength: 4%>
       </div>
       <div class="form-group">
         <%= f.label :tax_id, 'SSN' %>
@@ -78,14 +78,14 @@
       </div>
       <div class="form-group">
         <%= f.label :routing_number %>
-        <%= f.text_field :routing_number, class: 'form-control', placeholder: "Enter card number"%>
+        <%= f.text_field :routing_number, class: 'form-control', placeholder: "Enter routing number"%>
       </div>
       <div class="form-group">
         <%= f.label :account_number %>
         <% if current_user.account_number? %>
-          <%= f.text_field :account_number, class: 'form-control', placeholder: "Enter card number",value: crypt.decrypt_and_verify(current_user.account_number)  %>
+          <%= f.text_field :account_number, class: 'form-control', placeholder: "Enter account number",value: crypt.decrypt_and_verify(current_user.account_number)  %>
         <% else %>
-          <%= f.text_field :account_number, class: 'form-control', placeholder: "Enter card number" %>
+          <%= f.text_field :account_number, class: 'form-control', placeholder: "Enter account number" %>
         <% end %>
       </div>
     <div class="form-group">

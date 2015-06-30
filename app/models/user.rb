@@ -28,7 +28,7 @@ class User < ActiveRecord::Base
   end
 
   def recipient?
-    tax_id.present? && routing_number.present? && account_number.present?
+    tax_id.present? && routing_number.present? && account_number.present? && legal_name.present?
   end
 
 end
