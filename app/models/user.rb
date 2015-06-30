@@ -23,4 +23,12 @@ class User < ActiveRecord::Base
     role == 'buyer'
   end
 
+  def card?
+    card_number.present? && exp_year.present? && exp_month.present? && cvc_number.present?
+  end
+
+  def recipient?
+    tax_id.present? && routing_number.present? && account_number.present?
+  end
+
 end
