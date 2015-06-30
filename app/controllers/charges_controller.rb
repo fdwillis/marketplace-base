@@ -4,7 +4,7 @@ class ChargesController < ApplicationController
   end
 
   def create
-    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i && Purchase.find_by(id: current_user.purchases.map(&:product_id)).refunded?
+    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
     else
