@@ -13,6 +13,7 @@ gem 'actionpack-page_caching'
 gem 'pundit'
 gem 'geocoder'
 gem 'lazy_high_charts'
+gem 'bootstrap-sass'
 gem "highcharts-rails"
 gem 'acts_as_votable'
 gem 'ransack'

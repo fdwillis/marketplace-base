@@ -13,3 +13,11 @@
  *= require_tree .
  *= require_self
  */
+ 
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+ul.nav.nav-tabs.bringin {
+  margin-right: 25px;
+  margin-left: 25px;
+}

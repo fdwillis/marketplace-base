@@ -22,8 +22,13 @@ buyer = User.create!(
               role: 'buyer'
 )
 
+merchant.skip_confirmation!
 merchant.save!
+
+buyer.skip_confirmation!
 buyer.save!
+
+admin.skip_confirmation!
 admin.save!
 
 users = User.all.map(&:id)
