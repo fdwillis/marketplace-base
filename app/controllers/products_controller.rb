@@ -33,14 +33,12 @@ class ProductsController < ApplicationController
   # POST /products.json
   def create
     @product = current_user.products.build(product_params)
-
-    respond_to do |format|
-      if @product.save
-        redirect_to @product, notice: 'Product was successfully created.'
-      else
-        flash[:error] = "Error creating Product. Try again"
-        render :new
-      end
+    
+    if @product.save
+      redirect_to @product, notice: 'Product was successfully created.'
+    else
+      flash[:error] = "Error creating Product. Try again"
+      render :new
     end
     authorize @product
   end
@@ -48,13 +46,11 @@ class ProductsController < ApplicationController
   # PATCH/PUT /products/1
   # PATCH/PUT /products/1.json
   def update
-    respond_to do |format|
-      if @product.update(product_params)
-        redirect_to @product, notice: 'Product was successfully updated.'
-      else
-        flash[:error] = "Error saving Product. Try again"
-        render :edit
-      end
+    if @product.update(product_params)
+      redirect_to @product, notice: 'Product was successfully updated.'
+    else
+      flash[:error] = "Error saving Product. Try again"
+      render :edit
     end
     authorize @product
   end
@@ -63,10 +59,6 @@ class ProductsController < ApplicationController
   # DELETE /products/1.json
   def destroy
     @product.destroy
-    respond_to do |format|
-      format.html { redirect_to products_url, notice: 'Product was successfully destroyed.' }
-      format.json { head :no_content }
-    end
     authorize @product
   end
 

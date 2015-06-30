@@ -17,6 +17,7 @@ gem 'bootstrap-sass'
 gem "highcharts-rails"
 gem 'acts_as_votable'
 gem 'ransack'
+gem 'simple_form'
 gem 'carrierwave'
 gem 'faker'
 gem 'keen'
