@@ -10,7 +10,7 @@ namespace :tasks do
       if user.recipient? && user.recipient_created? == false || nil
         @ssn = @crypt.decrypt_and_verify(user.tax_id)
         @account_number = @crypt.decrypt_and_verify(user.account_number)
-        Stripe::Recipient.create(
+        recipient = Stripe::Recipient.create(
           name: user.legal_name,
           type: "individual",
           email: user.email,
@@ -21,7 +21,7 @@ namespace :tasks do
             account_number: @account_number,
             } ,
         )
-        user.update_attributes(recipient_created: true)
+        user.update_attributes(recipient_created: true, stripe_recipient_id: recipient.id)
         user.save!
       end
     end
@@ -32,9 +32,17 @@ namespace :tasks do
   desc "Payout every week"
   task payout: :environment do
     User.all.each do |user|
-      if user.card?  
-        @card = @crypt.decrypt_and_verify(user.card_number)
+      if user.stripe_recipient_id?  
+        transfer = Stripe::Transfer.create(
+          :amount => (u.pending_payment * 50) / 100,
+          :currency => "usd",
+          :recipient => user.stripe_recipient_id,
+          :description => "Transfer To Merchant #{user.legal_name}",
+        )
       end
+
+      user.pending_payment -= transfer.amount
+      user.save!
     end
     puts "Payout Complete"
   end
