@@ -6,7 +6,7 @@ class PurchasesController < ApplicationController
   # GET /purchases
   # GET /purchases.json
   def index
-    @purchases = Purchase.all.where(user_id: current_user.id)
+    @purchases = Purchase.all.where(user_id: current_user.id).order("refunded DESC")
   end
 
   # GET /purchases/new

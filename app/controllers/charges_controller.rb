@@ -29,6 +29,7 @@ class ChargesController < ApplicationController
          description: 'Rails Stripe customer',
          currency:    'usd'
         )
+        Purchase.create(stripe_charge_id: charge.id, title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
         redirect_to root_path, notice: "Thanks for the purchase!"
       else
         charge = Stripe::Charge.create(
@@ -37,6 +38,7 @@ class ChargesController < ApplicationController
          description: 'Rails Stripe customer',
          currency:    'usd'
         )
+        Purchase.create(stripe_charge_id: charge.id, title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
         redirect_to root_path, notice: "Thanks for the purchase!"
       end
     else
@@ -54,7 +56,5 @@ class ChargesController < ApplicationController
     admin = User.find_by(role: "admin")
     admin.pending_payment += admin40
     admin.save!
-
-    Purchase.create(title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
   end
 end

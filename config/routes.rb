@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resources :charges, only: [:new, :create]
+  resources :refunds, only: [:create]
   resources :products
   resources :purchases, only: [:new, :create, :index]
   root to: 'products#index'

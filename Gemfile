@@ -20,7 +20,6 @@ gem 'ransack'
 gem 'simple_form'
 gem 'carrierwave'
 gem 'faker'
-gem "rmagick"
 gem 'keen'
 gem 'stripe'
 gem 'uglifier', '>= 1.3.0'
