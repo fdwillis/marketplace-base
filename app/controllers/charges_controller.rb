@@ -26,13 +26,17 @@ class ChargesController < ApplicationController
        description: 'Rails Stripe customer',
        currency:    'usd'
       )
-
-      debugger
-
+      #Track this event through Keen
+      merchant60 = (params[:price].to_i * 60) / 100
+      admin40 = params[:price].to_i - merchant60
+      
       merchant = User.find(params[:merchant_id])
-      price = (params[:price].to_i * 60) / 100
-      merchant.pending_payment += price
+      merchant.pending_payment += merchant60
       merchant.save!
+
+      admin = User.find_by(role: "admin")
+      admin.pending_payment += admin40
+      admin.save!
 
       Purchase.create(title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
       redirect_to root_path, notice: "Thanks for the purchase!"
