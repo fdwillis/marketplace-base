@@ -47,21 +47,22 @@
         <%= f.label :legal_name %>
         <%= f.text_field :legal_name, class: 'form-control', placeholder: "Enter card number"%>
       </div>
+      <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
       <div class="form-group">
         <%= f.label :card_number %>
-        <%= f.text_field :card_number, class: 'form-control', placeholder: "Enter card number", maxlength: 16%>
+        <%= f.text_field :card_number, class: 'form-control', placeholder: "Enter card number", maxlength: 16, value: crypt.decrypt_and_verify(current_user.card_number) %>
       </div>
       <div class="form-group">
         <%= f.label :exp_month %>
-        <%= f.number_field :exp_month, class: 'form-control', placeholder: "Enter card number"%>
+        <%= f.text_field :exp_month, class: 'form-control', placeholder: "Enter card number", maxlength: 2%>
       </div>
       <div class="form-group">
         <%= f.label :exp_year %>
-        <%= f.number_field :exp_year, class: 'form-control', placeholder: "Enter card number"%>
+        <%= f.text_field :exp_year, class: 'form-control', placeholder: "Enter card number", maxlength: 2%>
       </div>
       <div class="form-group">
         <%= f.label :cvc_number %>
-        <%= f.number_field :cvc_number, class: 'form-control', placeholder: "Enter card number"%>
+        <%= f.text_field :cvc_number, class: 'form-control', placeholder: "Enter card number", maxlength: 4%>
       </div>
       <div class="form-group">
         <%= f.submit "Update", class: 'btn btn-success' %>

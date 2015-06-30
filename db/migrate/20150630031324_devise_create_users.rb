@@ -2,10 +2,10 @@ class DeviseCreateUsers < ActiveRecord::Migration
   def change
     create_table(:users) do |t|
       #Stripe
-      t.string :card_number, limit: 16
-      t.integer :exp_month, limit: 2
-      t.integer :exp_year, limit: 4
-      t.integer :cvc_number
+      t.string :card_number
+      t.string :exp_month, limit: 2
+      t.string :exp_year, limit: 4
+      t.string :cvc_number
       t.string :legal_name
       ## Database authenticatable
       t.string :email,              null: false, default: ""
