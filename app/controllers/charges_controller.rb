@@ -4,6 +4,7 @@ class ChargesController < ApplicationController
   end
 
   def create
+    # Track with Keen
     if current_user.purchases.map(&:product_id).include? params[:product_id].to_i
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path

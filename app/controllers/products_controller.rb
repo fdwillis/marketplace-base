@@ -60,13 +60,6 @@ class ProductsController < ApplicationController
     authorize @product
   end
 
-  # DELETE /products/1
-  # DELETE /products/1.json
-  def destroy
-    @product.destroy
-    authorize @product
-    redirect_to root_path
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
