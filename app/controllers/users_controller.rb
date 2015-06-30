@@ -3,6 +3,9 @@ class UsersController < ApplicationController
 
   def update
     if current_user.update_attributes(user_params)
+      crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      encrypted_data = crypt.encrypt_and_sign(current_user.card_number)
+      current_user.update_attributes(card_number: encrypted_data)
       flash[:notice] = "User information updated"
       redirect_to edit_user_registration_path
     else
@@ -13,6 +16,6 @@ class UsersController < ApplicationController
 
 private
   def user_params
-     params.require(:user).permit(:name, :username)
+     params.require(:user).permit(:name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number)
   end
 end
