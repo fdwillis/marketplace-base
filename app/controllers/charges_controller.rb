@@ -1,4 +1,5 @@
 class ChargesController < ApplicationController
+  before_filter :authenticate_user!
   def new
   end
 
@@ -25,6 +26,13 @@ class ChargesController < ApplicationController
        description: 'Rails Stripe customer',
        currency:    'usd'
       )
+
+      debugger
+
+      merchant = User.find(params[:merchant_id])
+      price = (params[:price].to_i * 60) / 100
+      merchant.pending_payment += price
+      merchant.save!
 
       Purchase.create(title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
       redirect_to root_path, notice: "Thanks for the purchase!"

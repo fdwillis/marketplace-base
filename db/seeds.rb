@@ -37,7 +37,7 @@ users = User.all.map(&:id)
   Product.create!(
     user_id: users.sample,
     title: Faker::Name.name,
-    price: Faker::Number.number(3),
+    price: 100,
     product_image: Faker::Avatar.image,
     )
 end
