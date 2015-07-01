@@ -15,7 +15,7 @@ class ApplicationPolicy
   end
 
   def create?
-    user.present?
+    user.present? && (record.user == user || user.admin? || user.merchant? )
   end
 
   def new?
