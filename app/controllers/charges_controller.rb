@@ -11,7 +11,7 @@ class ChargesController < ApplicationController
     else
       
         @price = params[:price].to_i
-        @fee = (@price * 3) / 100
+        @fee = (@price * 350) / 100
         @merchant60 = ((@price) * 60) /100
         @admin40 = (@price - @merchant60) + @fee
 
