@@ -5,6 +5,10 @@ class ChargesController < ApplicationController
 
   def create
     # Track with Keen
+    @price = params[:price].to_i
+    @merchant60 = @price - (@price * 3) / 100
+    @admin40 = @price - @merchant60
+
     if current_user.purchases.map(&:product_id).include? params[:product_id].to_i
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
@@ -30,43 +34,48 @@ class ChargesController < ApplicationController
 
           charge = Stripe::Charge.create(
            customer:    current_user.stripe_id,
-           amount:      params[:price].to_i,
+           amount:      (params[:price].to_i * 3) / 100,
            description: 'Rails Stripe customer',
            currency:    'usd'
+
           )
-          Purchase.create(merchant_id: params[:merchant_id], stripe_charge_id: charge.id, title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
+          Purchase.create(merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+                          title: params[:title], price: params[:price],
+                          user_id: current_user.id, product_id: params[:product_id],
+                          product_image: params[:product_image]
+          )
           redirect_to root_path, notice: "Thanks for the purchase!"
-          
-          merchant60 = (params[:price].to_i * 60) / 100
-          admin40 = params[:price].to_i - merchant60
-          
+        
           merchant = User.find(params[:merchant_id])
-          merchant.pending_payment += merchant60
+          merchant.pending_payment += @merchant60
           merchant.save!
 
           admin = User.find_by(role: "admin")
-          admin.pending_payment += admin40
+          admin.pending_payment += @admin40
           admin.save!
 
         else
           charge = Stripe::Charge.create(
            customer:    current_user.stripe_id,
-           amount:      params[:price].to_i,
+           amount:      (params[:price].to_i * 3) / 100,
            description: 'Rails Stripe customer',
            currency:    'usd'
+
           )
-          Purchase.create(merchant_id: params[:merchant_id], stripe_charge_id: charge.id, title: params[:title], price: params[:price], user_id: current_user.id, product_id: params[:product_id], product_image: params[:product_image])
+          Purchase.create(merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+                          title: params[:title], price: params[:price],
+                          user_id: current_user.id, product_id: params[:product_id],
+                          product_image: params[:product_image]
+          )
           redirect_to root_path, notice: "Thanks for the purchase!"
                 #Track this event through Keen
-          merchant60 = (params[:price].to_i * 60) / 100
-          admin40 = params[:price].to_i - merchant60
-          
+                    
           merchant = User.find(params[:merchant_id])
-          merchant.pending_payment += merchant60
+          merchant.pending_payment += @merchant60
           merchant.save!
 
           admin = User.find_by(role: "admin")
-          admin.pending_payment += admin40
+          admin.pending_payment += @admin40
           admin.save!
 
         end
