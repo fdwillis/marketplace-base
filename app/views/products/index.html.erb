@@ -19,12 +19,11 @@
         <% if current_user %>  
           <% if current_user.purchases %>  
             <% unless current_user.purchases.map(&:product_id).include?(product.id) && !current_user.purchases.find_by(uuid: product.uuid).refunded %>
-              <td><%= link_to "Buy Now", charges_path(uuid: product.uuid, price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{(product.price + (product.price * 3)/100)}?\nIncludes 3% Non-Refundable Application Fee" }  %></td>
+              <td><%= link_to "Buy Now", charges_path(uuid: product.uuid, price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{number_with_precision(product.price + (product.price * 3.5)/100, precision:2)}?\nIncludes 3.5% Non-Refundable Application Fee" }  %></td>
             <% end %>
           <% end %>
         <% else %>
-        <td><%= link_to "Buy Now", charges_path(uuid: product.uuid, price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{product.price}?" }  %></td>
-        <% end %>
+          <td><%= link_to "Buy Now", charges_path(uuid: product.uuid, price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{number_with_precision(product.price + (product.price * 3.5)/100, precision:2)}?\nIncludes 3.5% Non-Refundable Application Fee" }  %></td>        <% end %>
         <td><%= link_to 'Show', product %></td>
         <td><%= link_to 'Edit', edit_product_path(product) %></td>
         <td><%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' } %></td>
