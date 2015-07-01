@@ -6,8 +6,7 @@ class RefundsController < ApplicationController
     refund = ch.refunds.create
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(refunded: true)
-    debugger
-    maerchant = User.find(purchase.user_id)
+    merchant = User.find(purchase.merchant_id)
     merchant.pending_payment -= purchase.price
     merchant.save!
     redirect_to purchases_path, notice: "Your Purchase Will Be Refunded"
