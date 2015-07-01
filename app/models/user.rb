@@ -24,9 +24,11 @@ class User < ActiveRecord::Base
   end
 
   def card?
-    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    @card = @crypt.decrypt_and_verify(card_number)
-    @card.present? && exp_year.present? && exp_month.present? && cvc_number.present?
+    if card_number
+      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      @card = @crypt.decrypt_and_verify(card_number)
+    end
+    (@card.present? || card_number.present?) && exp_year.present? && exp_month.present? && cvc_number.present?
   end
 
   def recipient?

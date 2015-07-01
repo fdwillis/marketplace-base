@@ -5,14 +5,16 @@ class ChargesController < ApplicationController
 
   def create
     # Track with Keen
-    @price = params[:price].to_i
-    @merchant60 = @price - (@price * 3) / 100
-    @admin40 = @price - @merchant60
-
-    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i
+    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i && (current_user.purchases.empty? || current_user.purchases.find_by(uuid: params[:uuid]).refunded?)
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
     else
+
+        @price = params[:price].to_i
+        @fee = (@price * 3) / 100
+        @merchant60 = ((@price - @fee) * 60) /100
+        @admin40 = (@price - @merchant60) + @fee
+
       if current_user.card?
         if !current_user.stripe_id?
           # Amount in cents
@@ -34,12 +36,12 @@ class ChargesController < ApplicationController
 
           charge = Stripe::Charge.create(
            customer:    current_user.stripe_id,
-           amount:      (params[:price].to_i * 3) / 100,
+           amount:      @price + @fee,
            description: 'Rails Stripe customer',
            currency:    'usd'
 
           )
-          Purchase.create(merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
                           user_id: current_user.id, product_id: params[:product_id],
                           product_image: params[:product_image]
@@ -51,18 +53,18 @@ class ChargesController < ApplicationController
           merchant.save!
 
           admin = User.find_by(role: "admin")
-          admin.pending_payment += @admin40
+          admin.pending_payment += (@admin40)
           admin.save!
 
         else
           charge = Stripe::Charge.create(
            customer:    current_user.stripe_id,
-           amount:      (params[:price].to_i * 3) / 100,
+           amount:      @price + @fee,
            description: 'Rails Stripe customer',
            currency:    'usd'
 
           )
-          Purchase.create(merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
                           user_id: current_user.id, product_id: params[:product_id],
                           product_image: params[:product_image]
@@ -75,7 +77,7 @@ class ChargesController < ApplicationController
           merchant.save!
 
           admin = User.find_by(role: "admin")
-          admin.pending_payment += @admin40
+          admin.pending_payment += (@admin40)
           admin.save!
 
         end

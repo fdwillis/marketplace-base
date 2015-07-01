@@ -4,4 +4,5 @@ class Product < ActiveRecord::Base
   has_many :purchases
   has_many :users, through: :purchases
 
+  validates_uniqueness_of :title
 end

@@ -18,12 +18,12 @@
         <td><%= image_tag(product.product_image) %></td>
         <% if current_user %>  
           <% if current_user.purchases %>  
-            <% unless current_user.purchases.map(&:product_id).include?(product.id) && !current_user.purchases.find_by(product_id: product.id).refunded %>
-              <td><%= link_to "Buy Now", charges_path(price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{(product.price + (product.price * 3)/100)}?\nIncludes 3% Non-Refundable Application Fee" }  %></td>
+            <% unless current_user.purchases.map(&:product_id).include?(product.id) && !current_user.purchases.find_by(uuid: product.uuid).refunded %>
+              <td><%= link_to "Buy Now", charges_path(uuid: product.uuid, price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{(product.price + (product.price * 3)/100)}?\nIncludes 3% Non-Refundable Application Fee" }  %></td>
             <% end %>
           <% end %>
         <% else %>
-        <td><%= link_to "Buy Now", charges_path(price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{product.price}?" }  %></td>
+        <td><%= link_to "Buy Now", charges_path(uuid: product.uuid, price: product.price * 100, title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for $#{product.price}?" }  %></td>
         <% end %>
         <td><%= link_to 'Show', product %></td>
         <td><%= link_to 'Edit', edit_product_path(product) %></td>
