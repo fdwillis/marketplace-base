@@ -17,15 +17,15 @@
       <% end %>
       <div class="form-group">
         <%= f.label :password %>
-        <%= f.password_field :password, class: 'form-control', placeholder: "Enter password" %>
+        <%= f.password_field :password, class: 'form-control', placeholder: "Enter current password" %>
         <i>(leave blank if you don't want to change it)</i>
       </div>
       <div class="form-group">
-        <%= f.label :password_confirmation %>
-        <%= f.password_field :password_confirmation, class: 'form-control', placeholder: "Enter password confirmation" %>
+        <%= f.label :password_confirmation, 'Change Password' %>
+        <%= f.password_field :password_confirmation, class: 'form-control', placeholder: "Enter new password" %>
       </div>
       <div class="form-group">
-        <%= f.password_field :current_password, class: 'form-control', placeholder: "Enter password" %>
+        <%= f.password_field :current_password, class: 'form-control', placeholder: "Repeat password" %>
         <i>(we need your current password to confirm your changes)</i>
       </div>
       <div class="form-group">
@@ -33,15 +33,11 @@
       </div>
     <% end %>
 
-    <h3>Credit Card Inforamtion</h3>
+    <h3>Credit Card Information</h3>
     <%= form_for(current_user) do |f| %>
       <div class="form-group">
         <%= f.label :username %>
         <%= f.text_field :username, class: 'form-control', placeholder: "Enter Username"%>
-      </div>
-      <div class="form-group">
-        <%= f.label :legal_name, 'Legal Name (First M Last)' %>
-        <%= f.text_field :legal_name, class: 'form-control', placeholder: "John G Doe"%>
       </div>
       <% @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
       <div class="form-group">
@@ -70,6 +66,10 @@
     <% end %>
     <h3>Bank Account Information <small>(For Direct Deposit)</small></h3>
     <%= form_for(current_user) do |f| %>
+      <div class="form-group">
+        <%= f.label :legal_name, 'Legal Name (First M Last)' %>
+        <%= f.text_field :legal_name, class: 'form-control', placeholder: "John G Doe"%>
+      </div>
       <div class="form-group">
         <%= f.label :tax_id, 'SSN (Encrypted)' %>
         <% if current_user.tax_id? %>

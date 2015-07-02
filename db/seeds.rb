@@ -39,6 +39,7 @@ users = User.all.map(&:id)
     title: Faker::Name.name,
     price: 100,
     product_image: Faker::Avatar.image,
+    uuid: SecureRandom.uuid
     )
 end
 

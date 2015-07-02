@@ -13,7 +13,7 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show
-    @product = Product.find(params[:id])
+    @product = Product.friendly.find(params[:id])
     authorize @product
   end
 
@@ -24,13 +24,13 @@ class ProductsController < ApplicationController
       authorize @product
     else
       redirect_to edit_user_registration_path
-      flash[:error] = "You must link a bank account info before you can sell products"
+      flash[:error] = "You must link your bank account info before you can sell products"
     end
   end
 
   # GET /products/1/edit
   def edit
-    @product = Product.find(params[:id])
+    @product = Product.friendly.find(params[:id])
     authorize @product
   end
 
@@ -63,11 +63,11 @@ class ProductsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_product
-      @product = Product.find(params[:id])
+      @product = Product.friendly.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:product_image, :title, :price)
+      params.require(:product).permit(:product_image, :title, :price, :uuid)
     end
 end

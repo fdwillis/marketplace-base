@@ -22,6 +22,7 @@
   <div class="form-group">
     <%= f.file_field :product_image, class: 'form-control', placeholder: "Enter price", label: false, html: { multipart: true } %>
   </div>
+  <%= f.hidden_field :uuid, class: 'form-control', label: false, value: SecureRandom.uuid %>
 
   <div class="actions">
     <%= f.submit %>
