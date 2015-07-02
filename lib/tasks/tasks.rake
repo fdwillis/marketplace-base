@@ -43,8 +43,17 @@ namespace :tasks do
         user.pending_payment -= transfer.amount
         user.save!
 
+        ApplicationMailer.payout(user).deliver
       end
     end
+    puts "Payout email sent"
     puts "Payout Complete"
   end
 end
+
+
+
+
+
+
+
