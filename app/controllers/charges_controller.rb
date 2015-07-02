@@ -39,7 +39,6 @@ class ChargesController < ApplicationController
         else
           
           charge = User.charge_n_process(params[:price].to_i, current_user.stripe_id)
-          debugger
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
