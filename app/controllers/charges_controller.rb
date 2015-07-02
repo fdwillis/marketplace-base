@@ -18,8 +18,7 @@ class ChargesController < ApplicationController
 
       if current_user.card?
         if !current_user.stripe_id?
-
-          charge = User.charge_n_create(params[:price].to_i, current_user.stripe_id)
+          charge = User.charge_n_create(params[:price].to_i, current_user.stripe_id, current_user)
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],

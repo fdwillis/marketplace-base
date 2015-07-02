@@ -35,7 +35,7 @@ class User < ActiveRecord::Base
     tax_id.present? && routing_number.present? && account_number.present? && legal_name.present?
   end
 
-  def self.charge_n_create(price, stripe_id)
+  def self.charge_n_create(price, stripe_id, user)
 
     @price = price
     @fee = (@price * (350) / 100) / 100
@@ -43,24 +43,23 @@ class User < ActiveRecord::Base
     @admin40 = (@price - @merchant60)
 
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    @card = @crypt.decrypt_and_verify(card_number)
+    @card = @crypt.decrypt_and_verify(user.card_number)
 
     customer = Stripe::Customer.create(
-      email: email,
+      email: user.email,
       source: {
         object: 'card',
         number: @card,
-        exp_month: exp_month,
-        exp_year: exp_year,
-        cvc: cvc_number,
+        exp_month: user.exp_month,
+        exp_year: user.exp_year,
+        cvc: user.cvc_number,
       },
     )
 
-    update_attributes(stripe_id: customer.id)
-    save!
+    @user = user.update_attributes(stripe_id: customer.id)
 
     charge = Stripe::Charge.create(
-      customer:    stripe_id,
+      customer:    customer.id,
       amount:      @price + @fee,
       description: 'Rails Stripe customer',
       currency:    'usd'
