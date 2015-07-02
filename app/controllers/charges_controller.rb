@@ -58,7 +58,7 @@ class ChargesController < ApplicationController
         end
       else
         redirect_to edit_user_registration_path
-        flash[:error] = "Please Add Card Details"
+        flash[:error] = "Please Add Credit Card Details"
       end
     end
   end
