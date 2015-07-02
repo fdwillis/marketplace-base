@@ -1,13 +1,13 @@
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-
+  
   has_many :products
   has_many :purchases
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable
-
+  
   validates_length_of :exp_month, maximum: 2
   validates_length_of :exp_year, maximum: 4
 
@@ -29,6 +29,11 @@ class User < ActiveRecord::Base
       @card = @crypt.decrypt_and_verify(card_number)
     end
     (@card.present? || card_number.present?) && exp_year.present? && exp_month.present? && cvc_number.present?
+  end
+
+  def user_recipient
+    puts "Current Information for Bank Account Transfers:\n 
+    SSN: #{tax_id.present?} \n Routing Number #{routing_number.present?} \n Legal Name: #{legal_name.present?} \n Account Number: #{account_number.present?}"
   end
 
   def recipient?

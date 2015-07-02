@@ -3,18 +3,28 @@ class UsersController < ApplicationController
 
   def update
     if current_user.update_attributes(user_params)
+
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      card = @crypt.encrypt_and_sign(current_user.card_number)
-      ssn = @crypt.encrypt_and_sign(current_user.tax_id)
-      account_number = @crypt.encrypt_and_sign(current_user.account_number)
 
+      if params[:user][:tax_id]
+        ssn = @crypt.encrypt_and_sign(current_user.tax_id)
+        current_user.update_attributes(tax_id: ssn)
+      end
 
-      current_user.update_attributes(card_number: card, account_number: account_number, tax_id: ssn)
-      current_user.save!
+      if params[:user][:account_number]
+        account_number = @crypt.encrypt_and_sign(current_user.account_number)
+        current_user.update_attributes(account_number: account_number)
+      end
+
+      if params[:user][:card_number]
+        card_number = @crypt.encrypt_and_sign(current_user.card_number)
+        current_user.update_attributes(card_number: card_number)
+      end
+
       flash[:notice] = "User information updated"
       redirect_to edit_user_registration_path
     else
-      flash[:error] = "Invalid user information"
+      flash[:error] = "Isses: #{current_user.errors.full_messages.to_sentence.titleize}"
       redirect_to edit_user_registration_path
     end
   end
