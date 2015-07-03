@@ -1,5 +1,3 @@
 <% @merchants.each do |mer| %>
-  <%= link_to mer.username.titleize, merchant_path(mer.username) %>
+  <%= link_to mer.username.capitalize, merchant_path(mer.username) %>
 <% end %>
-
-<h1></h1>
