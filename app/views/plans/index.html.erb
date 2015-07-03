@@ -8,7 +8,8 @@
     <div class='col-md-4 col-sm-12 col-xs-12'>
       <div class="form-group text-center">
           <%= form_tag subscribe_path(987654356789), method: :put do %>
-            <h1>Window Sponsorship</h1>
+            <h1>Basic Plan</h1>
+            <%= link_to "Choose Plan", '#', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#basicPlan' %>
             <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
                     data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
                     data-description="Window Sponsorship"
@@ -20,7 +21,8 @@
     <div class='col-md-4 col-sm-12 col-xs-12'>
       <div class="form-group text-center">
           <%= form_tag subscribe_path(8734002), method: :put do %>
-            <h1>World Sponsorship</h1>
+            <h1>Advanced Plan</h1>
+            <%= link_to "Choose Plan", '#', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#advPlan' %>
             <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
                     data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
                     data-description="World Sponsorship"
@@ -32,7 +34,8 @@
     <div class='col-md-4 col-sm-12 col-xs-12'>
       <div class="form-group text-center">
         <%= form_tag subscribe_path(349867578729), method: :put do %>
-          <h1>Star Sponsorship</h1>
+          <h1>Pro Plan</h1>
+          <%= link_to "Choose Plan", '#', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#proPlan' %>
           <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
                 data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
                 data-description="Star Sponsorship"
@@ -44,16 +47,51 @@
   </div>
 </div>
 
-<!-- Button trigger modal -->
-<%= link_to "Choose Plan", '#', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#myModal' %>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="basicPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+        <h4 class="modal-title" id="myModalLabel">Basic Plan</h4>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="advPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Advanced Plan</h4>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="proPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Pro Plan</h4>
       </div>
       <div class="modal-body">
         ...
