@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :plans, only: :index
   resources :subscribe, only: [:new, :update]
   resources :merchants
   devise_for :users

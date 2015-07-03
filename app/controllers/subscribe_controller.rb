@@ -7,13 +7,21 @@ class SubscribeController < ApplicationController
   end
 
   def update
-    #make sure to tie in subscriptions with charges so users dont have to put in CC info again
-    token = params[:stripeToken]
     customer = Stripe::Customer.create(
-      email: params[:stripeEmail],
-      card: token,
+      email: current_user.email,
+      source: {
+        object: 'card',
+        number: params[:card_number],
+        exp_month: params[:exp_month],
+        exp_year: params[:exp_year],
+        cvc: params[:cvc_number],
+      },
       plan: params[:id],
-      description: 'Windows Of Worlds'
+      description: 'MarkeplaceBase'
     )
+
+    #make sure to tie in subscriptions with charges so users dont have to put in CC info again
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+    current_user.update_attributes(card_number: @crypt.encrypt_and_sign(params[:card_number]), exp_year: exp_month: cvc_number: )
   end
 end

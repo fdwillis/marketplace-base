@@ -16,7 +16,7 @@ class ChargesController < ApplicationController
       @merchant60 = ((@price) * 60) /100
       @admin40 = (@price - @merchant60)
 
-      if current_user.card?
+      if current_user.card? || current_user.stripe_id?
         if !current_user.stripe_id?
           charge = User.charge_n_create(params[:price].to_i, current_user.stripe_id, current_user)
 
