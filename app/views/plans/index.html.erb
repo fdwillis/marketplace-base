@@ -147,15 +147,9 @@
                     <h1 class="modal-title text-center" id="myModalLabel">Basic Plan</h1>
                   </div>
                   <div class="modal-body">
-                    <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
-                    <h3>Credit Card Number</h3>
-                    <%= plan.text_field :card_number, class: 'form-control', maxlength: 16 %>
-                    <h3>Expiration Month</h3>
-                    <%= plan.text_field :exp_month, class: 'form-control', maxlength: 2 %>
-                    <h3>Expiration Year</h3>
-                    <%= plan.text_field :exp_year, class: 'form-control', maxlength: 2 %>
-                    <h3>CVC Number</h3>
-                    <%= plan.text_field :cvc_number, class: 'form-control', maxlength: 4 %>
+                    <div class='col-md-4 col-md-offset-4'>
+                      <h1>Hi</h1>
+                    </div>
                   </div>
                   <div class="modal-footer">
                     <%= link_to "Sign Up", new_user_registration_path, class: 'btn btn-info btn-lg col-md-4 col-md-offset-4' %>
