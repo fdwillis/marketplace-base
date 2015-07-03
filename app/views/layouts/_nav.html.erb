@@ -3,7 +3,9 @@
   <div class="pull-right user-info">
     <% if current_user %>
     Hello <%= link_to (current_user.email), edit_user_registration_path %>!
-    Pending Balance: <%= number_to_currency(current_user.pending_payment / 100, precision: 2) %>
+    <% if current_user.admin? || current_user.merchant? %>
+      Pending Balance: <%= number_to_currency(current_user.pending_payment / 100, precision: 2) %>
+    <% end %>
     <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
     <% else %>
       <%= link_to "Sign In", new_user_session_path %> or 
