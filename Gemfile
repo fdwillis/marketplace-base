@@ -19,7 +19,7 @@ gem "highcharts-rails"
 gem 'acts_as_votable'
 gem 'ransack'
 gem 'simple_form'
-gem 'carrierwave'
+gem 'paperclip'
 gem 'faker'
 gem 'keen'
 gem 'friendly_id'
