@@ -6,7 +6,7 @@ class ChargesController < ApplicationController
 
   def create
     # Track with Keen
-    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i && (current_user.purchases.empty? || current_user.purchases.find_by(uuid: params[:uuid]).refunded?)
+    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i && (current_user.purchases.empty? || current_user.purchases.find_by(uuid: params[:uuid]).nil? || current_user.purchases.find_by(uuid: params[:uuid]).refunded?)
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
     else
@@ -34,8 +34,7 @@ class ChargesController < ApplicationController
           admin.pending_payment += (@admin40)
           admin.save!
 
-        else
-          
+        else  
           charge = User.charge_n_process(params[:price].to_i, current_user.stripe_id)
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,

@@ -20,7 +20,6 @@ class UsersController < ApplicationController
         card_number = @crypt.encrypt_and_sign(current_user.card_number)
         current_user.update_attributes(card_number: card_number)
       end
-
       if !current_user.stripe_id? && current_user.card?
 
         @card = @crypt.decrypt_and_verify(current_user.card_number)
@@ -35,6 +34,7 @@ class UsersController < ApplicationController
             cvc: current_user.cvc_number,
           },
         )
+        current_user.update_attributes(stripe_id:  customer.id)
       end
 
       flash[:notice] = "User information updated"
