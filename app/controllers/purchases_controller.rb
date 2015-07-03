@@ -1,7 +1,5 @@
 class PurchasesController < ApplicationController
-  before_filter :authenticate_user!
-  caches_page :index,
-  
+  before_filter :authenticate_user!  
   # GET /purchases
   # GET /purchases.json
   def index

@@ -1,7 +1,6 @@
 class ProductsController < ApplicationController
   before_filter :authenticate_user!, except: :index
   before_action :set_product, only: [:show, :edit, :update, :destroy]
-  caches_page :index, :show
 
   # GET /products
   # GET /products.json
