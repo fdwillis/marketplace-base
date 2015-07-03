@@ -1,6 +1,9 @@
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
+
+  extend FriendlyId
+  friendly_id :username, use: [:slugged, :finders]
   
   has_many :products
   has_many :purchases

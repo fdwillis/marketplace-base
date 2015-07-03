@@ -5,21 +5,24 @@ admin = User.create!(
               name: "Admin", 
               email: 'admin@test.com', 
               password: 'pa', 
-              role: 'admin'
+              role: 'admin',
+              username: 'admin'
 )
 
 merchant = User.create!(
               name: "Merchant", 
               email: 'merchant@test.com', 
               password: 'pa', 
-              role: 'merchant'
+              role: 'merchant',
+              username: 'merchant'
 )
 
 buyer = User.create!(
               name: "Buyer", 
               email: 'buyer@test.com', 
               password: 'pa', 
-              role: 'buyer'
+              role: 'buyer',
+              username: 'buyer'
 )
 
 merchant.skip_confirmation!
