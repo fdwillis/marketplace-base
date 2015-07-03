@@ -39,8 +39,8 @@ class User < ActiveRecord::Base
     SSN: #{tax_id.present?} \n Routing Number #{routing_number.present?} \n Legal Name: #{legal_name.present?} \n Account Number: #{account_number.present?}"
   end
 
-  def recipient?
-    tax_id.present? && routing_number.present? && account_number.present? && legal_name.present?
+  def merchant_ready?
+    statement_descriptor.present? && tax_id.present? && routing_number.present? && account_number.present? && legal_name.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present?
   end
 
   def self.charge_n_create(price, stripe_id, user)

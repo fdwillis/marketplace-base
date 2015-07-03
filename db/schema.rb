@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150703191906) do
+ActiveRecord::Schema.define(version: 20150703232654) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,16 +55,16 @@ ActiveRecord::Schema.define(version: 20150703191906) do
 
   create_table "users", force: :cascade do |t|
     t.string   "card_number"
-    t.string   "exp_month",              limit: 2
-    t.string   "exp_year",               limit: 4
+    t.string   "exp_month",                limit: 2
+    t.string   "exp_year",                 limit: 4
     t.string   "cvc_number"
     t.string   "legal_name"
-    t.string   "email",                            default: "", null: false
-    t.string   "encrypted_password",               default: "", null: false
+    t.string   "email",                              default: "", null: false
+    t.string   "encrypted_password",                 default: "", null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                    default: 0,  null: false
+    t.integer  "sign_in_count",                      default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
@@ -73,8 +73,8 @@ ActiveRecord::Schema.define(version: 20150703191906) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.string   "name"
     t.string   "username"
     t.string   "role"
@@ -82,12 +82,21 @@ ActiveRecord::Schema.define(version: 20150703191906) do
     t.string   "routing_number"
     t.string   "account_number"
     t.string   "stripe_recipient_id"
-    t.integer  "pending_payment",                  default: 0
+    t.integer  "pending_payment",                    default: 0
     t.string   "stripe_id"
     t.boolean  "recipient_created"
     t.string   "slug"
     t.string   "stripe_plan_name"
     t.string   "stripe_plan_id"
+    t.string   "merchant_id"
+    t.string   "business_name"
+    t.string   "business_url"
+    t.string   "support_email"
+    t.string   "support_phone"
+    t.string   "support_url"
+    t.string   "statement_descriptor"
+    t.string   "merchant_secret_key"
+    t.string   "merchant_publishable_key"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

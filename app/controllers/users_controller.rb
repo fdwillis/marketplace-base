@@ -20,21 +20,35 @@ class UsersController < ApplicationController
         card_number = @crypt.encrypt_and_sign(current_user.card_number)
         current_user.update_attributes(card_number: card_number)
       end
-      if !current_user.stripe_id? && current_user.card?
+      if !current_user.merchant_id? && current_user.merchant_ready?
 
         @card = @crypt.decrypt_and_verify(current_user.card_number)
 
-        customer = Stripe::Customer.create(
-          email: current_user.email,
-          source: {
-            object: 'card',
-            number: @card,
-            exp_month: current_user.exp_month,
-            exp_year: current_user.exp_year,
-            cvc: current_user.cvc_number,
+        #make account instead of customer
+        #add address to merchants
+        merchant = Stripe::Account.create(
+          :managed => true,
+          :country => 'US',
+          :email => current_user.email,
+          business_url: current_user.business_url,
+          business_name: current_user.business_name,
+          support_url: current_user.support_url,
+          support_phone: current_user.support_phone,
+          support_email: current_user.support_email,
+          debit_negative_balances: true,
+          external_account: {
+            object: 'bank_account',
+            country: 'US',
+            currency: 'usd',
+            routing_number: current_user.routing_number,
+            account_number: @crypt.decrypt_and_verify(current_user.account_number),
           },
         )
-        current_user.update_attributes(stripe_id:  customer.id)
+        @merchant_id = @crypt.encrypt_and_sign(merchant.id)
+        @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
+        @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
+
+        current_user.update_attributes(merchant_id:  @merchant_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key )
       end
 
       flash[:notice] = "User information updated"
@@ -47,6 +61,6 @@ class UsersController < ApplicationController
 
 private
   def user_params
-     params.require(:user).permit(:stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
+     params.require(:user).permit(:statement_descriptor, :support_url, :support_phone, :support_email, :business_url, :merchant_id, :business_name, :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
   end
 end
