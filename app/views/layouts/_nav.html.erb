@@ -2,15 +2,16 @@
   <li><%= link_to "Marketplace-Base", root_path %></li>
   <div class="pull-right user-info">
     <% if current_user %>
+      <%= link_to "Plans", plans_path %> |
       <%= link_to "Purchases", purchases_path %> | 
-      <%= link_to "Profile", merchant_path(current_user.username) %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
       <% if current_user.admin? || current_user.merchant? %>
+        <%= link_to "Profile", merchant_path(current_user.username) %> | 
         Pending Balance: <%= number_to_currency(current_user.pending_payment / 100, precision: 2) %> | 
       <% end %>
       <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
     <% else %>
-      <%= link_to "Plans", plans_path %>
+      <%= link_to "Plans", plans_path %> |
       <%= link_to "Sign In", new_user_session_path %> or 
       <%= link_to "Sign Up", new_user_registration_path %>
     <% end %>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150703062256) do
+ActiveRecord::Schema.define(version: 20150703191906) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,7 +22,6 @@ ActiveRecord::Schema.define(version: 20150703062256) do
     t.integer  "user_id"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
-    t.string   "product_image"
     t.string   "uuid"
     t.string   "slug"
     t.string   "product_image_file_name"
@@ -39,13 +38,16 @@ ActiveRecord::Schema.define(version: 20150703062256) do
     t.integer  "price"
     t.integer  "user_id"
     t.integer  "product_id"
-    t.boolean  "refunded",         default: false
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.string   "product_image"
+    t.boolean  "refunded",                   default: false
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
     t.string   "stripe_charge_id"
     t.integer  "merchant_id"
     t.string   "uuid"
+    t.string   "product_image_file_name"
+    t.string   "product_image_content_type"
+    t.integer  "product_image_file_size"
+    t.datetime "product_image_updated_at"
   end
 
   add_index "purchases", ["product_id"], name: "index_purchases_on_product_id", using: :btree
@@ -84,6 +86,8 @@ ActiveRecord::Schema.define(version: 20150703062256) do
     t.string   "stripe_id"
     t.boolean  "recipient_created"
     t.string   "slug"
+    t.string   "stripe_plan_name"
+    t.string   "stripe_plan_id"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

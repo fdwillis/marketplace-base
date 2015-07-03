@@ -21,6 +21,22 @@ class UsersController < ApplicationController
         current_user.update_attributes(card_number: card_number)
       end
 
+      if !current_user.stripe_id? && current_user.card?
+
+        @card = @crypt.decrypt_and_verify(current_user.card_number)
+
+        customer = Stripe::Customer.create(
+          email: current_user.email,
+          source: {
+            object: 'card',
+            number: @card,
+            exp_month: current_user.exp_month,
+            exp_year: current_user.exp_year,
+            cvc: current_user.cvc_number,
+          },
+        )
+      end
+
       flash[:notice] = "User information updated"
       redirect_to edit_user_registration_path
     else

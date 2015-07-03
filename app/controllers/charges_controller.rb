@@ -23,7 +23,6 @@ class ChargesController < ApplicationController
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
                           user_id: current_user.id, product_id: params[:product_id],
-                          product_image: params[:product_image]
           )
           redirect_to root_path, notice: "Thanks for the purchase!"
         
@@ -42,7 +41,6 @@ class ChargesController < ApplicationController
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
                           user_id: current_user.id, product_id: params[:product_id],
-                          product_image: params[:product_image]
           )
           redirect_to root_path, notice: "Thanks for the purchase!"
                 #Track this event through Keen
