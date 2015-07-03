@@ -7,68 +7,58 @@
   <div class="row">
     <div class='col-md-4 col-sm-12 col-xs-12'>
       <div class="form-group">
-          <%= form_tag subscribe_path(987654356789), method: :put do %>
-            <h1 class='text-center'>Basic Plan</h1>
-            <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg text-center', 'data-toggle' => 'modal', 'data-target'=> '#basicPlan' %>
-            <div class="modal fade" id="basicPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h1 class="modal-title text-center" id="myModalLabel">Basic Plan</h1>
-                  </div>
-                  <div class="modal-body">
-                    ...
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                  </div>
+        <%= form_for current_user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>
+          <h1 class='text-center'>Basic Plan</h1>
+          <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg text-center', 'data-toggle' => 'modal', 'data-target'=> '#basicPlan' %>
+          <div class="modal fade" id="basicPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h1 class="modal-title text-center" id="myModalLabel">Basic Plan</h1>
+                </div>
+                <div class="modal-body">
+                  <h3>Credit Card Number</h3>
+                  <%= plan.text_field :card_number, class: 'form-control', maxlength: 16 %>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <%= plan.submit 'Submit', class: 'btn btn-success' %>
                 </div>
               </div>
             </div>
-            <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
-                    data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
-                    data-description="Window Sponsorship"
-                    data-amount="2000">
-            </script>
-          <% end %>
+          </div>
+        <% end %>
       </div>
     </div>
     <div class='col-md-4 col-sm-12 col-xs-12'>
       <div class="form-group">
-          <%= form_tag subscribe_path(8734002), method: :put do %>
-            <h1 class='text-center'>Advanced Plan</h1>
-            <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#advPlan' %>
-            <div class="modal fade" id="advPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h1 class="modal-title text-center" id="myModalLabel">Advanced Plan</h1>
-                  </div>
-                  <div class="modal-body">
-                    ...
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                  </div>
+        <%= form_for current_user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>        
+          <h1 class='text-center'>Advanced Plan</h1>
+          <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#advPlan' %>
+          <div class="modal fade" id="advPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h1 class="modal-title text-center" id="myModalLabel">Advanced Plan</h1>
+                </div>
+                <div class="modal-body">
+                  ...
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
               </div>
             </div>
-            <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
-                    data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
-                    data-description="World Sponsorship"
-                    data-amount="5000">
-            </script>
-          <% end %>
+          </div>
+        <% end %>
       </div>
     </div>
     <div class='col-md-4 col-sm-12 col-xs-12'>
       <div class="form-group">
-        <%= form_tag subscribe_path(349867578729), method: :put do %>
-          <h1 class='text-center'>Pro Plan</h1>
+        <%= form_for current_user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>          <h1 class='text-center'>Pro Plan</h1>
           <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#proPlan' %>
           <div class="modal fade" id="proPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog modal-lg" role="document">

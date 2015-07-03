@@ -7,21 +7,25 @@ class SubscribeController < ApplicationController
   # end
 
   def update
+    debugger
+    return
+    plan = Stripe::Plan.retrieve(params[:id])
     customer = Stripe::Customer.create(
       email: current_user.email,
       source: {
         object: 'card',
-        number: params[:card_number],
+        number: params[:user][:card_number],
         exp_month: params[:exp_month],
         exp_year: params[:exp_year],
         cvc: params[:cvc_number],
       },
       plan: params[:id],
-      description: 'MarkeplaceBase'
+      description: "MarketplaceBase: #{plan.name}"
     )
 
     #make sure to tie in subscriptions with charges so users dont have to put in CC info again
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    current_user.update_attributes(card_number: @crypt.encrypt_and_sign(params[:card_number]), exp_year: exp_month: cvc_number: )
+    # current_user.update_attributes(card_number: @crypt.encrypt_and_sign(params[:card_number]), exp_year: exp_month: cvc_number: )
+    redirect_to rooth_path
   end
 end
