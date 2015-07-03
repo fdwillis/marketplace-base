@@ -1,1 +1,55 @@
 <h1>Plans</h1>
+<div class="container top-space">
+  <br>
+  <h1 class='text-center'>This is <em><strong><u>monthly</u></strong></em> subscription</h1>
+  <br>
+  <br>
+  <div class="row">
+    <div class='col-md-4 col-sm-12 col-xs-12'>
+      <div class="form-group text-center">
+          <%= form_tag subscribe_path(987654356789), method: :put do %>
+            <h1>Window Sponsorship</h1>
+            <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
+                    data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
+                    data-description="Window Sponsorship"
+                    data-amount="2000">
+            </script>
+          <% end %>
+      </div>
+    </div>
+    <div class='col-md-4 col-sm-12 col-xs-12'>
+      <div class="form-group text-center">
+          <%= form_tag subscribe_path(8734002), method: :put do %>
+            <h1>World Sponsorship</h1>
+            <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
+                    data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
+                    data-description="World Sponsorship"
+                    data-amount="5000">
+            </script>
+          <% end %>
+      </div>
+    </div>
+    <div class='col-md-4 col-sm-12 col-xs-12'>
+      <div class="form-group text-center">
+        <%= form_tag subscribe_path(349867578729), method: :put do %>
+          <h1>Star Sponsorship</h1>
+          <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
+                data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
+                data-description="Star Sponsorship"
+                data-amount="10000">
+          </script>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <p class="text-center">All sponsorships are non-refundable</p>
+  <p class='text-center'>To cancel your sponsorship subscription for next year</p>
+  <p class="text-center"> E-mail: <%= mail_to 'windowsofworlds@gmail.com' %></p>
+</div>
+
+
+
+
+
+

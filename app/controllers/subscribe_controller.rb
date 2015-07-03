@@ -1,10 +1,10 @@
 class SubscribeController < ApplicationController
-  def new
-    unless (params[:plan_name] == "basic" || params[:plan_name] == "advanced" || params[:plan_name] == "pro")
-      flash[:notice] = "Please select a plan to get started."
-      redirect_to root_path
-    end
-  end
+  # def new
+  #   unless (params[:plan_name] == "basic" || params[:plan_name] == "advanced" || params[:plan_name] == "pro")
+  #     flash[:notice] = "Please select a plan to get started."
+  #     redirect_to root_path
+  #   end
+  # end
 
   def update
     customer = Stripe::Customer.create(

@@ -1,8 +1,8 @@
 class ChargesController < ApplicationController
   before_filter :authenticate_user!
 
-  def new
-  end
+  # def new
+  # end
 
   def create
     # Track with Keen
