@@ -11,7 +11,6 @@ class RefundsController < ApplicationController
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(refunded: true)
 
-
     redirect_to purchases_path, notice: "Your Purchase Will Be Refunded"
 
     Stripe.api_key = Rails.configuration.stripe[:secret_key]

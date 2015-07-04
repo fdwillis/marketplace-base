@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
     stripe_account_id.present?
   end
 
-  def self.charge_n_create(price, token, stripe_account_id, email, user)
+  def self.charge_n_create(price, token, stripe_account_id, email)
 
     @price = price
     @merchant60 = ((@price) * 60) /100
@@ -62,8 +62,6 @@ class User < ActiveRecord::Base
       },
       {stripe_account: stripe_account_id}
     )
-
-    @user = user.update_attributes(stripe_id: token.id)
 
     charge = Stripe::Charge.create(
       {
