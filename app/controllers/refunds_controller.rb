@@ -1,29 +1,22 @@
 class RefundsController < ApplicationController
   before_filter :authenticate_user!
   def create
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     #Track With Keen
-
-    Stripe.api_key = "sk_test_kE7eCnr069AhsolyVIcMlZ5V"
+    debugger
+    Stripe.api_key = @crypt.decrypt_and_verify(Product.find_by(uuid: params[:uuid]).user.merchant_secret_key)
 
     ch = Stripe::Charge.retrieve(params[:refund_id])
-    refund = ch.refunds.create
+    refund = ch.refunds.create(refund_application_fee: true)
 
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(refunded: true)
 
-    price = purchase.price
-    merchant60 = (price * 60) / 100
-    admin40 = price - merchant60
-
-    merchant = User.find(purchase.merchant_id)
-    admin = User.find_by(role: 'admin')
-
-    merchant.pending_payment -= merchant60
-    merchant.save!
-
-    admin.pending_payment -= admin40
-    admin.save!
+    debugger
 
     redirect_to purchases_path, notice: "Your Purchase Will Be Refunded"
+
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+    debugger
   end
 end

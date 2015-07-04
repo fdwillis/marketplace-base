@@ -73,16 +73,15 @@ class User < ActiveRecord::Base
     )
   end
 
-  def self.charge_n_process(price, stripe_id, stripe_account_id, email)
+  def self.charge_n_process(price, token, stripe_account_id, email)
 
     @price = price
-    @fee = (@price * (350) / 100) / 100
     @merchant60 = ((@price) * 60) /100
-    @admin40 = (@price - @merchant60)
+    @fee = (@price - @merchant60)
 
     charge = Stripe::Charge.create(
     {
-      source:    stripe_id,
+      source:    token.id,
       amount:      @price,
       description: 'MarketplaceBase',
       currency:    'usd',
