@@ -70,8 +70,33 @@
     <h3>Seller Information</h3>
     <%= form_for(current_user) do |f| %>
       <div class="form-group">
-        <%= f.label :legal_name, 'Legal Name (First M Last)' %>
-        <%= f.text_field :legal_name, class: 'form-control', placeholder: "John G Doe"%>
+        <h4>Business Type</h4>
+        <%= f.label :stripe_account_type, 'Company' %>
+        <%= radio_button_tag(:stripe_account_type, "company") %>
+      </div>
+      <div class="form-group">
+        <%= f.label :stripe_account_type, 'Sole Proprietor (Individual)' %>
+        <%= radio_button_tag(:stripe_account_type, "sole_prop") %>
+      </div>
+      <div class="form-group">
+        <%= f.label :first_name, 'First Name' %>
+        <%= f.text_field :first_name, class: 'form-control', placeholder: "John"%>
+      </div>
+      <div class="form-group">
+        <%= f.label :last_name, 'Last Name' %>
+        <%= f.text_field :last_name, class: 'form-control', placeholder: "Doe"%>
+      </div>
+      <div class="form-group">
+        <%= f.label :dob_day, 'Birth Day' %>
+        <%= f.text_field :dob_day, class: 'form-control', placeholder: "31", maxlength: 2 %>
+      </div>
+      <div class="form-group">
+        <%= f.label :dob_month, 'Birth Month' %>
+        <%= f.text_field :dob_month, class: 'form-control', placeholder: "08", maxlength: 2 %>
+      </div>
+      <div class="form-group">
+        <%= f.label :dob_year, 'Birth Year' %>
+        <%= f.text_field :dob_year, class: 'form-control', placeholder: "1993", maxlength: 4 %>
       </div>
       <div class="form-group">
         <%= f.label :tax_id, 'SSN (Encrypted)' %>

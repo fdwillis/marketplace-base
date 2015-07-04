@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
   end
 
   def merchant_ready?
-    statement_descriptor.present? && tax_id.present? && routing_number.present? && account_number.present? && legal_name.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present?
+    statement_descriptor.present? && tax_id.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
   def self.charge_n_create(price, stripe_id, user)
@@ -67,10 +67,14 @@ class User < ActiveRecord::Base
     @user = user.update_attributes(stripe_id: customer.id)
 
     charge = Stripe::Charge.create(
-      customer:    customer.id,
-      amount:      @price + @fee,
-      description: 'Rails Stripe customer',
-      currency:    'usd'
+      {
+        customer:    customer.id,
+        amount:      @price,
+        description: 'Rails Stripe customer',
+        currency:    'usd',
+        application_fee: @fee,
+      },
+      {stripe_account: stripe_account_id}
     )
   end
 
@@ -81,11 +85,15 @@ class User < ActiveRecord::Base
     @merchant60 = ((@price) * 60) /100
     @admin40 = (@price - @merchant60)
 
-    Stripe::Charge.create(
+    charge = Stripe::Charge.create(
+    {
       customer:    stripe_id,
-      amount:      @price + @fee,
+      amount:      @price,
       description: 'Rails Stripe customer',
-      currency:    'usd'
+      currency:    'usd',
+      application_fee: @fee,
+    },
+    {stripe_account: stripe_account_id}
 
     )
   end
