@@ -10,15 +10,17 @@ class ChargesController < ApplicationController
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
     else
-
+      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       @price = params[:price].to_i
       @fee = (@price * (350) / 100) / 100
       @merchant60 = ((@price) * 60) /100
       @admin40 = (@price - @merchant60)
+      debugger
+      @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find(params[:uuid]).user_id).stripe_account_id)
 
       if current_user.card? || current_user.stripe_id?
         if !current_user.stripe_id?
-          charge = User.charge_n_create(params[:price].to_i, current_user.stripe_id, current_user)
+          charge = User.charge_n_create(params[:price].to_i, current_user, @stripe_account_id)
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
@@ -35,7 +37,7 @@ class ChargesController < ApplicationController
           admin.save!
 
         else  
-          charge = User.charge_n_process(params[:price].to_i, current_user.stripe_id)
+          charge = User.charge_n_process(params[:price].to_i, current_user.stripe_id, @stripe_account_id)
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],

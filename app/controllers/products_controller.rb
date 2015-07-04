@@ -18,7 +18,7 @@ class ProductsController < ApplicationController
 
   # GET /products/new
   def new
-    if current_user.recipient?
+    if current_user.stripe_account_id?
       @product = Product.new
       authorize @product
     else
