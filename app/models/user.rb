@@ -46,9 +46,8 @@ class User < ActiveRecord::Base
   def self.charge_n_create(price, token, stripe_account_id, email, user)
 
     @price = price
-    @fee = (@price * (350) / 100) / 100
     @merchant60 = ((@price) * 60) /100
-    @admin40 = (@price - @merchant60)
+    @fee = (@price - @merchant60)
 
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
@@ -60,13 +59,13 @@ class User < ActiveRecord::Base
       {stripe_account: stripe_account_id}
     )
 
-    @user = user.update_attributes(stripe_id: customer.id)
+    @user = user.update_attributes(stripe_id: token.id)
 
     charge = Stripe::Charge.create(
       {
         customer:    customer.id,
         amount:      @price,
-        description: 'Rails Stripe customer',
+        description: 'MarketplaceBase',
         currency:    'usd',
         application_fee: @fee,
       },
@@ -83,9 +82,9 @@ class User < ActiveRecord::Base
 
     charge = Stripe::Charge.create(
     {
-      customer:    stripe_id,
+      source:    stripe_id,
       amount:      @price,
-      description: 'Rails Stripe customer',
+      description: 'MarketplaceBase',
       currency:    'usd',
       application_fee: @fee,
     },

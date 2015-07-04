@@ -2,6 +2,9 @@ class RefundsController < ApplicationController
   before_filter :authenticate_user!
   def create
     #Track With Keen
+
+    Stripe.api_key = "sk_test_kE7eCnr069AhsolyVIcMlZ5V"
+
     ch = Stripe::Charge.retrieve(params[:refund_id])
     refund = ch.refunds.create
 
