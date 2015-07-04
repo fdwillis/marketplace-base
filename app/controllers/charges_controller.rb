@@ -15,12 +15,20 @@ class ChargesController < ApplicationController
       @fee = (@price * (350) / 100) / 100
       @merchant60 = ((@price) * 60) /100
       @admin40 = (@price - @merchant60)
-      debugger
-      @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find(params[:uuid]).user_id).stripe_account_id)
+      @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
+      @card = @crypt.decrypt_and_verify(current_user.card_number)
 
       if current_user.card? || current_user.stripe_id?
         if !current_user.stripe_id?
-          charge = User.charge_n_create(params[:price].to_i, current_user, @stripe_account_id)
+          token = Stripe::Token.create(
+            :card => {
+              :number => @card,
+              :exp_month => current_user.exp_month,
+              :exp_year => current_user.exp_year,
+              :cvc => current_user.cvc_number
+            },
+          )
+          charge = User.charge_n_create(params[:price].to_i, token, @stripe_account_id, current_user.email, current_user)
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],
@@ -37,7 +45,15 @@ class ChargesController < ApplicationController
           admin.save!
 
         else  
-          charge = User.charge_n_process(params[:price].to_i, current_user.stripe_id, @stripe_account_id)
+          token = Stripe::Token.create(
+            :card => {
+              :number => @card,
+              :exp_month => current_user.exp_month,
+              :exp_year => current_user.exp_year,
+              :cvc => current_user.cvc_number
+            },
+          )
+          charge = User.charge_n_process(params[:price].to_i, token, @stripe_account_id, current_user.email)
 
           Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                           title: params[:title], price: params[:price],

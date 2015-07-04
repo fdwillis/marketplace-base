@@ -3,7 +3,6 @@ class UsersController < ApplicationController
 
   def update
     if current_user.update_attributes(user_params)
-      debugger
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       if params[:stripe_account_type]
         current_user.update_attributes(stripe_account_type: params[:stripe_account_type])
@@ -61,7 +60,6 @@ class UsersController < ApplicationController
                 },
               },
         )
-        debugger
         @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
         @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
         @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)

@@ -43,7 +43,7 @@ class User < ActiveRecord::Base
     statement_descriptor.present? && tax_id.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
-  def self.charge_n_create(price, user, stripe_account_id)
+  def self.charge_n_create(price, token, stripe_account_id, email, user)
 
     @price = price
     @fee = (@price * (350) / 100) / 100
@@ -51,18 +51,11 @@ class User < ActiveRecord::Base
     @admin40 = (@price - @merchant60)
 
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    @card = @crypt.decrypt_and_verify(user.card_number)
 
     customer = Stripe::Customer.create(
       {
-        email: user.email,
-        source: {
-          object: 'card',
-          number: @card,
-          exp_month: user.exp_month,
-          exp_year: user.exp_year,
-          cvc: user.cvc_number,
-        },
+        email: email,
+        card: token.id,
       },
       {stripe_account: stripe_account_id}
     )
@@ -81,7 +74,7 @@ class User < ActiveRecord::Base
     )
   end
 
-  def self.charge_n_process(price, stripe_id, stripe_account_id)
+  def self.charge_n_process(price, stripe_id, stripe_account_id, email)
 
     @price = price
     @fee = (@price * (350) / 100) / 100
