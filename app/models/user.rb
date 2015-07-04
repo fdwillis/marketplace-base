@@ -43,6 +43,10 @@ class User < ActiveRecord::Base
     statement_descriptor.present? && tax_id.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
+  def stripe_account_id_ready?
+    stripe_account_id.present?
+  end
+
   def self.charge_n_create(price, token, stripe_account_id, email, user)
 
     @price = price

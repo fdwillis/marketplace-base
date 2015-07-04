@@ -21,6 +21,7 @@ class UsersController < ApplicationController
         card_number = @crypt.encrypt_and_sign(current_user.card_number)
         current_user.update_attributes(card_number: card_number)
       end
+      
       if !current_user.stripe_account_id? && current_user.merchant_ready?
 
         # @card = @crypt.decrypt_and_verify(current_user.card_number)

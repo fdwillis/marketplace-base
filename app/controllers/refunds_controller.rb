@@ -3,7 +3,6 @@ class RefundsController < ApplicationController
   def create
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     #Track With Keen
-    debugger
     Stripe.api_key = @crypt.decrypt_and_verify(Product.find_by(uuid: params[:uuid]).user.merchant_secret_key)
 
     ch = Stripe::Charge.retrieve(params[:refund_id])
@@ -12,11 +11,9 @@ class RefundsController < ApplicationController
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(refunded: true)
 
-    debugger
 
     redirect_to purchases_path, notice: "Your Purchase Will Be Refunded"
 
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
-    debugger
   end
 end

@@ -11,12 +11,6 @@ class ChargesController < ApplicationController
       redirect_to root_path
     else
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      @price = params[:price].to_i
-      @fee = (@price * (350) / 100) / 100
-      @merchant60 = ((@price) * 60) /100
-      @admin40 = (@price - @merchant60)
-
-      debugger
 
       if current_user.card? || current_user.stripe_id?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
@@ -40,14 +34,6 @@ class ChargesController < ApplicationController
           )
           redirect_to root_path, notice: "Thanks for the purchase!"
         
-          merchant = User.find(params[:merchant_id])
-          merchant.pending_payment += @merchant60
-          merchant.save!
-
-          admin = User.find_by(role: "admin")
-          admin.pending_payment += (@admin40)
-          admin.save!
-
         else  
           charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, current_user.email)
 
@@ -57,15 +43,7 @@ class ChargesController < ApplicationController
                           application_fee: charge.application_fee,
           )
           redirect_to root_path, notice: "Thanks for the purchase!"
-                #Track this event through Keen
-
-          merchant = User.find(params[:merchant_id])
-          merchant.pending_payment += @merchant60
-          merchant.save!
-
-          admin = User.find_by(role: "admin")
-          admin.pending_payment += (@admin40)
-          admin.save!
+          #Track this event through Keen
 
         end
       else
