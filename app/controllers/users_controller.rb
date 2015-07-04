@@ -46,8 +46,8 @@ class UsersController < ApplicationController
               account_number: @crypt.decrypt_and_verify(current_user.account_number),
             },
             tos_acceptance: {
-              ip: request.location.ip_address,
-              date: DateTime.now,
+              ip: request.remote_ip,
+              date: Time.now.to_i,
             },
             legal_entity: {
               type: current_user.stripe_account_type,
