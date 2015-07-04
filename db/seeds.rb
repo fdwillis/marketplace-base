@@ -93,7 +93,7 @@ buyer.save!
 admin.skip_confirmation!
 admin.save!
 
-users = User.all.map(&:id)
+users = [1,2]
 
 5.times do
   Product.create!(

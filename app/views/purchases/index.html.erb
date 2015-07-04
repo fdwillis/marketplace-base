@@ -17,7 +17,7 @@
           <h4>This Purchase Has Been Refunded</h4>
         <% else %>
           <td><%= link_to 'Show', product_path(purchase.product_id) %></td>
-          <td><%= link_to "Refund", refunds_path(uuid: purchase.uuid, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund #{purchase.title.titleize} now for $#{number_with_precision(purchase.price.to_f / 100, precision: 2)}?" } %></td>
+          <td><%= link_to "Refund", refunds_path(price: purchase.price, uuid: purchase.uuid, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund #{purchase.title.titleize} now for $#{number_with_precision(purchase.price.to_f / 100, precision: 2)}?" } %></td>
         <% end %>
       </tr>
     <% end %>

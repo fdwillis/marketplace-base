@@ -6,7 +6,7 @@ class RefundsController < ApplicationController
     Stripe.api_key = @crypt.decrypt_and_verify(Product.find_by(uuid: params[:uuid]).user.merchant_secret_key)
 
     ch = Stripe::Charge.retrieve(params[:refund_id])
-    refund = ch.refunds.create(refund_application_fee: true)
+    refund = ch.refunds.create(refund_application_fee: true, amount: ((params[:price].to_i * 95) / 100))
 
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(refunded: true)
