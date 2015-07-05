@@ -130,13 +130,7 @@
     <%= form_for(current_user) do |f| %>
       <h3>Bank Account Info</h3>
       <div class="form-group">
-        <h4>Business Type</h4>
-        <%= f.label :stripe_account_type, 'Company' %>
-        <%= radio_button_tag(:stripe_account_type, "company") %>
-      </div>
-      <div class="form-group">
-        <%= f.label :stripe_account_type, 'Sole Proprietor (Individual)' %>
-        <%= radio_button_tag(:stripe_account_type, "sole_prop") %>
+        <%= f.select :stripe_account_type, ['individual', 'company']%>
       </div>
       <div class="form-group">
         <%= f.label :account_number, 'Account Number  (Encrypted)' %>
