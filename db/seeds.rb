@@ -157,11 +157,13 @@ stripe_plan_id = [987654345678, 98765436789087, 34938872387398]
 
 amount = [3000,50000,8000,90000,1000]
 
+names = ['bull', 'new', 'old', 'safe', 'gold', 'apple']
+
 stripe_plan_id.each do |id|
   stripe_plans = Stripe::Plan.create(
     amount: amount.sample,
     interval: 'month',
-    name: 'Amazing Gold Plan',
+    name: ,
     currency: 'usd',
     id: id
   )

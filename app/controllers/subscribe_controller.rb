@@ -13,16 +13,17 @@ before_filter :authenticate_user!
       subscription.plan = plan.id
       subscription.save
 
-      current_user.update_attributes(stripe_plan_name: plan.name)
-      redirect_to root_path, notice: "You Joined Plan #{plan.name.titleize}"
+      current_user.update_attributes(role: 'merchant', stripe_plan_name: plan.name)
+      redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
 
     elsif current_user.card? 
+
       if current_user.stripe_id
         customer = Stripe::Customer.retrieve(current_user.stripe_id)
         subscription = customer.subscriptions.create(plan: plan)
 
-        current_user.update_attributes(stripe_plan_id: subscription.id , stripe_plan_name: plan.name, role: 'merchant')
-        redirect_to root_path, notice: "You Joined Plan #{plan.name.titleize}"
+        current_user.update_attributes(stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
+        redirect_to root_path, notice: "You Joined #{plan.name} Plan"
       else
 
         card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
@@ -48,6 +49,9 @@ before_filter :authenticate_user!
             plan: plan.id,
             description: 'MarketplaceBase'
           )
+          current_user.update_attributes(stripe_id: customer.id, role: 'merchant', username: username, card_number:card_number, exp_year: exp_year, exp_month: exp_month, cvc_number: cvc_number, 
+                                     stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
+          redirect_to root_path, notice: "You Joined #{plan.name} Plan"
         rescue Stripe::CardError => e
           # CardError; display an error message.
           redirect_to edit_user_registration_path
@@ -84,6 +88,8 @@ before_filter :authenticate_user!
           plan: plan.id,
           description: 'MarketplaceBase'
         )
+        current_user.update_attributes(stripe_id: customer.id, role: 'merchant', username: username, card_number:card_number, exp_year: exp_year, exp_month: exp_month, cvc_number: cvc_number, 
+                                     stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
       rescue Stripe::CardError => e
         # CardError; display an error message.
         redirect_to edit_user_registration_path
@@ -94,10 +100,7 @@ before_filter :authenticate_user!
         flash[:notice] = 'Some error occurred.'
       end
 
-      current_user.update_attributes(username: username, card_number:card_number, exp_year: exp_year, exp_month: exp_month, cvc_number: cvc_number, 
-                                     stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name, 
-                                     role: 'merchant')
-      redirect_to root_path, notice: "You Joined Plan #{plan.name.titleize}"
+      redirect_to root_path, notice: "You Joined #{plan.name} Plan"
 
     else
       redirect_to edit_user_registration_path
