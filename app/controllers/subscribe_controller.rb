@@ -5,6 +5,21 @@ before_filter :authenticate_user!
     plan = Stripe::Plan.retrieve(params[:id])
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
+    @card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
+    @exp_month = params[:user][:exp_month]
+    @exp_year = params[:user][:exp_year]
+    @cvc_number = params[:user][:cvc_number]
+    @username = params[:user][:username]
+
+    @token = Stripe::Token.create(
+      :card => {
+        :number => @crypt.decrypt_and_verify(@card_number),
+        :exp_month => @exp_month.to_i,
+        :exp_year => @exp_year.to_i,
+        :cvc => @cvc_number
+      },
+    )
+
     if current_user.stripe_plan_id?  
 
       customer = Stripe::Customer.retrieve(current_user.stripe_id)
@@ -22,40 +37,24 @@ before_filter :authenticate_user!
         customer = Stripe::Customer.retrieve(current_user.stripe_id)
         subscription = customer.subscriptions.create(plan: plan)
 
-        current_user.update_attributes(stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
+        current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
         redirect_to root_path, notice: "You Joined #{plan.name} Plan"
       else
-
-        card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
-        exp_month = params[:user][:exp_month]
-        exp_year = params[:user][:exp_year]
-        cvc_number = params[:user][:cvc_number]
-        username = params[:user][:username]
-
-
-        token = Stripe::Token.create(
-          :card => {
-            :number => @crypt.decrypt_and_verify(card_number),
-            :exp_month => exp_month.to_i,
-            :exp_year => exp_year.to_i,
-            :cvc => cvc_number
-          },
-        )
 
         begin
           customer = Stripe::Customer.create(
             email: current_user.email,
-            source: token.id,
+            source: @token.id,
             plan: plan.id,
             description: 'MarketplaceBase'
           )
-          current_user.update_attributes(stripe_id: customer.id, role: 'merchant', username: username, card_number:card_number, exp_year: exp_year, exp_month: exp_month, cvc_number: cvc_number, 
+          current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
           redirect_to root_path, notice: "You Joined #{plan.name} Plan"
         rescue Stripe::CardError => e
           # CardError; display an error message.
           redirect_to edit_user_registration_path
-          flash[:error] = 'This Card Has Been Declined'
+          flash[:error] = 'Card Details Not Valid'
         rescue => e
           # Some other error; display an error message.
           redirect_to edit_user_registration_path
@@ -66,21 +65,6 @@ before_filter :authenticate_user!
 
     elsif !current_user.card?
 
-      card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
-      exp_month = params[:user][:exp_month]
-      exp_year = params[:user][:exp_year]
-      cvc_number = params[:user][:cvc_number]
-      username = params[:user][:username]
-
-
-      token = Stripe::Token.create(
-        :card => {
-          :number => @crypt.decrypt_and_verify(card_number),
-          :exp_month => exp_month.to_i,
-          :exp_year => exp_year.to_i,
-          :cvc => cvc_number
-        },
-      )
       begin
         customer = Stripe::Customer.create(
           email: current_user.email,
@@ -88,12 +72,12 @@ before_filter :authenticate_user!
           plan: plan.id,
           description: 'MarketplaceBase'
         )
-        current_user.update_attributes(stripe_id: customer.id, role: 'merchant', username: username, card_number:card_number, exp_year: exp_year, exp_month: exp_month, cvc_number: cvc_number, 
+        current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
       rescue Stripe::CardError => e
         # CardError; display an error message.
         redirect_to edit_user_registration_path
-        flash[:error] = 'This Card Has Been Declined'
+        flash[:error] = 'Card Details Not Valid'
       rescue => e
         # Some other error; display an error message.
         redirect_to edit_user_registration_path

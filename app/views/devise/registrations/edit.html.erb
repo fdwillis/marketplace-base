@@ -119,7 +119,7 @@
       </div>
       <div class="form-group">
         <%= f.label :statement_descriptor, 'Statement Descriptor' %>
-        <%= f.text_field :statement_descriptor, class: 'form-control', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.slug} via MarketplaceBase"%>
+        <%= f.text_field :statement_descriptor, class: 'form-control', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.username} via MarketplaceBase"%>
       </div>
     <div class="form-group">
       <%= f.submit "Update", class: 'btn btn-success' %>

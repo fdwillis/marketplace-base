@@ -40,7 +40,7 @@ class ChargesController < ApplicationController
           rescue Stripe::CardError => e
             # CardError; display an error message.
             redirect_to edit_user_registration_path
-            flash[:error] = 'This Card Has Been Declined'
+            flash[:error] = 'Card Details Not Valid'
           rescue => e
             # Some other error; display an error message.
             redirect_to edit_user_registration_path
@@ -63,7 +63,7 @@ class ChargesController < ApplicationController
           rescue Stripe::CardError => e
             # CardError; display an error message.
             redirect_to edit_user_registration_path
-            flash[:notice] = 'That card is presently on fire!'
+            flash[:error] = 'Card Details Not Valid'
           rescue => e
             # Some other error; display an error message.
             redirect_to edit_user_registration_path
