@@ -26,14 +26,16 @@
                     <% if current_user.card_number?%>
                       <%= plan.text_field :card_number, class: 'form-control', maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
                     <% else %>
-                      <%= plan.text_field :card_number, class: 'form-control', maxlength: 16 %>
+                      <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16 %>
                     <% end %>
                     <h3>Expiration Month</h3>
-                    <%= plan.text_field :exp_month, class: 'form-control', maxlength: 2 %>
+                    <%= plan.text_field :exp_month, class: 'form-control', required: true, maxlength: 2 %>
                     <h3>Expiration Year</h3>
-                    <%= plan.text_field :exp_year, class: 'form-control', maxlength: 2 %>
+                    <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 2 %>
                     <h3>CVC Number</h3>
-                    <%= plan.text_field :cvc_number, class: 'form-control', maxlength: 4 %>
+                    <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
+                    <h3>Username</h3>
+                    <%= plan.text_field :username, class: 'form-control', required: true%>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -63,16 +65,16 @@
                     <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
                     <h3>Credit Card Number</h3>
                     <% if current_user.card_number?%>
-                      <%= plan.text_field :card_number, class: 'form-control', maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
+                      <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
                     <% else %>
-                      <%= plan.text_field :card_number, class: 'form-control', maxlength: 16 %>
+                      <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16 %>
                     <% end %>
                     <h3>Expiration Month</h3>
-                    <%= plan.text_field :exp_month, class: 'form-control', maxlength: 2 %>
+                    <%= plan.text_field :exp_month, class: 'form-control', required: true, maxlength: 2 %>
                     <h3>Expiration Year</h3>
-                    <%= plan.text_field :exp_year, class: 'form-control', maxlength: 4 %>
+                    <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 4 %>
                     <h3>CVC Number</h3>
-                    <%= plan.text_field :cvc_number, class: 'form-control', maxlength: 4 %>
+                    <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -102,16 +104,16 @@
                     <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
                     <h3>Credit Card Number</h3>
                     <% if current_user.card_number?%>
-                      <%= plan.text_field :card_number, class: 'form-control', maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
+                      <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
                     <% else %>
-                      <%= plan.text_field :card_number, class: 'form-control', maxlength: 16 %>
+                      <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16 %>
                     <% end %>
                     <h3>Expiration Month</h3>
-                    <%= plan.text_field :exp_month, class: 'form-control', maxlength: 2 %>
+                    <%= plan.text_field :exp_month, class: 'form-control', required: true, maxlength: 2 %>
                     <h3>Expiration Year</h3>
-                    <%= plan.text_field :exp_year, class: 'form-control', maxlength: 4 %>
+                    <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 4 %>
                     <h3>CVC Number</h3>
-                    <%= plan.text_field :cvc_number, class: 'form-control', maxlength: 4 %>
+                    <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

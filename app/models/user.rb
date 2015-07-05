@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   has_many :purchases
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
   
   validates_length_of :exp_month, maximum: 2
   validates_length_of :exp_year, maximum: 4
@@ -27,8 +27,8 @@ class User < ActiveRecord::Base
   end
 
   def card?
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     if card_number
-      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       @card = @crypt.decrypt_and_verify(card_number)
     end
     (@card.present? || card_number.present?) && exp_year.present? && exp_month.present? && cvc_number.present?
@@ -40,7 +40,11 @@ class User < ActiveRecord::Base
   end
 
   def merchant_ready?
-    statement_descriptor.present? && tax_id.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+    statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+  end
+
+  def merchant_changed
+    routing_number_changed? || account_number_changed? || stripe_account_type_changed?
   end
 
   def stripe_account_id_ready?
@@ -52,8 +56,6 @@ class User < ActiveRecord::Base
     @price = price
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
-
-    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
     customer = Stripe::Customer.create(
       {

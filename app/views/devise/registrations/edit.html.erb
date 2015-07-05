@@ -1,7 +1,7 @@
 <h2 class='text-center'>Editing <i><%= current_user.email %></i> Account</h2>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <h3>Basic Information</h3>
     <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :patch }) do |f| %>
       <%= devise_error_messages! %>
@@ -33,7 +33,7 @@
       </div>
     <% end %>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <h3>Credit Card <small>(To Make Purchases)</small></h3>
     <%= form_for(current_user) do |f| %>
       <div class="form-group">
@@ -62,22 +62,21 @@
         <%= f.text_field :cvc_number, class: 'form-control', placeholder: "Enter CVC number", maxlength: 4%>
       </div>
       <div class="form-group">
+        <%= f.label :tax_id, 'SSN (Encrypted)' %>
+        <% if current_user.tax_id? %>
+          <%= f.text_field :tax_id, class: 'form-control', placeholder: "Enter SSN", value: @crypt.decrypt_and_verify(current_user.tax_id) %>
+        <% else %>
+          <%= f.text_field :tax_id, class: 'form-control', placeholder: "Enter SSN" %>
+        <% end %>
+      </div>
+      <div class="form-group">
         <%= f.submit "Update", class: 'btn btn-success' %>
       </div>
     <% end %>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <h3>Seller Information</h3>
     <%= form_for(current_user) do |f| %>
-      <div class="form-group">
-        <h4>Business Type</h4>
-        <%= f.label :stripe_account_type, 'Company' %>
-        <%= radio_button_tag(:stripe_account_type, "company") %>
-      </div>
-      <div class="form-group">
-        <%= f.label :stripe_account_type, 'Sole Proprietor (Individual)' %>
-        <%= radio_button_tag(:stripe_account_type, "sole_prop") %>
-      </div>
       <div class="form-group">
         <%= f.label :first_name, 'First Name' %>
         <%= f.text_field :first_name, class: 'form-control', placeholder: "John"%>
@@ -97,26 +96,6 @@
       <div class="form-group">
         <%= f.label :dob_year, 'Birth Year' %>
         <%= f.text_field :dob_year, class: 'form-control', placeholder: "1993", maxlength: 4 %>
-      </div>
-      <div class="form-group">
-        <%= f.label :tax_id, 'SSN (Encrypted)' %>
-        <% if current_user.tax_id? %>
-          <%= f.text_field :tax_id, class: 'form-control', placeholder: "Enter SSN", value: @crypt.decrypt_and_verify(current_user.tax_id) %>
-        <% else %>
-          <%= f.text_field :tax_id, class: 'form-control', placeholder: "Enter SSN" %>
-        <% end %>
-      </div>
-      <div class="form-group">
-        <%= f.label :account_number, 'Account Number  (Encrypted)' %>
-        <% if current_user.account_number? %>
-          <%= f.text_field :account_number, maxlength: 16, class: 'form-control', placeholder: "Enter account number",value: @crypt.decrypt_and_verify(current_user.account_number)  %>
-        <% else %>
-          <%= f.text_field :account_number, maxlength: 16, class: 'form-control', placeholder: "Enter account number" %>
-        <% end %>
-      </div>
-      <div class="form-group">
-        <%= f.label :routing_number, 'Routing Number' %>
-        <%= f.text_field :routing_number, class: 'form-control', placeholder: "Enter routing number"%>
       </div>
       <div class="form-group">
         <%= f.label :business_name, 'Business Name' %>
@@ -140,11 +119,40 @@
       </div>
       <div class="form-group">
         <%= f.label :statement_descriptor, 'Statement Descriptor' %>
-        <%= f.text_field :statement_descriptor, class: 'form-control', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.slug.capitalize} via MarketplaceBase"%>
+        <%= f.text_field :statement_descriptor, class: 'form-control', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.slug} via MarketplaceBase"%>
       </div>
     <div class="form-group">
       <%= f.submit "Update", class: 'btn btn-success' %>
     </div>
+    <% end %>
+  </div>
+  <div class='col-md-3'>
+    <%= form_for(current_user) do |f| %>
+      <h3>Bank Account Info</h3>
+      <div class="form-group">
+        <h4>Business Type</h4>
+        <%= f.label :stripe_account_type, 'Company' %>
+        <%= radio_button_tag(:stripe_account_type, "company") %>
+      </div>
+      <div class="form-group">
+        <%= f.label :stripe_account_type, 'Sole Proprietor (Individual)' %>
+        <%= radio_button_tag(:stripe_account_type, "sole_prop") %>
+      </div>
+      <div class="form-group">
+        <%= f.label :account_number, 'Account Number  (Encrypted)' %>
+        <% if current_user.account_number? %>
+          <%= f.text_field :account_number, maxlength: 16, class: 'form-control', placeholder: "Enter account number",value: @crypt.decrypt_and_verify(current_user.account_number)  %>
+        <% else %>
+          <%= f.text_field :account_number, maxlength: 16, class: 'form-control', placeholder: "Enter account number" %>
+        <% end %>
+      </div>
+      <div class="form-group">
+        <%= f.label :routing_number, 'Routing Number' %>
+        <%= f.text_field :routing_number, class: 'form-control', placeholder: "Enter routing number"%>
+      </div>
+      <div class="form-group">
+        <%= f.submit "Update", class: 'btn btn-success' %>
+      </div>
     <% end %>
   </div>
 </div>
