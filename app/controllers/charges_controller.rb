@@ -15,6 +15,7 @@ class ChargesController < ApplicationController
       if current_user.card? || current_user.stripe_id?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
+
         @token = Stripe::Token.create(
           :card => {
             :number => @card,
@@ -23,27 +24,51 @@ class ChargesController < ApplicationController
             :cvc => current_user.cvc_number
           },
         )
+
         if !current_user.stripe_id?
+          begin
+            charge = User.charge_n_create(params[:price].to_i, @token, @stripe_account_id, current_user.email)
+            redirect_to root_path
+            flash[:notice] = "Thanks for the purchase!"
 
-          charge = User.charge_n_create(params[:price].to_i, @token, @stripe_account_id, current_user.email)
+            Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+                            title: params[:title], price: params[:price],
+                            user_id: current_user.id, product_id: params[:product_id],
+                            application_fee: charge.application_fee,
+            )
 
-          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
-                          title: params[:title], price: params[:price],
-                          user_id: current_user.id, product_id: params[:product_id],
-                          application_fee: charge.application_fee,
-          )
-          redirect_to root_path, notice: "Thanks for the purchase!"
+          rescue Stripe::CardError => e
+            # CardError; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:error] = 'This Card Has Been Declined'
+          rescue => e
+            # Some other error; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:notice] = 'Some error occurred.'
+          end
+
         
         else  
-          charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, current_user.email)
-
-          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
-                          title: params[:title], price: params[:price],
-                          user_id: current_user.id, product_id: params[:product_id],
-                          application_fee: charge.application_fee,
-          )
-          redirect_to root_path, notice: "Thanks for the purchase!"
           #Track this event through Keen
+          begin
+            charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, current_user.email)
+            redirect_to root_path
+            flash[:notice] = "Thanks for the purchase!"
+
+            Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+                            title: params[:title], price: params[:price],
+                            user_id: current_user.id, product_id: params[:product_id],
+                            application_fee: charge.application_fee,
+            )
+          rescue Stripe::CardError => e
+            # CardError; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:notice] = 'That card is presently on fire!'
+          rescue => e
+            # Some other error; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:notice] = 'Some error occurred.'
+          end
 
         end
       else

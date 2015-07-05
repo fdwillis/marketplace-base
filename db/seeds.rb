@@ -95,6 +95,8 @@ admin.save!
 
 users = [1,2]
 
+stripe = User.all
+
 5.times do
   Product.create!(
     user_id: users.sample,
@@ -107,3 +109,80 @@ end
 
 p "Created #{User.count} Users"
 p "Created #{Product.count} Products"
+
+
+stripe.each do |user|
+    merchant = Stripe::Account.create(
+      managed: true,
+      country: 'US',
+      email: user.email,
+      business_url: user.business_url,
+      business_name: user.business_name,
+      support_url: user.support_url,
+      support_phone: user.support_phone,
+      support_email: user.support_email,
+      debit_negative_balances: true,
+      external_account: {
+        object: 'bank_account',
+        country: 'US',
+        currency: 'usd',
+        routing_number: user.routing_number,
+        account_number: @crypt.decrypt_and_verify(user.account_number),
+      },
+      tos_acceptance: {
+        ip: '0.0.0.0',
+        date: Time.now.to_i,
+      },
+      legal_entity: {
+        type: user.stripe_account_type,
+        business_name: user.business_name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        dob: {
+          day: user.dob_day,
+          month: user.dob_month,
+          year: user.dob_year,
+          },
+        },
+  )
+  @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
+  @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
+  @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
+
+  user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key )
+  puts "created #{merchant.id}"
+end
+
+stripe_plan_id = [987654345678, 98765436789087, 34938872387398]
+
+amount = [3000,50000,8000,90000,1000]
+
+stripe_plan_id.each do |id|
+  stripe_plans = Stripe::Plan.create(
+    amount: amount.sample,
+    interval: 'month',
+    name: 'Amazing Gold Plan',
+    currency: 'usd',
+    id: id
+  )
+  puts "Created #{stripe_plans.id}"
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
