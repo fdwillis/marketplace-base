@@ -57,7 +57,7 @@ ActiveRecord::Schema.define(version: 20150704214742) do
   create_table "users", force: :cascade do |t|
     t.string   "card_number"
     t.string   "exp_month",                limit: 2
-    t.string   "exp_year",                 limit: 4
+    t.integer  "exp_year"
     t.string   "cvc_number"
     t.string   "legal_name"
     t.string   "email",                              default: "", null: false
@@ -100,9 +100,9 @@ ActiveRecord::Schema.define(version: 20150704214742) do
     t.string   "merchant_publishable_key"
     t.string   "first_name"
     t.string   "last_name"
-    t.integer  "dob_day"
-    t.integer  "dob_month"
-    t.integer  "dob_year"
+    t.string   "dob_day"
+    t.string   "dob_month"
+    t.string   "dob_year"
     t.string   "stripe_account_type"
     t.string   "stripe_account_id"
     t.string   "merchant_last_4"

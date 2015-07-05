@@ -10,7 +10,11 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable#, :confirmable
-  
+
+  validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
+  validates_numericality_of :dob_year, allow_blank: true
+
+
   def admin?
     role == "admin"
   end

@@ -77,7 +77,7 @@ buyer = User.create!(
               support_email: 'support@fa.com',
               support_phone: '4143997842',
               support_url: "https://team.com",
-              dob_day: 09,
+              dob_day: 07,
               dob_month: 12,
               dob_year: 1995,
               stripe_account_type: 'sole_prop',

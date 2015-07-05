@@ -15,25 +15,15 @@ class ChargesController < ApplicationController
       if current_user.card? || current_user.stripe_id?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
-
-        begin
-          @token = Stripe::Token.create(
-            :card => {
-              :number => @card,
-              :exp_month => current_user.exp_month,
-              :exp_year => current_user.exp_year,
-              :cvc => current_user.cvc_number
-            },
-          )
-        rescue Stripe::CardError => e
-          # CardError; display an error message.
-          redirect_to edit_user_registration_path
-          flash[:error] = 'Card Details Not Valid'
-        rescue => e
-          # Some other error; display an error message.
-          redirect_to edit_user_registration_path
-          flash[:error] = 'Something Went Wrong'
-        end
+        debugger
+        @token = Stripe::Token.create(
+          :card => {
+            :number => @card,
+            :exp_month => current_user.exp_month,
+            :exp_year => current_user.exp_year,
+            :cvc => current_user.cvc_number
+          },
+        )
 
         if !current_user.stripe_id?
           begin
@@ -51,13 +41,7 @@ class ChargesController < ApplicationController
             # CardError; display an error message.
             redirect_to edit_user_registration_path
             flash[:error] = 'Card Details Not Valid'
-          rescue => e
-            # Some other error; display an error message.
-            redirect_to edit_user_registration_path
-            flash[:notice] = 'Some error occurred.'
           end
-
-        
         else  
           #Track this event through Keen
           begin
