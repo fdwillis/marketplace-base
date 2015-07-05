@@ -163,7 +163,7 @@ stripe_plan_id.each do |id|
   stripe_plans = Stripe::Plan.create(
     amount: amount.sample,
     interval: 'month',
-    name: ,
+    name: names.sample,
     currency: 'usd',
     id: id
   )

@@ -11,14 +11,20 @@ before_filter :authenticate_user!
     @cvc_number = params[:user][:cvc_number]
     @username = params[:user][:username]
 
-    @token = Stripe::Token.create(
-      :card => {
-        :number => @crypt.decrypt_and_verify(@card_number),
-        :exp_month => @exp_month.to_i,
-        :exp_year => @exp_year.to_i,
-        :cvc => @cvc_number
-      },
-    )
+    begin
+      @token = Stripe::Token.create(
+        :card => {
+          :number => @crypt.decrypt_and_verify(@card_number),
+          :exp_month => @exp_month.to_i,
+          :exp_year => @exp_year.to_i,
+          :cvc => @cvc_number
+        },
+      )
+    rescue Stripe::CardError => e
+      # CardError; display an error message.
+      redirect_to edit_user_registration_path
+      flash[:error] = 'Card Details Not Valid'
+    end
 
     if current_user.stripe_plan_id?  
 
@@ -58,7 +64,7 @@ before_filter :authenticate_user!
         rescue => e
           # Some other error; display an error message.
           redirect_to edit_user_registration_path
-          flash[:notice] = 'Some error occurred.'
+          flash[:error] = 'Some error occurred.'
         end
       end
 
@@ -66,25 +72,21 @@ before_filter :authenticate_user!
     elsif !current_user.card?
 
       begin
+        
         customer = Stripe::Customer.create(
           email: current_user.email,
-          source: token.id,
+          source: @token.id,
           plan: plan.id,
           description: 'MarketplaceBase'
         )
         current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
+      redirect_to root_path, notice: "You Joined #{plan.name} Plan"
       rescue Stripe::CardError => e
         # CardError; display an error message.
         redirect_to edit_user_registration_path
         flash[:error] = 'Card Details Not Valid'
-      rescue => e
-        # Some other error; display an error message.
-        redirect_to edit_user_registration_path
-        flash[:notice] = 'Some error occurred.'
       end
-
-      redirect_to root_path, notice: "You Joined #{plan.name} Plan"
 
     else
       redirect_to edit_user_registration_path
