@@ -27,7 +27,7 @@ before_filter :authenticate_user!
     rescue => e
       # Some other error; display an error message.
       redirect_to edit_user_registration_path
-      flash[:error] = 'Something Went Wrong'
+      flash[:error] = 'Check Your Card Details Again'
     end
 
     if current_user.stripe_plan_id?  
@@ -60,15 +60,14 @@ before_filter :authenticate_user!
           )
           current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-          redirect_to root_path, notice: "You Joined #{plan.name} Plan"
+          flash[:notice] = "You Joined #{plan.name} Plan"
         rescue Stripe::CardError => e
           # CardError; display an error message.
           redirect_to edit_user_registration_path
           flash[:error] = 'Card Details Not Valid'
         rescue => e
           # Some other error; display an error message.
-          redirect_to edit_user_registration_path
-          flash[:error] = 'Something Went Wrong'
+          flash[:error] = 'Check Your Card Details Again'
         end
       end
 
@@ -85,17 +84,14 @@ before_filter :authenticate_user!
         )
         current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-      redirect_to root_path, notice: "You Joined #{plan.name} Plan"
+      flash[:notice] = "You Joined #{plan.name} Plan"
       rescue Stripe::CardError => e
         # CardError; display an error message.
-        redirect_to edit_user_registration_path
         flash[:error] = 'Card Details Not Valid'
       rescue => e
         # Some other error; display an error message.
-        redirect_to edit_user_registration_path
-        flash[:error] = 'Something Went Wrong'
+        flash[:error] = 'Check Your Card Details Again'
       end
-
     else
       redirect_to edit_user_registration_path
       flash[:error] = "Please Add A Credit Card"

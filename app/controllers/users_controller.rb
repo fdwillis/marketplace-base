@@ -24,13 +24,14 @@ class UsersController < ApplicationController
         current_user.update_attributes(card_number: card_number)
       end
       
-      if !current_user.stripe_account_id? && current_user.merchant_ready?
+      if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?
 
         # @card = @crypt.decrypt_and_verify(current_user.card_number)
 
         #make account instead of customer
         #add address to merchants
-         begin 
+        debugger
+        begin 
           merchant = Stripe::Account.create(
               :managed => true,
               :country => 'US',
@@ -69,7 +70,6 @@ class UsersController < ApplicationController
           @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
 
           current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key )
-
           flash[:notice] = "User Information Updated"
         rescue Stripe::CardError => e
           # CardError; display an error message.
@@ -80,10 +80,8 @@ class UsersController < ApplicationController
           redirect_to edit_user_registration_path
           flash[:error] = 'Something Went Wrong: Check Seller & Bank Account Info'
         end
+        redirect_to edit_user_registration_path
       end
-
-      flash[:notice] = "User Information Updated"
-      redirect_to edit_user_registration_path
     else
       flash[:error] = "Isses: #{current_user.errors.full_messages.to_sentence.titleize}"
       redirect_to edit_user_registration_path

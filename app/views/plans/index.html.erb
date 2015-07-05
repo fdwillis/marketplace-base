@@ -31,7 +31,7 @@
                     <h3>Expiration Month</h3>
                     <%= plan.text_field :exp_month, class: 'form-control', required: true, maxlength: 2 %>
                     <h3>Expiration Year</h3>
-                    <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 2 %>
+                    <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 2, greater_than_or_equal_to: Time.now.year, allow_blank: true %>
                     <h3>CVC Number</h3>
                     <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
                     <h3>Username</h3>

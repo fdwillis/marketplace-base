@@ -15,7 +15,6 @@ class ChargesController < ApplicationController
       if current_user.card? || current_user.stripe_id?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
-        debugger
         @token = Stripe::Token.create(
           :card => {
             :number => @card,
