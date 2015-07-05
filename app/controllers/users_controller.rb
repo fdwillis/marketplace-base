@@ -4,6 +4,8 @@ class UsersController < ApplicationController
   def update
     if current_user.update_attributes(user_params)
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+
+
       if params[:stripe_account_type]
         current_user.update_attributes(stripe_account_type: params[:stripe_account_type])
       end
@@ -17,9 +19,12 @@ class UsersController < ApplicationController
         current_user.update_attributes(account_number: account_number)
       end
 
-      if params[:user][:card_number]
+      
+      if params[:user][:card_number] != ''
         card_number = @crypt.encrypt_and_sign(current_user.card_number)
         current_user.update_attributes(card_number: card_number)
+      else
+        current_user.update_attributes(card_number: nil)
       end
       
       if !current_user.stripe_account_id? && current_user.merchant_ready?
