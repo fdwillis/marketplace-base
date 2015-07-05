@@ -4,7 +4,6 @@ class MerchantsController < ApplicationController
   end
 
   def show
-    debugger
     @merchant = User.friendly.find(params[:id])
   end
 end

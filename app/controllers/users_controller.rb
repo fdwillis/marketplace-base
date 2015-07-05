@@ -18,7 +18,7 @@ class UsersController < ApplicationController
         account_number = @crypt.encrypt_and_sign(current_user.account_number)
         current_user.update_attributes(account_number: account_number)
       end
-      debugger
+      
       if params[:user][:card_number] == current_user.card_number
         card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
         current_user.update_attributes(card_number: card_number)
