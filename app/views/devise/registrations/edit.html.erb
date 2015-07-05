@@ -51,11 +51,11 @@
       </div>
       <div class="form-group">
         <%= f.label :exp_month, 'Expiration Month' %>
-        <%= f.text_field :exp_month, class: 'form-control', placeholder: "Enter Expiration Month", maxlength: 2%>
+        <%= f.text_field :exp_month, class: 'form-control', placeholder: "Enter Expiration Month", minlength: 2, maxlength: 2%>
       </div>
       <div class="form-group">
         <%= f.label :exp_year, 'Expiration Year' %>
-        <%= f.text_field :exp_year, class: 'form-control', placeholder: "Enter Expiration Year", maxlength: 2%>
+        <%= f.text_field :exp_year, class: 'form-control', placeholder: "Enter Expiration Year", minlength: 4, maxlength: 4%>
       </div>
       <div class="form-group">
         <%= f.label :cvc_number, 'CVC Number' %>
@@ -86,16 +86,16 @@
         <%= f.text_field :last_name, class: 'form-control', placeholder: "Doe"%>
       </div>
       <div class="form-group">
-        <%= f.label :dob_day, 'Birth Day' %>
-        <%= f.text_field :dob_day, class: 'form-control', placeholder: "31", maxlength: 2 %>
+        <%= f.label :dob_day, 'Birth Day (2 Digits)' %>
+        <%= f.text_field :dob_day, class: 'form-control', placeholder: "01", minlength: 2, maxlength: 2%>
       </div>
       <div class="form-group">
-        <%= f.label :dob_month, 'Birth Month' %>
-        <%= f.text_field :dob_month, class: 'form-control', placeholder: "08", maxlength: 2 %>
+        <%= f.label :dob_month, 'Birth Month (2 Digits)' %>
+        <%= f.text_field :dob_month, class: 'form-control', placeholder: "09", minlength: 2, maxlength: 2%>
       </div>
       <div class="form-group">
-        <%= f.label :dob_year, 'Birth Year' %>
-        <%= f.text_field :dob_year, class: 'form-control', placeholder: "1993", maxlength: 4 %>
+        <%= f.label :dob_year, 'Birth Year (4 Digits)' %>
+        <%= f.text_field :dob_year, class: 'form-control', placeholder: "#{Time.now.year}", minlength: 4, maxlength: 4%>
       </div>
       <div class="form-group">
         <%= f.label :business_name, 'Business Name' %>

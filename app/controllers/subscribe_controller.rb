@@ -24,6 +24,10 @@ before_filter :authenticate_user!
       # CardError; display an error message.
       redirect_to edit_user_registration_path
       flash[:error] = 'Card Details Not Valid'
+    rescue => e
+      # Some other error; display an error message.
+      redirect_to edit_user_registration_path
+      flash[:error] = 'Something Went Wrong'
     end
 
     if current_user.stripe_plan_id?  
@@ -64,7 +68,7 @@ before_filter :authenticate_user!
         rescue => e
           # Some other error; display an error message.
           redirect_to edit_user_registration_path
-          flash[:error] = 'Some error occurred.'
+          flash[:error] = 'Something Went Wrong'
         end
       end
 
@@ -86,6 +90,10 @@ before_filter :authenticate_user!
         # CardError; display an error message.
         redirect_to edit_user_registration_path
         flash[:error] = 'Card Details Not Valid'
+      rescue => e
+        # Some other error; display an error message.
+        redirect_to edit_user_registration_path
+        flash[:error] = 'Something Went Wrong'
       end
 
     else

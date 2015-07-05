@@ -69,6 +69,9 @@ class UsersController < ApplicationController
           @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
 
           current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key )
+
+          flash[:notice] = "User Information Updated"
+          redirect_to edit_user_registration_path
         rescue Stripe::CardError => e
           # CardError; display an error message.
           redirect_to edit_user_registration_path
@@ -76,10 +79,9 @@ class UsersController < ApplicationController
         rescue => e
           # Some other error; display an error message.
           redirect_to edit_user_registration_path
-          flash[:notice] = 'Some error occurred.'
+          flash[:error] = 'Something Went Wrong: Check Seller & Bank Account Info'
         end
       end
-
       flash[:notice] = "User Information Updated"
       redirect_to edit_user_registration_path
     else

@@ -16,14 +16,24 @@ class ChargesController < ApplicationController
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
 
-        @token = Stripe::Token.create(
-          :card => {
-            :number => @card,
-            :exp_month => current_user.exp_month,
-            :exp_year => current_user.exp_year,
-            :cvc => current_user.cvc_number
-          },
-        )
+        begin
+          @token = Stripe::Token.create(
+            :card => {
+              :number => @card,
+              :exp_month => current_user.exp_month,
+              :exp_year => current_user.exp_year,
+              :cvc => current_user.cvc_number
+            },
+          )
+        rescue Stripe::CardError => e
+          # CardError; display an error message.
+          redirect_to edit_user_registration_path
+          flash[:error] = 'Card Details Not Valid'
+        rescue => e
+          # Some other error; display an error message.
+          redirect_to edit_user_registration_path
+          flash[:error] = 'Something Went Wrong'
+        end
 
         if !current_user.stripe_id?
           begin

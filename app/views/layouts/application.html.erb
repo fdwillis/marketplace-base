@@ -21,17 +21,17 @@
       <% if flash[:notice] %>
         <div class="text-center alert alert-success">
           <button type="button" class="close" data-dismiss="alert">&times;</button>
-          <h2 class="tex-center"><%= flash[:notice] %></h2>
+          <h3 class="tex-center"><%= flash[:notice] %></h3>
         </div>
       <% elsif flash[:error] %>
         <div class="text-center alert alert-danger">
           <button type="button" class="close" data-dismiss="alert">&times;</button>
-          <h2 class="tex-center"><%= flash[:error] %></h2>
+          <h3 class="tex-center"><%= flash[:error] %></h3>
         </div>
       <% elsif flash[:alert] %>
         <div class="text-center alert alert-warning">
           <button type="button" class="close" data-dismiss="alert">&times;</button>
-          <h2 class="tex-center"><%= flash[:alert] %></h2>
+          <h3 class="tex-center"><%= flash[:alert] %></h3>
         </div>
       <% end %>
 
