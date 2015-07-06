@@ -6,7 +6,8 @@ class ChargesController < ApplicationController
 
   def create
     # Track with Keen
-    if current_user.purchases.map(&:product_id).include? params[:product_id].to_i && (current_user.purchases.empty? || current_user.purchases.find_by(uuid: params[:uuid]).nil? || current_user.purchases.find_by(uuid: params[:uuid]).refunded?)
+    
+    if !current_user.purchases.find_by(purchase_id: params[:purchase_id]).nil? && !current_user.purchases.find_by(purchase_id: params[:purchase_id]).refunded?
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
     else
@@ -15,37 +16,53 @@ class ChargesController < ApplicationController
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
-        @token = Stripe::Token.create(
-          :card => {
-            :number => @card,
-            :exp_month => current_user.exp_month,
-            :exp_year => current_user.exp_year,
-            :cvc => current_user.cvc_number
-          },
-        )
-        #Track this event through Keen
         begin
-          charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, current_user.email)
-          redirect_to root_path
-          flash[:notice] = "Thanks for the purchase!"
-
-          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
-                          title: params[:title], price: params[:price],
-                          user_id: current_user.id, product_id: params[:product_id],
-                          application_fee: charge.application_fee,
+          @token = Stripe::Token.create(
+            :card => {
+              :number => @card,
+              :exp_month => current_user.exp_month,
+              :exp_year => current_user.exp_year,
+              :cvc => current_user.cvc_number
+            },
           )
         rescue Stripe::CardError => e
           # CardError; display an error message.
           redirect_to edit_user_registration_path
-          flash[:error] = 'Card Details Not Valid'
+          flash[:error] = "#{e}"
+          return
         rescue => e
           # Some other error; display an error message.
           redirect_to edit_user_registration_path
-          flash[:notice] = 'Some error occurred.'
+          flash[:notice] = "#{e}"
+          return
+        end
+        #Track this event through Keen
+        begin
+          charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, current_user.email)
+
+          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
+                          title: params[:title], price: params[:price],
+                          user_id: current_user.id, product_id: params[:product_id],
+                          application_fee: charge.application_fee, purchase_id: SecureRandom.uuid,
+          )
+          redirect_to root_path
+          flash[:notice] = "Thanks for the purchase!"
+          return
+        rescue Stripe::CardError => e
+          # CardError; display an error message.
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          # Some other error; display an error message.
+          redirect_to edit_user_registration_path
+          flash[:notice] = "#{e}"
+          return
         end
       else
         redirect_to edit_user_registration_path
         flash[:error] = "Please Add Credit Card Details"
+        return
       end
     end
   end

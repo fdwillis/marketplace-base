@@ -22,12 +22,14 @@ before_filter :authenticate_user!
       )
     rescue Stripe::CardError => e
       # CardError; display an error message.
-      flash[:error] = 'Card Details Not Valid'
+      flash[:error] = "#{e}"
       redirect_to edit_user_registration_path
+      return
     rescue => e
       # Some other error; display an error message.
-      flash[:error] = 'Check Your Card Details Again'
+      flash[:error] = "#{e}"
       redirect_to edit_user_registration_path
+      return
     end
 
     if current_user.stripe_plan_id?  
@@ -40,6 +42,7 @@ before_filter :authenticate_user!
 
       current_user.update_attributes(role: 'merchant', stripe_plan_name: plan.name)
       redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
+      return
     elsif current_user.card?
       if current_user.marketplace_stripe_id
         customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
@@ -48,6 +51,7 @@ before_filter :authenticate_user!
         current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
         flash[:alert] = "You Joined #{plan.name} Plan"
         redirect_to edit_user_registration_path
+        return
       else
         begin
           customer = Stripe::Customer.create(
@@ -60,13 +64,15 @@ before_filter :authenticate_user!
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
           flash[:alert] = "You Joined #{plan.name} Plan"
           redirect_to edit_user_registration_path
+          return
         rescue Stripe::CardError => e
           # CardError; display an error message.
-          flash[:error] = 'Card Details Not Valid'
+          flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
+          return
         rescue => e
           # Some other error; display an error message.
-          flash[:error] = 'Check Your Card Details Again'
+          flash[:error] = "#{e}"
         end
       end
     elsif !current_user.card?
@@ -82,18 +88,22 @@ before_filter :authenticate_user!
 
         flash[:notice] = "Bank Account Details To Get Paid"
         redirect_to edit_user_registration_path
+        return
       rescue Stripe::CardError => e
         # CardError; display an error message.
-        flash[:error] = 'Card Details Not Valid'
+        flash[:error] = "#{e}"
         redirect_to edit_user_registration_path
+        return
       rescue => e
         # Some other error; display an error message.
-        flash[:error] = 'Check Your Card Details Again'
+        flash[:error] = "#{e}"
         redirect_to edit_user_registration_path
+        return
       end
     else
       flash[:error] = "Please Add A Credit Card"
       redirect_to edit_user_registration_path
+      return
     end
   end
 end

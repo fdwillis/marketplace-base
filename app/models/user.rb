@@ -69,5 +69,6 @@ class User < ActiveRecord::Base
     {stripe_account: stripe_account_id}
 
     )
+    
   end
 end

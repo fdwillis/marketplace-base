@@ -2,9 +2,9 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
 
   def update
+
     if current_user.update_attributes(user_params)
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-
 
       if params[:stripe_account_type]
         current_user.update_attributes(stripe_account_type: params[:stripe_account_type])
@@ -18,8 +18,8 @@ class UsersController < ApplicationController
         account_number = @crypt.encrypt_and_sign(current_user.account_number)
         current_user.update_attributes(account_number: account_number)
       end
-      
-      if params[:user][:card_number] == current_user.card_number
+
+      if !params[:user][:card_number].nil? 
         card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
         current_user.update_attributes(card_number: card_number)
       end
@@ -73,21 +73,24 @@ class UsersController < ApplicationController
           flash[:notice] = "User Information Updated"
         rescue Stripe::CardError => e
           # CardError; display an error message.
+          flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
-          flash[:error] = 'Bank Account Details Not Valid'
+          return
         rescue => e
           # Some other error; display an error message.
+          flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
-          flash[:error] = 'Something Went Wrong: Check Seller & Bank Account Info'
+          return
         end
-        redirect_to edit_user_registration_path
       end
     else
       flash[:error] = "Isses: #{current_user.errors.full_messages.to_sentence.titleize}"
       redirect_to edit_user_registration_path
+      return
     end
     flash[:notice] = "User Information Updated"
     redirect_to edit_user_registration_path
+    return
   end
 
 private
