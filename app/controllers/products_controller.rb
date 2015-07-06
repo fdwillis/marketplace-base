@@ -5,7 +5,8 @@ class ProductsController < ApplicationController
   # GET /products
   # GET /products.json
   def index
-    @products = Product.all.where(published: true)
+    @products = Product.all.where(pending: false)
+    @pendings = Product.all.where(pending: true)
     authorize @products
   end
 
@@ -18,7 +19,7 @@ class ProductsController < ApplicationController
 
   # GET /products/new
   def new
-    if current_user.stripe_account_id?
+    if current_user.stripe_account_id? || current_user.admin?
       @product = Product.new
       authorize @product
     else
@@ -37,9 +38,10 @@ class ProductsController < ApplicationController
   # POST /products.json
   def create
     @product = current_user.products.build(product_params)
-    
     if @product.save
-      redirect_to @product, notice: 'Product was successfully created.'
+      @product.update_attributes(pending: true)
+      redirect_to @product
+      flash[:alert] ='Product is now pending'
     else
       flash[:error] = "Error creating Product. Try again"
       render :new
@@ -57,6 +59,11 @@ class ProductsController < ApplicationController
       render :edit
     end
     authorize @product
+  end
+
+  def approve
+    @instance = ResumeSkill.find(params[:id])
+    @instance.update_attributes(pending: false)
   end
 
   private

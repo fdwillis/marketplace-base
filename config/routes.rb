@@ -9,4 +9,7 @@ Rails.application.routes.draw do
   resources :refunds, only: [:create]
   resources :products
   resources :purchases, only: [:index]
+  resources :pending_products
+
+  put 'approve_product' => 'pending_products#approve_product'
 end

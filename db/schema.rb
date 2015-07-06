@@ -28,9 +28,7 @@ ActiveRecord::Schema.define(version: 20150706191207) do
     t.string   "product_image_content_type"
     t.integer  "product_image_file_size"
     t.datetime "product_image_updated_at"
-    t.boolean  "showcase"
     t.boolean  "pending"
-    t.boolean  "published"
   end
 
   add_index "products", ["slug"], name: "index_products_on_slug", unique: true, using: :btree

@@ -1,0 +1,2 @@
+module PendingProductsHelper
+end

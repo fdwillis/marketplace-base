@@ -1,0 +1,22 @@
+<h1>Pending Products</h1>
+<% if policy(Product.new).new? %>
+  <%= link_to 'New Product', new_product_path %>
+<% end %>
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @pendings.each do |pending| %>
+      <tr>
+        <td><%= pending.title %></td>
+        <td><%= number_to_currency(pending.price, precision: 2) %></td>
+        <td><%= image_tag(pending.product_image.url(:medium)) %></td>
+        <td><%= link_to 'Show', pending %></td>
+        <td><%= link_to 'Approve', approve_product_path(id: pending.id), method: :put %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
