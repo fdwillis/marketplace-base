@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   has_many :purchases
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, allow_blank: true
@@ -50,32 +50,6 @@ class User < ActiveRecord::Base
 
   def stripe_account_id_ready?
     stripe_account_id.present?
-  end
-
-  def self.charge_n_create(price, token, stripe_account_id, email)
-
-    @price = price
-    @merchant60 = ((@price) * 60) /100
-    @fee = (@price - @merchant60)
-
-    customer = Stripe::Customer.create(
-      {
-        email: email,
-        card: token.id,
-      },
-      {stripe_account: stripe_account_id}
-    )
-
-    charge = Stripe::Charge.create(
-      {
-        customer:    customer.id,
-        amount:      @price,
-        description: 'MarketplaceBase',
-        currency:    'usd',
-        application_fee: @fee,
-      },
-      {stripe_account: stripe_account_id}
-    )
   end
 
   def self.charge_n_process(price, token, stripe_account_id, email)

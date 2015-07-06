@@ -33,37 +33,37 @@ class UsersController < ApplicationController
         debugger
         begin 
           merchant = Stripe::Account.create(
-              :managed => true,
-              :country => 'US',
-              :email => current_user.email,
-              business_url: current_user.business_url,
+            managed: true,
+            country: 'US',
+            email: current_user.email,
+            business_url: current_user.business_url,
+            business_name: current_user.business_name,
+            support_url: current_user.support_url,
+            support_phone: current_user.support_phone,
+            support_email: current_user.support_email,
+            debit_negative_balances: true,
+            external_account: {
+              object: 'bank_account',
+              country: 'US',
+              currency: 'usd',
+              routing_number: current_user.routing_number,
+              account_number: @crypt.decrypt_and_verify(current_user.account_number),
+            },
+            tos_acceptance: {
+              ip: request.remote_ip,
+              date: Time.now.to_i,
+            },
+            legal_entity: {
+              type: current_user.stripe_account_type,
               business_name: current_user.business_name,
-              support_url: current_user.support_url,
-              support_phone: current_user.support_phone,
-              support_email: current_user.support_email,
-              debit_negative_balances: true,
-              external_account: {
-                object: 'bank_account',
-                country: 'US',
-                currency: 'usd',
-                routing_number: current_user.routing_number,
-                account_number: @crypt.decrypt_and_verify(current_user.account_number),
-              },
-              tos_acceptance: {
-                ip: request.remote_ip,
-                date: Time.now.to_i,
-              },
-              legal_entity: {
-                type: current_user.stripe_account_type,
-                business_name: current_user.business_name,
-                first_name: current_user.first_name,
-                last_name: current_user.last_name,
-                dob: {
-                  day: current_user.dob_day,
-                  month: current_user.dob_month,
-                  year: current_user.dob_year,
-                  },
+              first_name: current_user.first_name,
+              last_name: current_user.last_name,
+              dob: {
+                day: current_user.dob_day,
+                month: current_user.dob_month,
+                year: current_user.dob_year,
                 },
+              },
           )
           @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
           @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
