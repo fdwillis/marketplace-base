@@ -15,7 +15,9 @@ class ChargesController < ApplicationController
 
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
-        @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
+        if User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id
+          @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
+        end
         begin
           @token = Stripe::Token.create(
             :card => {
@@ -33,31 +35,56 @@ class ChargesController < ApplicationController
         rescue => e
           # Some other error; display an error message.
           redirect_to edit_user_registration_path
-          flash[:notice] = "#{e}"
-          return
-        end
-        #Track this event through Keen
-        begin
-          charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, current_user.email)
-
-          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
-                          title: params[:title], price: params[:price],
-                          user_id: current_user.id, product_id: params[:product_id],
-                          application_fee: charge.application_fee, purchase_id: SecureRandom.uuid,
-          )
-          redirect_to root_path
-          flash[:notice] = "Thanks for the purchase!"
-          return
-        rescue Stripe::CardError => e
-          # CardError; display an error message.
-          redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
           return
-        rescue => e
-          # Some other error; display an error message.
-          redirect_to edit_user_registration_path
-          flash[:notice] = "#{e}"
-          return
+        end
+
+        if Product.find_by(uuid: params[:uuid]).user.role == 'admin'
+          begin
+            @charge = User.charge_for_admin(params[:price].to_i, @token.id)
+            redirect_to root_path
+            flash[:notice] = "Thanks for the purchase!"
+            return
+          rescue Stripe::CardError => e
+            # CardError; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          rescue => e
+            # Some other error; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          end
+          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                            title: params[:title], price: params[:price],
+                            user_id: current_user.id, product_id: params[:product_id],
+                            application_fee: 0, purchase_id: SecureRandom.uuid,
+            )
+        else
+          #Track this event through Keen
+          begin
+            @charge = User.charge_n_process(params[:price].to_i, @token.id, @stripe_account_id, current_user.email)
+
+            redirect_to root_path
+            flash[:notice] = "Thanks for the purchase!"
+            return
+          rescue Stripe::CardError => e
+            # CardError; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          rescue => e
+            # Some other error; display an error message.
+            redirect_to edit_user_registration_path
+            flash[:notice] = "#{e}"
+            return
+          end
+          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                            title: params[:title], price: params[:price],
+                            user_id: current_user.id, product_id: params[:product_id],
+                            application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
+            )
         end
       else
         redirect_to edit_user_registration_path

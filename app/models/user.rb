@@ -60,10 +60,10 @@ class User < ActiveRecord::Base
 
     charge = Stripe::Charge.create(
     {
-      source:    token.id,
       amount:      @price,
-      description: 'MarketplaceBase',
       currency:    'usd',
+      source:    token,
+      description: 'MarketplaceBase',
       application_fee: @fee,
     },
     {stripe_account: stripe_account_id}
@@ -71,4 +71,20 @@ class User < ActiveRecord::Base
     )
     
   end
+
+  def self.charge_for_admin(price, token)
+    Stripe::Charge.create(
+      amount: price,
+      currency: "usd",
+      source: token, 
+      description: "MarketplaceBase",
+    )
+  end
 end
+
+
+
+
+
+
+
