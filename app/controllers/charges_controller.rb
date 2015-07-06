@@ -29,7 +29,7 @@ class ChargesController < ApplicationController
             charge = User.charge_n_create(params[:price].to_i, @token, @stripe_account_id, current_user.email)
             redirect_to root_path
             flash[:notice] = "Thanks for the purchase!"
-
+            current_user.update_attributes(stripe_id: charge.source.customer)
             Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: charge.id,
                             title: params[:title], price: params[:price],
                             user_id: current_user.id, product_id: params[:product_id],

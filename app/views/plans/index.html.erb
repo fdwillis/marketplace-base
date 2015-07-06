@@ -75,6 +75,8 @@
                     <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 4 %>
                     <h3>CVC Number</h3>
                     <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
+                    <h3>Username</h3>
+                    <%= plan.text_field :username, class: 'form-control', required: true, value: "#{current_user.username}" %>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -114,6 +116,8 @@
                     <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 4 %>
                     <h3>CVC Number</h3>
                     <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
+                    <h3>Username</h3>
+                    <%= plan.text_field :username, class: 'form-control', required: true, value: "#{current_user.username}" %>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -86,6 +86,8 @@ class UsersController < ApplicationController
       flash[:error] = "Isses: #{current_user.errors.full_messages.to_sentence.titleize}"
       redirect_to edit_user_registration_path
     end
+    flash[:notice] = "User Information Updated"
+    redirect_to edit_user_registration_path
   end
 
 private

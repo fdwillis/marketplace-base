@@ -32,7 +32,7 @@ before_filter :authenticate_user!
 
     if current_user.stripe_plan_id?  
 
-      customer = Stripe::Customer.retrieve(current_user.stripe_id)
+      customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
       subscription = customer.subscriptions.retrieve(current_user.stripe_plan_id)
       
       subscription.plan = plan.id
@@ -40,17 +40,15 @@ before_filter :authenticate_user!
 
       current_user.update_attributes(role: 'merchant', stripe_plan_name: plan.name)
       redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
-
-    elsif current_user.card? 
-
-      if current_user.stripe_id
-        customer = Stripe::Customer.retrieve(current_user.stripe_id)
+    elsif current_user.card?
+      if current_user.marketplace_stripe_id
+        customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
         subscription = customer.subscriptions.create(plan: plan)
 
         current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
-        redirect_to root_path, notice: "You Joined #{plan.name} Plan"
+        redirect_to edit_user_registration_path
+        flash[:alert] = "You Joined #{plan.name} Plan"
       else
-
         begin
           customer = Stripe::Customer.create(
             email: current_user.email,
@@ -58,9 +56,10 @@ before_filter :authenticate_user!
             plan: plan.id,
             description: 'MarketplaceBase'
           )
-          current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
+          current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-          flash[:notice] = "You Joined #{plan.name} Plan"
+          redirect_to edit_user_registration_path
+          flash[:alert] = "You Joined #{plan.name} Plan"
         rescue Stripe::CardError => e
           # CardError; display an error message.
           redirect_to edit_user_registration_path
@@ -70,8 +69,6 @@ before_filter :authenticate_user!
           flash[:error] = 'Check Your Card Details Again'
         end
       end
-
-
     elsif !current_user.card?
 
       begin
@@ -84,7 +81,7 @@ before_filter :authenticate_user!
         )
         current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-      flash[:notice] = "You Joined #{plan.name} Plan"
+        redirect_to edit_user_registration_path, notice: "Add Card Details To Get Paid"
       rescue Stripe::CardError => e
         # CardError; display an error message.
         flash[:error] = 'Card Details Not Valid'
