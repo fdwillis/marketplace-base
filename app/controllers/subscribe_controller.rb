@@ -49,7 +49,7 @@ before_filter :authenticate_user!
         subscription = customer.subscriptions.create(plan: plan)
 
         current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
-        flash[:alert] = "You Joined #{plan.name} Plan"
+        flash[:notice] = "You Joined #{plan.name} Plan"
         redirect_to edit_user_registration_path
         return
       else
