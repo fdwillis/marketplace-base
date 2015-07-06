@@ -70,24 +70,26 @@ before_filter :authenticate_user!
         end
       end
     elsif !current_user.card?
-
       begin
-        
         customer = Stripe::Customer.create(
           email: current_user.email,
           source: @token.id,
           plan: plan.id,
           description: 'MarketplaceBase'
         )
-        current_user.update_attributes(slug: @username, stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
+        current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-        redirect_to edit_user_registration_path, notice: "Add Card Details To Get Paid"
+        puts current_user.errors
+
+        redirect_to edit_user_registration_path, alert: "Bank Account Details To Get Paid"
       rescue Stripe::CardError => e
         # CardError; display an error message.
         flash[:error] = 'Card Details Not Valid'
+        redirect_to edit_user_registration_path
       rescue => e
         # Some other error; display an error message.
         flash[:error] = 'Check Your Card Details Again'
+        redirect_to edit_user_registration_path
       end
     else
       redirect_to edit_user_registration_path
