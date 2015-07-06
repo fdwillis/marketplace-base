@@ -30,7 +30,7 @@ class UsersController < ApplicationController
 
         #make account instead of customer
         #add address to merchants
-        debugger
+        
         begin 
           merchant = Stripe::Account.create(
               managed: true,
