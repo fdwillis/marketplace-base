@@ -53,7 +53,7 @@ class UsersController < ApplicationController
               tos_acceptance: {
                 ip: request.remote_ip,
                 date: Time.now.to_i,
-                user_agent: ,
+                user_agent: browser.full_version,
               },
               legal_entity: {
                 type: current_user.stripe_account_type,
