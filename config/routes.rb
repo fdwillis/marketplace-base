@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :plans, only: :index
   resources :subscribe, only: [:new, :update]
   resources :merchants
+  resources :transfers, only: :index
   devise_for :users
   resources :users, only: [:update]
   root to: 'products#index'

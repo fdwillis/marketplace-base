@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150706191207) do
+ActiveRecord::Schema.define(version: 20150707192412) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,6 +55,18 @@ ActiveRecord::Schema.define(version: 20150706191207) do
 
   add_index "purchases", ["product_id"], name: "index_purchases_on_product_id", using: :btree
   add_index "purchases", ["user_id"], name: "index_purchases_on_user_id", using: :btree
+
+  create_table "transfers", force: :cascade do |t|
+    t.string   "status"
+    t.integer  "amount"
+    t.string   "date_created"
+    t.integer  "user_id"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.string   "marketplace_stripe_id"
+  end
+
+  add_index "transfers", ["user_id"], name: "index_transfers_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "card_number"
@@ -118,4 +130,5 @@ ActiveRecord::Schema.define(version: 20150706191207) do
   add_foreign_key "products", "users"
   add_foreign_key "purchases", "products"
   add_foreign_key "purchases", "users"
+  add_foreign_key "transfers", "users"
 end

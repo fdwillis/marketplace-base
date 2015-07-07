@@ -54,7 +54,8 @@ users = [1,2]
     title: Faker::Name.name,
     price: 100,
     product_image: Faker::Avatar.image,
-    uuid: SecureRandom.uuid
+    uuid: SecureRandom.uuid,
+    pending: true,
     )
 end
 

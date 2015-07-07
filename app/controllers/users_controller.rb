@@ -34,9 +34,8 @@ class UsersController < ApplicationController
         begin 
           merchant = Stripe::Account.create(
               managed: true,
-              country: request.location.data["country_code"],
+              country: 'US',
               email: current_user.email,
-              charges_enabled: true,
               business_url: current_user.business_url,
               business_name: current_user.business_name,
               support_url: current_user.support_url,
@@ -66,11 +65,11 @@ class UsersController < ApplicationController
                   year: current_user.dob_year,
                 },
               },
-              decline_charges_on: {
+              decline_charge_on: {
                 cvc_failure: true,
               },
               transfer_schedule:{
-                delay_days: 0,
+                delay_days: 2,
                 interval: 'weekly',
                 weekly_anchor: 'friday',
               },
