@@ -34,8 +34,9 @@ class UsersController < ApplicationController
         begin 
           merchant = Stripe::Account.create(
               managed: true,
-              country: 'US',
+              country: request.location.data["country_code"],
               email: current_user.email,
+              charges_enabled: true,
               business_url: current_user.business_url,
               business_name: current_user.business_name,
               support_url: current_user.support_url,
@@ -52,6 +53,7 @@ class UsersController < ApplicationController
               tos_acceptance: {
                 ip: request.remote_ip,
                 date: Time.now.to_i,
+                user_agent: ,
               },
               legal_entity: {
                 type: current_user.stripe_account_type,
@@ -62,8 +64,16 @@ class UsersController < ApplicationController
                   day: current_user.dob_day,
                   month: current_user.dob_month,
                   year: current_user.dob_year,
-                  },
                 },
+              },
+              decline_charges_on: {
+                cvc_failure: true,
+              },
+              transfer_schedule:{
+                delay_days: 0,
+                interval: 'weekly',
+                weekly_anchor: 'friday',
+              },
           )
           @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
           @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
