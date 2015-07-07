@@ -44,6 +44,11 @@ class ChargesController < ApplicationController
             @charge = User.charge_for_admin(params[:price].to_i, @token.id)
             redirect_to root_path
             flash[:notice] = "Thanks for the purchase!"
+            Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                              title: params[:title], price: params[:price],
+                              user_id: current_user.id, product_id: params[:product_id],
+                              application_fee: 0, purchase_id: SecureRandom.uuid,
+              )
             return
           rescue Stripe::CardError => e
             # CardError; display an error message.
@@ -56,11 +61,6 @@ class ChargesController < ApplicationController
             flash[:error] = "#{e}"
             return
           end
-          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                            title: params[:title], price: params[:price],
-                            user_id: current_user.id, product_id: params[:product_id],
-                            application_fee: 0, purchase_id: SecureRandom.uuid,
-            )
         else
           #Track this event through Keen
           begin
@@ -68,6 +68,11 @@ class ChargesController < ApplicationController
 
             redirect_to root_path
             flash[:notice] = "Thanks for the purchase!"
+            Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                              title: params[:title], price: params[:price],
+                              user_id: current_user.id, product_id: params[:product_id],
+                              application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
+              )
             return
           rescue Stripe::CardError => e
             # CardError; display an error message.
@@ -80,11 +85,6 @@ class ChargesController < ApplicationController
             flash[:notice] = "#{e}"
             return
           end
-          Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                            title: params[:title], price: params[:price],
-                            user_id: current_user.id, product_id: params[:product_id],
-                            application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
-            )
         end
       else
         redirect_to edit_user_registration_path
