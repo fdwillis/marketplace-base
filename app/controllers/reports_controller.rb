@@ -4,8 +4,8 @@ class ReportsController < ApplicationController
       f.title(:text => "Population vs GDP For 5 Big Countries [2009]")
       f.xAxis(:categories => ["United States", "Japan", "China", "Germany", "France"])
 
-      f.series(:name => "GDP in Bill", :yAxis => 0, :data => [14119, 5068, 4985, 3339, 2656])
-      f.series(:name => "Pop in Mill", :yAxis => 0, :data => [310, 127, 1340, 81, 65])
+      f.series(:name => "GDP in Bill", :yAxis => 0, :data => [100, 90, 100, 100, 100])
+      f.series(:name => "Pop in Mill", :yAxis => 0, :data => [110, 100, 95, 99, 97])
 
       f.yAxis(title: {:text => "View Count"} )
 
@@ -57,7 +57,7 @@ class ReportsController < ApplicationController
                    ]
           }
           f.series(series)
-          f.legend(:layout=> 'vertical',:style=> {:left=> 'auto', :bottom=> 'auto',:right=> '50px',:top=> '100px'}) 
+          f.legend(:layout=> 'vertical',:style=> {:left=> 'auto', :bottom=> 'auto',:right=> '50px',:top=> '100px'}, allowPointSelect: true) 
     end
 
     @area = LazyHighCharts::HighChart.new('graph') do |f|

@@ -6,6 +6,7 @@
       <%= link_to "Purchases", purchases_path %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
       <% if current_user.merchant? %>
+        <%= link_to "Reports", reports_path %> | 
         <%= link_to "Profile", merchant_path(current_user.username) %> | 
         Pending Balance: <%= number_to_currency(current_user.pending_payment.to_f / 100, precision: 2) %> | 
         Available Balance: <%= number_to_currency(current_user.available_balance.to_f / 100, precision: 2) %> | 
