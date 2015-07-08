@@ -48,6 +48,7 @@ class ChargesController < ApplicationController
                               title: params[:title], price: params[:price],
                               user_id: current_user.id, product_id: params[:product_id],
                               application_fee: 0, purchase_id: SecureRandom.uuid,
+                              status: 'Paid',
               )
             return
           rescue Stripe::CardError => e
@@ -72,6 +73,7 @@ class ChargesController < ApplicationController
                               title: params[:title], price: params[:price],
                               user_id: current_user.id, product_id: params[:product_id],
                               application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
+                              status: 'Paid'
               )
             return
           rescue Stripe::CardError => e
