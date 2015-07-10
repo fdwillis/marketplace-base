@@ -59,16 +59,33 @@
       </div>
       <div class="form-group">
         <%= f.label :cvc_number, 'CVC Number' %>
-        <%= f.text_field :cvc_number, class: 'form-control', placeholder: "Enter CVC number", maxlength: 4%>
+        <%= f.text_field :cvc_number, class: 'form-control', placeholder: "3432", maxlength: 4%>
       </div>
       <div class="form-group">
-        <%= f.label :tax_id, 'SSN (Encrypted)' %>
-        <% if current_user.tax_id? %>
-          <%= f.text_field :tax_id, class: 'form-control', placeholder: "Enter SSN", value: @crypt.decrypt_and_verify(current_user.tax_id) %>
-        <% else %>
-          <%= f.text_field :tax_id, class: 'form-control', placeholder: "Enter SSN" %>
-        <% end %>
+        <%= f.label :legal_name, 'Full Legal Name' %>
+        <%= f.text_field :legal_name, class: 'form-control', placeholder: "John G Doe"%>
       </div>
+      <div class="form-group">
+        <%= f.label :address_city, 'City' %>
+        <%= f.text_field :address_city, class: 'form-control', placeholder: "Madison"%>
+      </div>
+      <div class="form-group">
+        <%= f.label :address_zip, 'Zip Code' %>
+        <%= f.text_field :address_zip, class: 'form-control', placeholder: "53703"%>
+      </div>
+      <div class="form-group">
+        <%= f.label :address_state, 'State' %>
+        <%= f.text_field :address_state, class: 'form-control', placeholder: "California"%>
+      </div>
+      <div class="form-group">
+        <%= f.label :address_country, 'Country Code (2 Letters)' %>
+        <%= f.text_field :address_country, class: 'form-control', placeholder: "US", minlength: 2, maxlength: 2%>
+      </div>
+      <div class="form-group">
+        <%= f.label :currency, 'Currency Code (3 Letter ISO Code)' %>
+        <%= f.text_field :currency, class: 'form-control', placeholder: "USD", minlength: 3, maxlength: 3%>
+      </div>
+      
       <div class="form-group">
         <%= f.submit "Update", class: 'btn btn-success' %>
       </div>
@@ -100,6 +117,10 @@
       <div class="form-group">
         <%= f.label :business_name, 'Business Name' %>
         <%= f.text_field :business_name, class: 'form-control', placeholder: "Enter Business Name or Legal Name", value: "#{current_user.business_name}"%>
+      </div>
+      <div class="form-group">
+        <%= f.label :address, 'Business Address' %>
+        <%= f.text_field :address, class: 'form-control', placeholder: "526 West Wilson suite B", value: "#{current_user.address}"%>
       </div>
       <div class="form-group">
         <%= f.label :business_url, 'Business URL' %>

@@ -16,15 +16,23 @@ class ChargesController < ApplicationController
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         if User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id
+          
+          @currency = User.find(Product.find_by(uuid: params[:uuid])).currency
           @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
         end
         begin
           @token = Stripe::Token.create(
-            :card => {
-              :number => @card,
-              :exp_month => current_user.exp_month,
-              :exp_year => current_user.exp_year,
-              :cvc => current_user.cvc_number
+            card: {
+              number: @card,
+              exp_month: current_user.exp_month,
+              exp_year: current_user.exp_year,
+              country: current_user.address_country,
+              cvc: current_user.cvc_number,
+              name: current_user.legal_name,
+              address_city: current_user.address_city,
+              address_zip: current_user.address_zip,
+              address_state: current_user.address_state,
+              address_country: current_user.address_country,
             },
           )
         rescue Stripe::CardError => e
@@ -65,8 +73,9 @@ class ChargesController < ApplicationController
         else
           #Track this event through Keen
           begin
-            @charge = User.charge_n_process(params[:price].to_i, @token.id, @stripe_account_id, current_user.email)
-
+            
+            @charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, @currency, )
+            
             redirect_to root_path
             flash[:notice] = "Thanks for the purchase!"
             Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
@@ -84,7 +93,7 @@ class ChargesController < ApplicationController
           rescue => e
             # Some other error; display an error message.
             redirect_to edit_user_registration_path
-            flash[:notice] = "#{e}"
+            flash[:error] = "#{e}"
             return
           end
         end

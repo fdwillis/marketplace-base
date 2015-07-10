@@ -36,6 +36,12 @@ merchant = User.create!(
               dob_year: 1995,
               stripe_account_type: 'sole_prop',
               statement_descriptor: "MarketBase",
+              address: '526 west wilson suite B',
+              address_city: "Hordaland",
+              address_state: "Western Norway",
+              address_zip: 5055,
+              address_country: 'NO',
+              currency: 'NOK',
 )
 
 
@@ -67,7 +73,7 @@ stripe = User.all.where(role: 'merchant')
 stripe.each do |user|
     merchant = Stripe::Account.create(
       managed: true,
-      country: 'US',
+      country: user.address_country,
       email: user.email,
       business_url: user.business_url,
       business_name: user.business_name,
@@ -77,8 +83,8 @@ stripe.each do |user|
       debit_negative_balances: true,
       external_account: {
         object: 'bank_account',
-        country: 'US',
-        currency: 'usd',
+        country: user.address_country,
+        currency: user.currency,
         routing_number: user.routing_number,
         account_number: @crypt.decrypt_and_verify(user.account_number),
       },
@@ -95,8 +101,15 @@ stripe.each do |user|
           day: user.dob_day,
           month: user.dob_month,
           year: user.dob_year,
-          },
         },
+        address: {
+          line1: user.address,
+          city: user.address_city,
+          state: user.address_state,
+          postal_code: user.address_zip,
+          country: user.address_country,
+        },
+      },
   )
   @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
   @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)

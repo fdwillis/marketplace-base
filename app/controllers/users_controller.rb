@@ -34,7 +34,7 @@ class UsersController < ApplicationController
         begin 
           merchant = Stripe::Account.create(
               managed: true,
-              country: 'US',
+              country: current_user.address_country,
               email: current_user.email,
               business_url: current_user.business_url,
               business_name: current_user.business_name,
@@ -44,8 +44,8 @@ class UsersController < ApplicationController
               debit_negative_balances: true,
               external_account: {
                 object: 'bank_account',
-                country: 'US',
-                currency: 'usd',
+                country: current_user.address_country,
+                currency: current_user.currency,
                 routing_number: current_user.routing_number,
                 account_number: @crypt.decrypt_and_verify(current_user.account_number),
               },
@@ -64,12 +64,19 @@ class UsersController < ApplicationController
                   month: current_user.dob_month,
                   year: current_user.dob_year,
                 },
+                address: {
+                  line1: current_user.address,
+                  city: current_user.address_city,
+                  state: current_user.address_state,
+                  postal_code: current_user.address_zip,
+                  country: current_user.address_country,
+                }
               },
               decline_charge_on: {
                 cvc_failure: true,
               },
               transfer_schedule:{
-                delay_days: 2,
+                delay_days: 7,
                 interval: 'weekly',
                 weekly_anchor: 'friday',
               },
@@ -104,6 +111,6 @@ class UsersController < ApplicationController
 
 private
   def user_params
-     params.require(:user).permit(:stripe_account_type, :dob_day, :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, :support_phone, :support_email, :business_url, :merchant_id, :business_name, :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
+     params.require(:user).permit(:address, :currency, :address_country, :address_state, :address_zip, :address_city, :stripe_account_type, :dob_day, :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, :support_phone, :support_email, :business_url, :merchant_id, :business_name, :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
   end
 end
