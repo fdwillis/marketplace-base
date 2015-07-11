@@ -19,12 +19,12 @@ class ProductsController < ApplicationController
 
   # GET /products/new
   def new
-    if current_user.stripe_account_id? || current_user.admin?
+    if current_user.merchant_ready? || current_user.admin?
       @product = Product.new
       authorize @product
     else
       redirect_to edit_user_registration_path
-      flash[:error] = "Link Bank Account & Seller Info"
+      flash[:error] = "You Are Missin Bank Account and or Seller Info"
     end
   end
 

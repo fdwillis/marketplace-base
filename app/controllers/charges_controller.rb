@@ -16,7 +16,7 @@ class ChargesController < ApplicationController
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         if User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id
-          debugger
+          
           @currency = User.find(Product.find_by(uuid: params[:uuid]).user_id).currency
           @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
         end

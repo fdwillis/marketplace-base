@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
   end
 
   def merchant_ready?
-    address_city.present? && address_state.present? && address_zip.present? && address.present? && currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+    return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
   def merchant_changed

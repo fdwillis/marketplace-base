@@ -51,12 +51,9 @@ admin.save!
 merchant.skip_confirmation!
 merchant.save!
 
-
-users = [1,2]
-
 5.times do
   Product.create!(
-    user_id: users.sample,
+    user_id: 2,
     title: Faker::Name.name,
     price: 100,
     product_image: Faker::Avatar.image,

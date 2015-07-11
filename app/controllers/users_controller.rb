@@ -111,6 +111,6 @@ class UsersController < ApplicationController
 
 private
   def user_params
-     params.require(:user).permit(:address, :currency, :address_country, :address_state, :address_zip, :address_city, :stripe_account_type, :dob_day, :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, :support_phone, :support_email, :business_url, :merchant_id, :business_name, :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
+     params.require(:user).permit(:return_policy, :address, :currency, :address_country, :address_state, :address_zip, :address_city, :stripe_account_type, :dob_day, :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, :support_phone, :support_email, :business_url, :merchant_id, :business_name, :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
   end
 end
