@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :plans, only: :index
-  resources :subscribe, only: [:new, :update]
+  resources :subscribe, only: [:destroy, :update]
   resources :merchants
   resources :reports
   resources :transfers, only: :index
