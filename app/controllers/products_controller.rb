@@ -5,7 +5,7 @@ class ProductsController < ApplicationController
   # GET /products
   # GET /products.json
   def index
-    @products = Product.all.where(pending: false)
+    @products = Product.all.where(pending: false).where(valid_merchant: true)
     @pendings = Product.all.where(pending: true)
     authorize @products
   end
@@ -39,9 +39,14 @@ class ProductsController < ApplicationController
   def create
     @product = current_user.products.build(product_params)
     if @product.save
-      @product.update_attributes(pending: true)
+      if !current_user.admin?
+        @product.update_attributes(pending: true, valid_merchant: true)
+        flash[:alert] ='Product is now pending'
+      else
+        @product.update_attributes(pending: false, valid_merchant: true)
+        flash[:notice] ='Product created'
+      end
       redirect_to @product
-      flash[:alert] ='Product is now pending'
     else
       flash[:error] = "Error creating Product. Try again"
       render :new
@@ -74,6 +79,6 @@ class ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:product_image, :title, :price, :uuid)
+      params.require(:product).permit(:valid_merchant, :product_image, :title, :price, :uuid)
     end
 end

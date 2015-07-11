@@ -52,8 +52,13 @@ before_filter :authenticate_user!
       if current_user.marketplace_stripe_id
         customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
         subscription = customer.subscriptions.create(plan: plan)
-
+        if current_user.products.present?
+          current_user.products.each do |p|
+            p.update_attributes(valid_merchant: true)
+          end
+        end
         current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
+
         flash[:notice] = "You Joined #{plan.name} Plan"
         redirect_to edit_user_registration_path
         return
@@ -67,7 +72,7 @@ before_filter :authenticate_user!
           )
           current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
                                      stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-          flash[:alert] = "You Joined #{plan.name} Plan"
+          flash[:notice] = "You Joined #{plan.name} Plan"
           redirect_to edit_user_registration_path
           return
         rescue Stripe::CardError => e
@@ -80,33 +85,8 @@ before_filter :authenticate_user!
           flash[:error] = "#{e}"
         end
       end
-    elsif !current_user.card?
-      begin
-        customer = Stripe::Customer.create(
-          email: current_user.email,
-          source: @token.id,
-          plan: plan.id,
-          description: 'MarketplaceBase'
-        )
-        current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
-                                     stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
-
-        flash[:notice] = "You Are All Set! Add Bank Account Details To Get Paid"
-        redirect_to edit_user_registration_path
-        return
-      rescue Stripe::CardError => e
-        # CardError; display an error message.
-        flash[:error] = "#{e}"
-        redirect_to edit_user_registration_path
-        return
-      rescue => e
-        # Some other error; display an error message.
-        flash[:error] = "#{e}"
-        redirect_to edit_user_registration_path
-        return
-      end
     else
-      flash[:error] = "Please Add A Credit Card"
+      flash[:error] = "Please Add All Payment & Shipping Info"
       redirect_to edit_user_registration_path
       return
     end
@@ -115,6 +95,9 @@ before_filter :authenticate_user!
   def destroy
     customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
     customer.subscriptions.retrieve(current_user.stripe_plan_id).delete
+    current_user.products.each do |p|
+      p.update_attributes(valid_merchant: false)
+    end
     current_user.update_attributes(role: 'buyer', stripe_plan_id: nil)
     redirect_to edit_user_registration_path
     flash[:error] = "You No Longer Are A Merchant"
