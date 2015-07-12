@@ -58,8 +58,7 @@ merchant.save!
     price: 100,
     product_image: Faker::Avatar.image,
     uuid: SecureRandom.uuid,
-    pending: true,
-    valid_merchant: true
+    active: true,
     )
 end
 

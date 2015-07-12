@@ -5,8 +5,8 @@ class ProductsController < ApplicationController
   # GET /products
   # GET /products.json
   def index
-    @products = Product.all.where(pending: false).where(valid_merchant: true)
-    @pendings = Product.all.where(pending: true)
+    @products = Product.all.where(active: true)
+    @pendings = Product.all.where(active: false)
     authorize @products
   end
 
@@ -40,10 +40,10 @@ class ProductsController < ApplicationController
     @product = current_user.products.build(product_params)
     if @product.save
       if !current_user.admin?
-        @product.update_attributes(pending: true, valid_merchant: true)
+        @product.update_attributes(active: false)
         flash[:alert] ='Product is now pending'
       else
-        @product.update_attributes(pending: false, valid_merchant: true)
+        @product.update_attributes(active: true)
         flash[:notice] ='Product created'
       end
       redirect_to @product
@@ -68,7 +68,7 @@ class ProductsController < ApplicationController
 
   def approve
     @instance = ResumeSkill.find(params[:id])
-    @instance.update_attributes(pending: false)
+    @instance.update_attributes(active: true)
   end
 
   private
@@ -79,6 +79,6 @@ class ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:valid_merchant, :product_image, :title, :price, :uuid)
+      params.require(:product).permit(:active, :product_image, :title, :price, :uuid)
     end
 end

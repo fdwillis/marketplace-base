@@ -54,10 +54,10 @@ before_filter :authenticate_user!
         subscription = customer.subscriptions.create(plan: plan)
         if current_user.products.present?
           current_user.products.each do |p|
-            p.update_attributes(valid_merchant: true)
+            p.update_attributes(active: true)
           end
         end
-        current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name)
+        current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name, role: 'merchant')
 
         flash[:notice] = "You Joined #{plan.name} Plan"
         redirect_to edit_user_registration_path
@@ -95,8 +95,10 @@ before_filter :authenticate_user!
   def destroy
     customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
     customer.subscriptions.retrieve(current_user.stripe_plan_id).delete
-    current_user.products.each do |p|
-      p.update_attributes(valid_merchant: false)
+    if current_user.products.present?
+      current_user.products.each do |p|
+        p.update_attributes(active: true)
+      end
     end
     current_user.update_attributes(role: 'buyer', stripe_plan_id: nil)
     redirect_to edit_user_registration_path
