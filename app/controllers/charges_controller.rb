@@ -1,11 +1,8 @@
 class ChargesController < ApplicationController
   before_filter :authenticate_user!
-
-  # def new
-  # end
-
   def create
-    # Track with Keen
+    #Track with Keen for Merchant & Admin
+    #Time between purchases for customers in hours
     
     if !current_user.purchases.find_by(purchase_id: params[:purchase_id]).nil? && !current_user.purchases.find_by(purchase_id: params[:purchase_id]).refunded?
       flash[:error] = "You've Already Purchased This"
@@ -32,16 +29,14 @@ class ChargesController < ApplicationController
               address_city: current_user.address_city,
               address_zip: current_user.address_zip,
               address_state: current_user.address_state,
-              address_country: current_user.address_country,
+              address_country: current_user.country_name,
             },
           )
         rescue Stripe::CardError => e
-          # CardError; display an error message.
           redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
           return
         rescue => e
-          # Some other error; display an error message.
           redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
           return
@@ -60,18 +55,15 @@ class ChargesController < ApplicationController
               )
             return
           rescue Stripe::CardError => e
-            # CardError; display an error message.
             redirect_to edit_user_registration_path
             flash[:error] = "#{e}"
             return
           rescue => e
-            # Some other error; display an error message.
             redirect_to edit_user_registration_path
             flash[:error] = "#{e}"
             return
           end
         else
-          #Track this event through Keen
           begin
             
             @charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, @currency, )
@@ -86,12 +78,10 @@ class ChargesController < ApplicationController
               )
             return
           rescue Stripe::CardError => e
-            # CardError; display an error message.
             redirect_to edit_user_registration_path
             flash[:error] = "#{e}"
             return
           rescue => e
-            # Some other error; display an error message.
             redirect_to edit_user_registration_path
             flash[:error] = "#{e}"
             return

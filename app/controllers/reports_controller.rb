@@ -77,4 +77,15 @@ class ReportsController < ApplicationController
       f.legend(enabled: false)
     end
   end
+
+private
+  
+  def bar_chart
+    
+  end
+
+  def pie_chart
+    
+  end
+
 end

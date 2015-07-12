@@ -4,6 +4,7 @@ class MerchantsController < ApplicationController
   end
 
   def show
+    #Track for Merchant and Admin
     @name = User.friendly.find(params[:id]).name
     if User.friendly.find(params[:id]).merchant?
       @merchant = User.friendly.find(params[:id])

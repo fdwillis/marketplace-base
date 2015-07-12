@@ -2,6 +2,7 @@ class SubscribeController < ApplicationController
 before_filter :authenticate_user!
 
   def update
+    #Track for admin
     plan = Stripe::Plan.retrieve(params[:id])
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
@@ -26,12 +27,10 @@ before_filter :authenticate_user!
         },
       )
     rescue Stripe::CardError => e
-      # CardError; display an error message.
       flash[:error] = "#{e}"
       redirect_to edit_user_registration_path
       return
     rescue => e
-      # Some other error; display an error message.
       flash[:error] = "#{e}"
       redirect_to edit_user_registration_path
       return
@@ -76,12 +75,10 @@ before_filter :authenticate_user!
           redirect_to edit_user_registration_path
           return
         rescue Stripe::CardError => e
-          # CardError; display an error message.
           flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
           return
         rescue => e
-          # Some other error; display an error message.
           flash[:error] = "#{e}"
         end
       end

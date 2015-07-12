@@ -11,17 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150712003244) do
+ActiveRecord::Schema.define(version: 20150712012452) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "products", force: :cascade do |t|
     t.string   "title"
-    t.decimal  "price"
+    t.decimal  "price",                      precision: 12, scale: 3
     t.integer  "user_id"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
     t.string   "uuid"
     t.string   "slug"
     t.string   "product_image_file_name"
@@ -132,6 +132,7 @@ ActiveRecord::Schema.define(version: 20150712003244) do
     t.string   "address"
     t.text     "return_policy"
     t.string   "shipping_address"
+    t.string   "country_name"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

@@ -24,14 +24,9 @@ class UsersController < ApplicationController
         current_user.update_attributes(card_number: card_number)
       end
       
-      if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?
-
-        # @card = @crypt.decrypt_and_verify(current_user.card_number)
-
-        #make account instead of customer
-        #add address to merchants
-        
+      if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?        
         begin 
+          #Merchant creation from sign of signup, to merchant creation
           merchant = Stripe::Account.create(
               managed: true,
               country: current_user.address_country,
@@ -88,12 +83,10 @@ class UsersController < ApplicationController
           current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key )
           flash[:notice] = "User Information Updated"
         rescue Stripe::CardError => e
-          # CardError; display an error message.
           flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
           return
         rescue => e
-          # Some other error; display an error message.
           flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
           return
@@ -116,6 +109,6 @@ private
                                   :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, 
                                   :support_phone, :support_email, :business_url, :merchant_id, :business_name, 
                                   :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, 
-                                  :exp_year, :cvc_number, :tax_id, :account_number, :routing_number)
+                                  :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name)
   end
 end

@@ -2,22 +2,20 @@ class ProductsController < ApplicationController
   before_filter :authenticate_user!, except: :index
   before_action :set_product, only: [:show, :edit, :update, :destroy]
 
-  # GET /products
-  # GET /products.json
+
+#Track For Admin & Merchant on Show page for 'Product Views'
+
   def index
     @products = Product.all.where(active: true)
     @pendings = Product.all.where(active: false)
     authorize @products
   end
 
-  # GET /products/1
-  # GET /products/1.json
   def show
     @product = Product.find(params[:id])
     authorize @product
   end
 
-  # GET /products/new
   def new
     if current_user.merchant_ready? || current_user.admin?
       @product = Product.new
@@ -28,14 +26,11 @@ class ProductsController < ApplicationController
     end
   end
 
-  # GET /products/1/edit
   def edit
     @product = Product.friendly.find(params[:id])
     authorize @product
   end
 
-  # POST /products
-  # POST /products.json
   def create
     @product = current_user.products.build(product_params)
     if @product.save
@@ -54,8 +49,6 @@ class ProductsController < ApplicationController
     authorize @product
   end
 
-  # PATCH/PUT /products/1
-  # PATCH/PUT /products/1.json
   def update
     if @product.update(product_params)
       redirect_to @product, notice: 'Product was successfully updated.'
@@ -72,12 +65,10 @@ class ProductsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_product
       @product = Product.friendly.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
       params.require(:product).permit(:active, :product_image, :title, :price, :uuid)
     end

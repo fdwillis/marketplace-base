@@ -1,6 +1,7 @@
 class HomeController < ApplicationController
 
   def home
+    #Track For Admin
     Keen.publish("Homepage Visits", { 
       visitor_city: request.location.data["city"],
       visitor_state: request.location.data["region_name"],
