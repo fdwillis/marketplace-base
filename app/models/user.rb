@@ -61,7 +61,7 @@ class User < ActiveRecord::Base
     charge = Stripe::Charge.create(
     {
       amount:      @price,
-      currency:    currency,
+      currency: 'USD',
       source: token.id ,
       description: 'MarketplaceBase',
       application_fee: @fee,
