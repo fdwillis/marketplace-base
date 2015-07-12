@@ -41,7 +41,7 @@ class ProductsController < ApplicationController
     if @product.save
       if !current_user.admin?
         @product.update_attributes(active: false)
-        flash[:alert] ='Product is now pending'
+        flash[:alert] ="Product #{@product.title} is now pending"
       else
         @product.update_attributes(active: true)
         flash[:notice] ='Product created'
