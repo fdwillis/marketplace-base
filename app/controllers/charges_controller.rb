@@ -9,6 +9,7 @@ class ChargesController < ApplicationController
       redirect_to root_path
     else
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      @price = params[:price].to_i
 
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
@@ -44,7 +45,7 @@ class ChargesController < ApplicationController
 
         if Product.find_by(uuid: params[:uuid]).user.role == 'admin'
           begin
-            @charge = User.charge_for_admin(params[:price].to_i, @token.id)
+            @charge = User.charge_for_admin(@price, @token.id)
             redirect_to root_path
             flash[:notice] = "Thanks for the purchase!"
             Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
@@ -66,7 +67,7 @@ class ChargesController < ApplicationController
         else
           begin
             
-            @charge = User.charge_n_process(params[:price].to_i, @token, @stripe_account_id, @currency, )
+            @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency, )
             
             redirect_to root_path
             flash[:notice] = "Thanks for the purchase!"
@@ -89,7 +90,7 @@ class ChargesController < ApplicationController
         end
       else
         redirect_to edit_user_registration_path
-        flash[:error] = "Please Add Credit Card Details"
+        flash[:error] = "You Are Missing Credit Card Details"
         return
       end
     end

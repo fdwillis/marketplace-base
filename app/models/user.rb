@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   has_many :transfers
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
   end
 
   def merchant_ready?
-    return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+    tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
   def merchant_changed

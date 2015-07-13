@@ -109,6 +109,7 @@ private
                                   :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, 
                                   :support_phone, :support_email, :business_url, :merchant_id, :business_name, 
                                   :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, 
-                                  :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name)
+                                  :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name, 
+                                  :tax_rate)
   end
 end

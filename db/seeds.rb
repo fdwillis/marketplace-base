@@ -42,6 +42,7 @@ merchant = User.create!(
               address_zip: 5055,
               address_country: 'NO',
               currency: 'NOK',
+              tax_rate: 2.0,
 )
 
 

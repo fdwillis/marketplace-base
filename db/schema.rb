@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150712012452) do
+ActiveRecord::Schema.define(version: 20150713034824) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,12 +73,12 @@ ActiveRecord::Schema.define(version: 20150712012452) do
     t.integer  "exp_year"
     t.string   "cvc_number"
     t.string   "legal_name"
-    t.string   "email",                              default: "", null: false
-    t.string   "encrypted_password",                 default: "", null: false
+    t.string   "email",                                                       default: "",                                                                                                                                                                                                                                                                                  null: false
+    t.string   "encrypted_password",                                          default: "",                                                                                                                                                                                                                                                                                  null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,  null: false
+    t.integer  "sign_in_count",                                               default: 0,                                                                                                                                                                                                                                                                                   null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
@@ -87,8 +87,8 @@ ActiveRecord::Schema.define(version: 20150712012452) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
+    t.datetime "created_at",                                                                                                                                                                                                                                                                                                                                                null: false
+    t.datetime "updated_at",                                                                                                                                                                                                                                                                                                                                                null: false
     t.string   "name"
     t.string   "username"
     t.string   "role"
@@ -96,7 +96,7 @@ ActiveRecord::Schema.define(version: 20150712012452) do
     t.string   "routing_number"
     t.string   "account_number"
     t.string   "stripe_recipient_id"
-    t.integer  "pending_payment",                    default: 0
+    t.integer  "pending_payment",                                             default: 0
     t.string   "stripe_id"
     t.boolean  "recipient_created"
     t.string   "slug"
@@ -127,9 +127,10 @@ ActiveRecord::Schema.define(version: 20150712012452) do
     t.string   "address_state"
     t.string   "address_country"
     t.string   "address"
-    t.text     "return_policy"
+    t.text     "return_policy",                                               default: "Our policy lasts 30 days. If 30 days have gone by since your purchase, unfortunately we can’t offer you a refund or exchange.\n\nTo be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging."
     t.string   "shipping_address"
     t.string   "country_name"
+    t.decimal  "tax_rate",                           precision: 12, scale: 3
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
