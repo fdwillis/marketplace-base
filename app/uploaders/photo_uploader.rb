@@ -9,10 +9,7 @@ class PhotoUploader < CarrierWave::Uploader::Base
      %w(jpg jpeg gif png)
   end
 
-  version :thumb do
-    process :resize_to_limit => [200, 200]
-  end
- version :medium do
+ version :p50x50 do
    process :resize_and_pad => [50,50]
  end
  version :p200x200 do

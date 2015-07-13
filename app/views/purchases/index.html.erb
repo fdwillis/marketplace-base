@@ -10,7 +10,7 @@
   <tbody>
     <% @purchases.each do |purchase| %>
       <tr>
-        <td><%= image_tag(Product.find_by(uuid: purchase.uuid).product_image.url(:medium)) %></td>
+        <td><%= image_tag(Product.find_by(uuid: purchase.uuid).product_image.url(:p50x50)) %></td>
         <td><%= purchase.title %></td>
         <td><%= "Price: $#{number_with_precision(purchase.price.to_f / 100, precision: 2)}" %></td>
         <% if purchase.refunded? %>

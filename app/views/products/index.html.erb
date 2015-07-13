@@ -16,7 +16,7 @@
         <tr>
           <td><%= product.title %></td>
           <td><%= number_to_currency(product.price, precision: 2) %></td>
-          <td><%= image_tag(product.product_image.url(:medium)) %></td>
+          <td><%= image_tag(product.product_image.url(:p200x200)) %></td>
           <% if current_user %>  
             <% if current_user.purchases %>  
               <% unless current_user.purchases.map(&:product_id).include?(product.id) && !current_user.purchases.find_by(uuid: product.uuid).refunded %>

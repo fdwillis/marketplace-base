@@ -72,6 +72,10 @@ class ReportsController < ApplicationController
                 ['Visits',   900],
                 ['Downloads',       700],
             ])
+      f.series(name: "hi",data: [
+                ['Visits',   700],
+                ['Downloads', 200],
+            ])
       f.yAxis(title: {text: "View Count"})
       f.xAxis(type: 'datetime', categories: @d)
       f.tooltip(shared: true)

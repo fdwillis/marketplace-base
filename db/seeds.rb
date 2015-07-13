@@ -56,9 +56,9 @@ merchant.save!
     user_id: 2,
     title: Faker::Name.name,
     price: 100,
-    product_image: Faker::Avatar.image,
     uuid: SecureRandom.uuid,
     active: true,
+    product_image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/2000px-Logo_NIKE.svg.png'
     )
 end
 
