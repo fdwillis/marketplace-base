@@ -70,13 +70,10 @@ GEM
       activesupport (>= 3.2.0)
       json (>= 1.7)
       mime-types (>= 1.16)
-    climate_control (0.0.3)
-      activesupport (>= 3.0)
     clockwork (1.2.0)
       activesupport
       tzinfo
-    cocaine (0.5.7)
-      climate_control (>= 0.0.3, < 1.0)
+    cocoon (1.2.6)
     coderay (1.1.0)
     coffee-rails (4.1.0)
       coffee-script (>= 2.2.0)
@@ -238,7 +235,6 @@ GEM
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
     mime-types (2.6.1)
-    mimemagic (0.3.0)
     mini_magick (4.2.7)
     mini_portile (0.6.2)
     minitest (5.7.0)
@@ -258,12 +254,6 @@ GEM
       multi_xml (~> 0.5)
       rack (~> 1.2)
     orm_adapter (0.5.0)
-    paperclip (4.3.0)
-      activemodel (>= 3.2.0)
-      activesupport (>= 3.2.0)
-      cocaine (~> 0.5.5)
-      mime-types
-      mimemagic (= 0.3.0)
     pg (0.18.2)
     polyamorous (1.2.0)
       activerecord (>= 3.0)
@@ -375,6 +365,7 @@ DEPENDENCIES
   byebug
   carrierwave
   clockwork
+  cocoon
   coffee-rails (~> 4.1.0)
   devise (~> 3.4.1)
   faker
@@ -388,7 +379,6 @@ DEPENDENCIES
   keen
   lazy_high_charts
   mini_magick
-  paperclip
   pg
   pundit
   rails (= 4.2.0)

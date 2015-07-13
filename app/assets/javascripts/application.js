@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require cocoon
 //= require highcharts
 //= require highcharts/modules/funnel
 //= require turbolinks
