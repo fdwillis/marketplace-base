@@ -1,6 +1,12 @@
 <div class='container'>
-  <h1><%= @merchant.username %></h1>
-  <% @merchant.products.each do |pro| %>
+  <h1>
+    <%= @merchant.username %>
+  </h1>
+  <h4>
+    <%= link_to @merchant.bitly_link, @merchant.bitly_link, 'target' => "_blank"  %>
+  </h4>
+
+  <% @products.each do |pro| %>
     <p>
       <%= link_to pro.title, product_path(pro.slug) %>
       <%= number_to_currency(pro.price, precision: 2) %>

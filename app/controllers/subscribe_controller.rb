@@ -12,9 +12,17 @@ before_filter :authenticate_user!
     @cvc_number = params[:user][:cvc_number]
     @username = params[:user][:username]
 
+    Bitly.use_api_version_3
+    Bitly.configure do |config|
+      config.api_version = 3
+      config.access_token = ENV["BITLY_ACCESS_TOKEN"]
+    end
+    
+    @bitly_link = Bitly.client.shorten("https://marketplace-base.herokuapp.com/merchants/#{@username}").short_url
+
     begin
       @token = Stripe::Token.create(
-        :card => {
+        card: {
           number: @crypt.decrypt_and_verify(@card_number),
           exp_month: @exp_month.to_i,
           exp_year: @exp_year.to_i,
@@ -44,7 +52,7 @@ before_filter :authenticate_user!
       subscription.plan = plan.id
       subscription.save
 
-      current_user.update_attributes(role: 'merchant', stripe_plan_name: plan.name)
+      current_user.update_attributes(role: 'merchant', stripe_plan_name: plan.name, bitly_link: @bitly_link )
       redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
       return
     elsif current_user.card?
@@ -56,7 +64,8 @@ before_filter :authenticate_user!
             p.update_attributes(active: true)
           end
         end
-        current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name, role: 'merchant')
+        current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name,
+                                       role: 'merchant', bitly_link: @bitly_link)
 
         flash[:notice] = "You Joined #{plan.name} Plan"
         redirect_to edit_user_registration_path
@@ -69,8 +78,10 @@ before_filter :authenticate_user!
             plan: plan.id,
             description: 'MarketplaceBase'
           )
-          current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', username: @username, card_number: @card_number, exp_year: @exp_year, exp_month: @exp_month, cvc_number: @cvc_number, 
-                                     stripe_plan_id: customer.subscriptions.data[0].id , stripe_plan_name: customer.subscriptions.data[0].plan.name)
+          current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', 
+                                         username: @username, card_number: @card_number, exp_year: @exp_year, 
+                                         exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: customer.subscriptions.data[0].id,
+                                         stripe_plan_name: customer.subscriptions.data[0].plan.name, bitly_link: @bitly_link)
           flash[:notice] = "You Joined #{plan.name} Plan"
           redirect_to edit_user_registration_path
           return
