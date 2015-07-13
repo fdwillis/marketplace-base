@@ -40,6 +40,8 @@ GEM
     activeuuid (0.6.0)
       activerecord (>= 3.1)
       uuidtools
+    acts-as-taggable-on (3.5.0)
+      activerecord (>= 3.2, < 5)
     acts_as_votable (0.10.0)
     addressable (2.3.8)
     arel (6.0.2)
@@ -355,6 +357,7 @@ PLATFORMS
 
 DEPENDENCIES
   activeuuid
+  acts-as-taggable-on
   acts_as_votable
   awesome_print
   better_errors

@@ -33,3 +33,6 @@ namespace :tasks do
 end
 
 
+# Most And Least Used Tags
+# ActsAsTaggableOn::Tag.most_used
+# ActsAsTaggableOn::Tag.least_used

@@ -40,6 +40,7 @@ source 'https://rubygems.org'
 
 
 #Misc
+  gem 'acts-as-taggable-on'
   gem 'awesome_print'
   gem 'clockwork'
   gem 'browser'

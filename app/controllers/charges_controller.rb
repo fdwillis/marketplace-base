@@ -3,6 +3,7 @@ class ChargesController < ApplicationController
   def create
     #Track with Keen for Merchant & Admin
     #Time between purchases for customers in hours
+    #Track product tags as well with Keen
     
     if !current_user.purchases.find_by(purchase_id: params[:purchase_id]).nil? && !current_user.purchases.find_by(purchase_id: params[:purchase_id]).refunded?
       flash[:error] = "You've Already Purchased This"
