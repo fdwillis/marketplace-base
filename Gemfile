@@ -11,8 +11,6 @@ gem 'clockwork'
 gem 'browser'
 gem 'bitly'
 gem 'pundit'
-gem 'better_errors'
-gem 'binding_of_caller'
 gem 'geocoder'
 gem 'lazy_high_charts'
 gem "activeuuid"
@@ -40,10 +38,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'rails_12factor', group: :production
 
 group :development, :test do
+  gem 'better_errors'
+  gem 'binding_of_caller'
   gem 'byebug'
-
   gem 'web-console', '~> 2.0'
-
   gem 'spring'
 end
 
