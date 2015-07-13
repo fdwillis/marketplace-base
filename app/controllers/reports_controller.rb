@@ -1,4 +1,5 @@
 class ReportsController < ApplicationController
+  before_filter :authenticate_user!
   def index
     @bar = LazyHighCharts::HighChart.new('graph') do |f|
       f.title(:text => "Population vs GDP For 5 Big Countries [2009]")

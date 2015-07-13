@@ -69,7 +69,7 @@
         </div>
         <div class="form-group">
           <%= f.label :address_state, 'State' %>
-          <%= f.text_field :address_state, class: 'form-control', placeholder: "California"%>
+          <%= f.text_field :address_state, class: 'form-control', placeholder: "California", minlength: 3%>
         </div>
         <% @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
         <div class="form-group">

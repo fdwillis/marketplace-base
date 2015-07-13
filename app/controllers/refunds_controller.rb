@@ -1,6 +1,7 @@
 class RefundsController < ApplicationController
   before_filter :authenticate_user!
   def create
+    #Test refund for admin, might need to filter because admin doesnt have merchant_secret field
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     #Track With Keen
     # let merchants handle refunds
