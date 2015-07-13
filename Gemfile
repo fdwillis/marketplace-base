@@ -10,11 +10,17 @@ gem 'figaro'
 gem 'clockwork'
 gem 'browser'
 gem 'bitly'
-gem 'actionpack-page_caching'
 gem 'pundit'
+gem 'better_errors'
+gem 'binding_of_caller'
 gem 'geocoder'
 gem 'lazy_high_charts'
 gem "activeuuid"
+# ffaker
+gem 'carrierwave'
+gem 'fog'
+gem 'mini_magick', require: false
+# gem 'rack-mini-profiler', require: false
 gem 'bootstrap-sass'
 gem "highcharts-rails"
 gem 'acts_as_votable'
