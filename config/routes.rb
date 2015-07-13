@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resources :products
 
   resources :purchases, only: [:index]
-  resources :refunds, only: [:create]
+  resources :refunds, only: [:index, :create]
   
   resources :reports, only: :index
   resources :subscribe, only: [:update,:destroy]
