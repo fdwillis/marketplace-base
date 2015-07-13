@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150713042142) do
+ActiveRecord::Schema.define(version: 20150713053425) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,6 +50,19 @@ ActiveRecord::Schema.define(version: 20150713042142) do
 
   add_index "purchases", ["product_id"], name: "index_purchases_on_product_id", using: :btree
   add_index "purchases", ["user_id"], name: "index_purchases_on_user_id", using: :btree
+
+  create_table "shipping_addresses", force: :cascade do |t|
+    t.string   "street"
+    t.string   "city"
+    t.string   "state"
+    t.string   "region"
+    t.string   "zip"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "shipping_addresses", ["user_id"], name: "index_shipping_addresses_on_user_id", using: :btree
 
   create_table "shipping_options", force: :cascade do |t|
     t.decimal  "price",      precision: 12, scale: 2
@@ -146,6 +159,7 @@ ActiveRecord::Schema.define(version: 20150713042142) do
   add_foreign_key "products", "users"
   add_foreign_key "purchases", "products"
   add_foreign_key "purchases", "users"
+  add_foreign_key "shipping_addresses", "users"
   add_foreign_key "shipping_options", "products"
   add_foreign_key "transfers", "users"
 end

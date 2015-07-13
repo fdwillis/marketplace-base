@@ -197,4 +197,20 @@
       <% end %>
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-4">
+      <%= simple_form_for(current_user) do |f| %>
+        <h3>Shipping Addresses</h3>
+        <%= f.simple_fields_for :shipping_addresses do |address| %>
+          <%= render 'shipping_address_fields', f: address %>
+        <% end %>
+        <div class="links">
+          <%= link_to_add_association 'Add Shipping Option', f, :shipping_addresses %>
+        </div>
+        <div class="actions">
+          <%= f.submit %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>
