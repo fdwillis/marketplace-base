@@ -1,5 +1,5 @@
 <div class="nested-fields">
-  <%= f.input :title %>
-  <%= f.input :price %>
+  <%= f.text_field :title, class: 'form-control pricing', placeholder: "Overnight Shipping" %>
+  <%= f.number_field :price, class: 'form-control pricing', placeholder: "348.89", step: 'any' %>
   <%= link_to_remove_association "Remove", f %>
 </div>  

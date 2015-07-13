@@ -17,6 +17,6 @@ class Product < ActiveRecord::Base
   accepts_nested_attributes_for :shipping_options, reject_if: :all_blank, allow_destroy: true
 
   def total_price
-    (price * 100) + (price * user.tax_rate) + shipping_price
+    (price * 100) + (price * user.tax_rate) #+ chosen shipping_address
   end
 end
