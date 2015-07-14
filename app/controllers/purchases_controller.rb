@@ -22,6 +22,7 @@ class PurchasesController < ApplicationController
           
           @currency = User.find(Product.find_by(uuid: params[:uuid]).user_id).currency
           @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
+          @shipping = params[:shipping_option].to_i
         end
         begin
           @token = Stripe::Token.create(
@@ -51,7 +52,7 @@ class PurchasesController < ApplicationController
           if params[:shipping_option]
             if Product.find_by(uuid: params[:uuid]).user.role == 'admin'
               begin
-                @charge = User.charge_for_admin(@price, @token.id)
+                @charge = User.charge_for_admin(@price, @token.id, @shipping)
                 redirect_to root_path
                 flash[:notice] = "Thanks for the purchase!"
                 Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
@@ -73,7 +74,7 @@ class PurchasesController < ApplicationController
             else
               begin
                 
-                @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency, )
+                @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency, @shipping)
                 
                 redirect_to root_path
                 flash[:notice] = "Thanks for the purchase!"

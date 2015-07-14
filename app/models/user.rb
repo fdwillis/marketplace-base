@@ -56,14 +56,15 @@ class User < ActiveRecord::Base
     stripe_account_id.present?
   end
 
-  def self.charge_n_process(price, token, stripe_account_id, currency )
+  def self.charge_n_process(price, token, stripe_account_id, currency, shipping )
     @price = price
+    @total_cost = @price + shipping
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
-
+    debugger
     charge = Stripe::Charge.create(
     {
-      amount:      @price,
+      amount:      @total_cost,
       currency: 'USD',
       source: token.id ,
       description: 'MarketplaceBase',
@@ -73,9 +74,9 @@ class User < ActiveRecord::Base
     )  
   end
 
-  def self.charge_for_admin(price, token)
+  def self.charge_for_admin(price, token, shipping)
     Stripe::Charge.create(
-      amount: price,
+      amount: price + shipping,
       currency: "usd",
       source: token, 
       description: "MarketplaceBase",

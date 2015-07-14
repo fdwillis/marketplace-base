@@ -38,7 +38,7 @@
                                   <%= number_field_tag :quantity, class: 'form-control' %>
                                   <h3>Shipping Options</h3>
                                   <% product.shipping_options.each do |shipping| %>
-                                    <p><%= radio_button_tag(:shipping_option, shipping.title.titleize) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
+                                    <p><%= radio_button_tag(:shipping_option, (shipping.price * 100)) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
                                   <% end %>
                                   <h3>Refund Policy</h3>
                                   <%= radio_button_tag(:refund_agreement, "I Agree") %> Yes, I Agree
