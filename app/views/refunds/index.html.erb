@@ -1,3 +1,4 @@
+<h1>Refunds</h1>
 <% @refunds.each do |refund| %>
   <%= refund.title %>
   <%= number_to_currency((refund.price / 100), precision: 2) %>

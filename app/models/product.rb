@@ -12,7 +12,7 @@ class Product < ActiveRecord::Base
   has_many :users, through: :purchases
 
   validates_uniqueness_of :title
-  validates :price, format: { with: /\A\d+(?:\.\d{0,2})?\z/ }, numericality: {greater_than: 0}
+  validates :price, :quantity, format: { with: /\A\d+(?:\.\d{0,2})?\z/ }, numericality: {greater_than: 0}
   validates_presence_of :title, :price, :quantity, :shipping_options
 
   mount_uploader :product_image, PhotoUploader

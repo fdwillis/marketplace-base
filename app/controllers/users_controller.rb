@@ -79,6 +79,13 @@ class UsersController < ApplicationController
           @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
           @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
           @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
+          Bitly.use_api_version_3
+          Bitly.configure do |config|
+            config.api_version = 3
+            config.access_token = ENV["BITLY_ACCESS_TOKEN"]
+          end
+          
+          @bitly_link = Bitly.client.shorten("https://marketplace-base.herokuapp.com/merchants/#{current_user.username}").short_url
 
           current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key )
           flash[:notice] = "User Information Updated"
@@ -110,6 +117,6 @@ private
                                   :support_phone, :support_email, :business_url, :merchant_id, :business_name, 
                                   :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, 
                                   :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name, 
-                                  :tax_rate,shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy])
+                                  :tax_rate,:bank_currency, shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy])
   end
 end

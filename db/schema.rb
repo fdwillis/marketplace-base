@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150714173428) do
+ActiveRecord::Schema.define(version: 20150714215753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "products", force: :cascade do |t|
     t.string   "title"
-    t.decimal  "price",         precision: 12, scale: 3
+    t.decimal  "price",         precision: 12, scale: 2
     t.integer  "user_id"
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
@@ -174,8 +174,9 @@ ActiveRecord::Schema.define(version: 20150714173428) do
     t.text     "return_policy",                                               default: "Our policy lasts 30 days. If 30 days have gone by since your purchase, unfortunately we can’t offer you a refund or exchange.\n\nTo be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging."
     t.string   "shipping_address"
     t.string   "country_name"
-    t.decimal  "tax_rate",                           precision: 12, scale: 3
+    t.decimal  "tax_rate",                           precision: 12, scale: 2
     t.string   "bitly_link"
+    t.string   "bank_currency"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

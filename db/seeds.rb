@@ -42,6 +42,7 @@ merchant = User.create!(
               address_zip: 5055,
               address_country: 'NO',
               currency: 'NOK',
+              bank_currency: 'NOK',
               tax_rate: 2.0,
 )
 
@@ -59,7 +60,8 @@ merchant.save!
     price: 100,
     uuid: SecureRandom.uuid,
     active: true,
-    product_image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/2000px-Logo_NIKE.svg.png'
+    product_image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/2000px-Logo_NIKE.svg.png',
+    quantity: 10
     )
 end
 
@@ -82,7 +84,7 @@ stripe.each do |user|
       external_account: {
         object: 'bank_account',
         country: user.address_country,
-        currency: user.currency,
+        currency: user.bank_currency,
         routing_number: user.routing_number,
         account_number: @crypt.decrypt_and_verify(user.account_number),
       },

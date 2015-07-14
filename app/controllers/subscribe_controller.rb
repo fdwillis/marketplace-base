@@ -11,15 +11,6 @@ before_filter :authenticate_user!
     @exp_year = params[:user][:exp_year]
     @cvc_number = params[:user][:cvc_number]
     @username = params[:user][:username]
-
-    Bitly.use_api_version_3
-    Bitly.configure do |config|
-      config.api_version = 3
-      config.access_token = ENV["BITLY_ACCESS_TOKEN"]
-    end
-    
-    @bitly_link = Bitly.client.shorten("https://marketplace-base.herokuapp.com/merchants/#{@username}").short_url
-
     begin
       @token = Stripe::Token.create(
         card: {
@@ -64,7 +55,7 @@ before_filter :authenticate_user!
             p.update_attributes(active: true)
           end
         end
-        current_user.update_attributes(slug: @username, stripe_plan_id: subscription.id , stripe_plan_name: plan.name,
+        current_user.update_attributes(slug: @username = params[:user][:username], stripe_plan_id: subscription.id , stripe_plan_name: plan.name,
                                        role: 'merchant', bitly_link: @bitly_link)
 
         flash[:notice] = "You Joined #{plan.name} Plan"
@@ -78,8 +69,8 @@ before_filter :authenticate_user!
             plan: plan.id,
             description: 'MarketplaceBase'
           )
-          current_user.update_attributes(slug: @username, marketplace_stripe_id: customer.id, role: 'merchant', 
-                                         username: @username, card_number: @card_number, exp_year: @exp_year, 
+          current_user.update_attributes(slug: @username = params[:user][:username], marketplace_stripe_id: customer.id, role: 'merchant', 
+                                         username: @username = params[:user][:username], card_number: @card_number, exp_year: @exp_year, 
                                          exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: customer.subscriptions.data[0].id,
                                          stripe_plan_name: customer.subscriptions.data[0].plan.name, bitly_link: @bitly_link)
           flash[:notice] = "You Joined #{plan.name} Plan"

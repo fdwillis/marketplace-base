@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   end
 
   def merchant_ready?
-    tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+    tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && bank_currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
   def merchant_changed
@@ -61,7 +61,7 @@ class User < ActiveRecord::Base
     @total_cost = @price + shipping
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
-    debugger
+    
     charge = Stripe::Charge.create(
     {
       amount:      @total_cost,
