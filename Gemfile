@@ -40,7 +40,7 @@ source 'https://rubygems.org'
 
 
 #Misc
-  gem 'acts-as-taggable-on'
+  gem 'acts-as-taggable-on', '~> 3.4'
   gem 'awesome_print'
   gem 'clockwork'
   gem 'browser'

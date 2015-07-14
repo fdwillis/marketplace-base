@@ -96,7 +96,7 @@ GEM
     domain_name (0.5.24)
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
-    excon (0.45.3)
+    excon (0.45.4)
     execjs (2.5.2)
     faker (1.4.3)
       i18n (~> 0.5)
@@ -357,7 +357,7 @@ PLATFORMS
 
 DEPENDENCIES
   activeuuid
-  acts-as-taggable-on
+  acts-as-taggable-on (~> 3.4)
   acts_as_votable
   awesome_print
   better_errors

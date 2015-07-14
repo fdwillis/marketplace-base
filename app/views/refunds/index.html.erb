@@ -4,4 +4,5 @@
   <%= refund.status %>
   <%= refund.purchase_id %>
   <%= refund.created_at.to_date.strftime("%B #{refund.created_at.to_date.day.ordinalize}, %Y") %>
+  <%= link_to "Issue Refund", refund_path(id: refund.id, uuid: refund.uuid, refund_id: refund.stripe_charge_id, price: refund.price), class: 'btn btn-warning', method: :put %>
 <% end %>
