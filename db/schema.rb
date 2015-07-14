@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150713194921) do
+ActiveRecord::Schema.define(version: 20150714163435) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 20150713194921) do
     t.boolean  "pending"
     t.boolean  "active"
     t.text     "description"
+    t.integer  "quantity"
   end
 
   add_index "products", ["slug"], name: "index_products_on_slug", unique: true, using: :btree
@@ -47,6 +48,8 @@ ActiveRecord::Schema.define(version: 20150713194921) do
     t.string   "application_fee"
     t.string   "purchase_id"
     t.string   "status"
+    t.integer  "quantity"
+    t.text     "description"
   end
 
   add_index "purchases", ["product_id"], name: "index_purchases_on_product_id", using: :btree

@@ -1,6 +1,7 @@
 class ChargesController < ApplicationController
   before_filter :authenticate_user!
   def create
+    @charge = current_user.purchases.build(purchase_params)
     #Track with Keen for Merchant & Admin
     #Time between purchases for customers in hours
     #Track product tags as well with Keen
@@ -98,5 +99,10 @@ class ChargesController < ApplicationController
         return
       end
     end
+  end
+
+private 
+  def purchase_params
+    params.require(:purchase).permit(:quantity, :description, :title, :price, :uuid, :user_id, :product_id, :refunded, :stripe_charge_id, :merchant_id, :application_fee, :purchase_id, :status)
   end
 end

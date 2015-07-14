@@ -28,17 +28,26 @@
                         <div class="modal-header">
                           <h1 class='text-center'> Review Purchase Of <%= product.title %> </h1>
                         </div>
-                        <div class="modal-body">
-                          <div class="container-fluid">  
-                            <div class="pull-right">  
-                              <h3>Shipping Options</h3>
-                              <% product.shipping_options.each do |shipping| %>
-                                <%= shipping.title %>
-                                <%= shipping.price %>
-                              <% end %>
+                        <%= form_tag purchases_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate)), title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id) do %>
+                          <div class="modal-body">
+                            <div class="container-fluid">  
+                                <div class="col-md-9">
+                                </div>
+                                <div class="col-md-3">  
+                                  <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
+                                  <%= number_field_tag :quantity, class: 'form-control' %>
+                                  <h3>Shipping Options</h3>
+                                  <% product.shipping_options.each do |shipping| %>
+                                    <p><%= radio_button_tag(:shipping, shipping.title.titleize) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
+                                  <% end %>
+                                </div>
                             </div>
                           </div>
-                        </div>
+                          <div class="modal-footer actions">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                            <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                          </div>
+                        <% end %>
                       </div>
                     </div>
                   </div>
