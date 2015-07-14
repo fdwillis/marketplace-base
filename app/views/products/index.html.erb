@@ -40,6 +40,8 @@
                                   <% product.shipping_options.each do |shipping| %>
                                     <p><%= radio_button_tag(:shipping_option, shipping.title.titleize) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
                                   <% end %>
+                                  <h3>Refund Policy</h3>
+                                  <%= radio_button_tag(:refund_agreement, "I Agree") %> Yes, I Agree
                                 </div>
                             </div>
                           </div>

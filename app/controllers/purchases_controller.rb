@@ -8,6 +8,7 @@ class PurchasesController < ApplicationController
     #Track with Keen for Merchant & Admin
     #Time between purchases for customers in hours
     #Track product tags as well with Keen
+    #Grab country of the card by switching to the merchant and using Stripe::Charge.retrieve(charge_id).source.country
     if !current_user.purchases.find_by(purchase_id: params[:purchase_id]).nil? && !current_user.purchases.find_by(purchase_id: params[:purchase_id]).refunded?
       flash[:error] = "You've Already Purchased This"
       redirect_to root_path
@@ -28,7 +29,6 @@ class PurchasesController < ApplicationController
               number: @card,
               exp_month: current_user.exp_month,
               exp_year: current_user.exp_year,
-              country: current_user.address_country,
               cvc: current_user.cvc_number,
               name: current_user.legal_name,
               address_city: current_user.address_city,
@@ -47,55 +47,60 @@ class PurchasesController < ApplicationController
           return
         end
 
-        if params[:shipping_option]
-          if Product.find_by(uuid: params[:uuid]).user.role == 'admin'
-            begin
-              @charge = User.charge_for_admin(@price, @token.id)
-              redirect_to root_path
-              flash[:notice] = "Thanks for the purchase!"
-              Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                title: params[:title], price: params[:price],
-                                user_id: current_user.id, product_id: params[:product_id],
-                                application_fee: 0, purchase_id: SecureRandom.uuid,
-                                status: 'Paid', shipping_option: params[:shipping_option]
-                )
-              return
-            rescue Stripe::CardError => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
-            rescue => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
+        if params[:refund_agreement]
+          if params[:shipping_option]
+            if Product.find_by(uuid: params[:uuid]).user.role == 'admin'
+              begin
+                @charge = User.charge_for_admin(@price, @token.id)
+                redirect_to root_path
+                flash[:notice] = "Thanks for the purchase!"
+                Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                                  title: params[:title], price: params[:price],
+                                  user_id: current_user.id, product_id: params[:product_id],
+                                  application_fee: 0, purchase_id: SecureRandom.uuid,
+                                  status: 'Paid', shipping_option: params[:shipping_option]
+                  )
+                return
+              rescue Stripe::CardError => e
+                redirect_to edit_user_registration_path
+                flash[:error] = "#{e}"
+                return
+              rescue => e
+                redirect_to edit_user_registration_path
+                flash[:error] = "#{e}"
+                return
+              end
+            else
+              begin
+                
+                @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency, )
+                
+                redirect_to root_path
+                flash[:notice] = "Thanks for the purchase!"
+                Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                                  title: params[:title], price: params[:price],
+                                  user_id: current_user.id, product_id: params[:product_id],
+                                  application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
+                                  status: 'Paid', shipping_option: params[:shipping_option]
+                  )
+                return
+              rescue Stripe::CardError => e
+                redirect_to edit_user_registration_path
+                flash[:error] = "#{e}"
+                return
+              rescue => e
+                redirect_to edit_user_registration_path
+                flash[:error] = "#{e}"
+                return
+              end
             end
           else
-            begin
-              
-              @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency, )
-              
-              redirect_to root_path
-              flash[:notice] = "Thanks for the purchase!"
-              Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                title: params[:title], price: params[:price],
-                                user_id: current_user.id, product_id: params[:product_id],
-                                application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
-                                status: 'Paid', shipping_option: params[:shipping_option]
-                )
-              return
-            rescue Stripe::CardError => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
-            rescue => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
-            end
+            redirect_to product_path(params[:product_id])
+            flash[:error] = "Please Choose A Shipping Option"
           end
         else
           redirect_to product_path(params[:product_id])
-          flash[:error] = "Please Choose A Shipping Option"
+          flash[:error] = "Plese Agree To The Sellers Return Policy"
         end
       else
         redirect_to edit_user_registration_path
