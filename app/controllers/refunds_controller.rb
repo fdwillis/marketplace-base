@@ -5,21 +5,21 @@ class RefundsController < ApplicationController
   end
   def create
     #Test refund for admin, might need to filter because admin doesnt have merchant_secret field
-    #Track With Keen
+    #Track With Keen "refund requests"
     # let merchants handle refunds
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(status: "Pending Refund")
-    redirect_to purchases_path, notice: "Your Refund Is Pending"
+    redirect_to purchases_path, alert: "Your Refund Is Pending"
   end
   def update
+    #Track With Keen "refunds fullfilled"
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     Stripe.api_key = @crypt.decrypt_and_verify(Product.find_by(uuid: params[:uuid]).user.merchant_secret_key)
     ch = Stripe::Charge.retrieve(params[:refund_id])
-    debugger
     refund = ch.refunds.create(refund_application_fee: true, amount: ((params[:price].to_i * 95) / 100))
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(status: "Refunded", refunded: true)
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
-    redirect_to refunds_path
+    redirect_to refunds_path, notice: "Refund Fullfilled"
   end
 end
