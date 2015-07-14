@@ -1,5 +1,3 @@
-<p id="notice"><%= notice %></p>
-
 <h1>Listing Purchases</h1>
 
 <table>
@@ -12,14 +10,17 @@
   <tbody>
     <% @purchases.each do |purchase| %>
       <tr>
-        <td><%= link_to 'Show', purchase %></td>
-        <td><%= link_to 'Edit', edit_purchase_path(purchase) %></td>
-        <td><%= link_to 'Destroy', purchase, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= image_tag(Product.find_by(uuid: purchase.uuid).product_image.url(:p50x50)) %></td>
+        <td><%= purchase.title %></td>
+        <td><%= "Price: $#{number_with_precision(purchase.price.to_f / 100, precision: 2)}" %></td>
+        <% if purchase.refunded? %>
+          <h4>This Purchase Has Been Refunded</h4>
+        <% else %>
+          <td><%= link_to 'Show', product_path(purchase.product_id) %></td>
+          <td><%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.price, uuid: purchase.uuid, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund #{purchase.title.titleize} now for $#{number_with_precision(purchase.price.to_f / 100, precision: 2)}?" } %></td>
+          <td>Status: <%= purchase.status %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Purchase', new_purchase_path %>
