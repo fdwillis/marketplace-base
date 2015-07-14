@@ -25,7 +25,20 @@
                   <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
                     <div class="modal-dialog modal-lg">
                       <div class="modal-content">
-                        Review Purchase Of <%= product.title %>
+                        <div class="modal-header">
+                          <h1 class='text-center'> Review Purchase Of <%= product.title %> </h1>
+                        </div>
+                        <div class="modal-body">
+                          <div class="container-fluid">  
+                            <div class="pull-right">  
+                              <h3>Shipping Options</h3>
+                              <% product.shipping_options.each do |shipping| %>
+                                <%= shipping.title %>
+                                <%= shipping.price %>
+                              <% end %>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

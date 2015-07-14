@@ -18,7 +18,7 @@ class RefundsController < ApplicationController
     debugger
     refund = ch.refunds.create(refund_application_fee: true, amount: ((params[:price].to_i * 95) / 100))
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
-    purchase.update_attributes(status: "Refunded")
+    purchase.update_attributes(status: "Refunded", refunded: true)
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
     redirect_to refunds_path
   end
