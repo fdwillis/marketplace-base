@@ -55,22 +55,6 @@
           <%= f.label :username %>
           <%= f.text_field :username, class: 'form-control', placeholder: "Enter Username"%>
         </div>
-        <div class="form-group">
-          <%= f.label :shipping_address, 'Shipping Address' %>
-          <%= f.text_field :shipping_address, class: 'form-control', placeholder: "526 West Mifflin Street Apt 29"%>
-        </div>
-        <div class="form-group">
-          <%= f.label :address_city, 'City' %>
-          <%= f.text_field :address_city, class: 'form-control', placeholder: "Madison"%>
-        </div>
-        <div class="form-group">
-          <%= f.label :address_zip, 'Zip Code' %>
-          <%= f.text_field :address_zip, class: 'form-control', placeholder: "53703"%>
-        </div>
-        <div class="form-group">
-          <%= f.label :address_state, 'State' %>
-          <%= f.text_field :address_state, class: 'form-control', placeholder: "California", minlength: 3%>
-        </div>
         <% @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
         <div class="form-group">
           <%= f.label :card_number, "Card Number (Encrypted)" %>
