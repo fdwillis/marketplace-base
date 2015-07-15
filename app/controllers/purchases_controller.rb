@@ -108,7 +108,7 @@ class PurchasesController < ApplicationController
         end
       else
         redirect_to edit_user_registration_path
-        flash[:error] = "You Are Missing Credit Card Details"
+        flash[:error] = "You Are Missing Credit Card Details Or Shipping Information"
         return
       end
     end
