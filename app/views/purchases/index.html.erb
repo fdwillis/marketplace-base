@@ -14,6 +14,7 @@
         <td><%= purchase.title %></td>
         <td><%= "Price: #{number_to_currency(purchase.price.to_f / 100, precision: 2)}" %></td>
         <td><%= "Shipping Option: #{purchase.shipping_option} (#{number_to_currency(Product.find(purchase.product_id).shipping_options.find_by(title: purchase.shipping_option).price, precision: 2)})" %></td>
+        <td><%= "Ship To: #{purchase.ship_to}" %></td>
         <% if purchase.refunded? %>
           <h4>This Purchase Has Been Refunded</h4>
         <% elsif purchase.status == "Pending Refund" %>
@@ -44,6 +45,7 @@
         <td><%= order.title %></td>
         <td><%= "Price: #{number_to_currency(order.price.to_f / 100, precision: 2)}" %></td>
         <td><%= "Shipping Option: #{order.shipping_option} (#{number_to_currency(Product.find(order.product_id).shipping_options.find_by(title: order.shipping_option).price, precision: 2)})" %></td>
+        <td><%= "Ship To: #{order.ship_to}" %></td>
         <% if order.refunded? %>
           <h4>This Purchase Has Been Refunded</h4>
         <% else %>

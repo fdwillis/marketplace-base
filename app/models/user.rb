@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   end
 
   def shipping_to
-    shipping_addresses.map{|f| [[f.street, f.zip].join(", ")].compact}
+    shipping_addresses.map{|f| [f.street.upcase, f.city.upcase, f.state.upcase, f.region.upcase, f.zip].join(", ")}
   end
 
   def merchant_ready?

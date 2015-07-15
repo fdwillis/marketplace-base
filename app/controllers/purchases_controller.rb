@@ -25,6 +25,7 @@ class PurchasesController < ApplicationController
           @stripe_account_id = @crypt.decrypt_and_verify(User.find(Product.find_by(uuid: params[:uuid]).user_id).stripe_account_id)
           @shipping = params[:shipping_option].to_i
           @shipping_name = Product.find_by(uuid: params[:uuid]).shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
+          @ship_to = params[:ship_to]
         end
         begin
           @token = Stripe::Token.create(
@@ -61,7 +62,7 @@ class PurchasesController < ApplicationController
                                   title: params[:title], price: params[:price],
                                   user_id: current_user.id, product_id: params[:product_id],
                                   application_fee: 0, purchase_id: SecureRandom.uuid,
-                                  status: 'Paid', shipping_option: @shipping_name,
+                                  status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to,
                   )
                 return
               rescue Stripe::CardError => e
@@ -84,7 +85,7 @@ class PurchasesController < ApplicationController
                                   title: params[:title], price: params[:price],
                                   user_id: current_user.id, product_id: params[:product_id],
                                   application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
-                                  status: 'Paid', shipping_option: @shipping_name,
+                                  status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to,
                   )
                 return
               rescue Stripe::CardError => e
