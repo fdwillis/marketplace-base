@@ -1,4 +1,4 @@
-<h1>Purchases</h1>
+<h1>Personal Orders</h1>
 
 <table>
   <thead>
@@ -13,13 +13,42 @@
         <td><%= image_tag(Product.find_by(uuid: purchase.uuid).product_image.url(:p50x50)) %></td>
         <td><%= purchase.title %></td>
         <td><%= "Price: #{number_to_currency(purchase.price.to_f / 100, precision: 2)}" %></td>
-        <td><%= "Shipping Option: #{number_to_currency(purchase.shipping_option.to_f / 100, precision: 2)}" %></td>
+        <td><%= "Shipping Option: #{purchase.shipping_option} (#{number_to_currency(Product.find(purchase.product_id).shipping_options.find_by(title: purchase.shipping_option).price, precision: 2)})" %></td>
         <% if purchase.refunded? %>
           <h4>This Purchase Has Been Refunded</h4>
-        <% else %>
+        <% elsif purchase.status == "Pending Refund" %>
           <td><%= link_to 'Show', product_path(purchase.product_id) %></td>
+          <td>Status: <%= purchase.status %></td>
+        <% else %>
           <td><%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.price, uuid: purchase.uuid, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund #{purchase.title.titleize} now for $#{number_to_currency(purchase.price.to_f / 100, precision: 2)}?" } %></td>
           <td>Status: <%= purchase.status %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h1>Store Orders</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @orders.each do |order| %>
+      <tr>
+        <td><%= image_tag(Product.find_by(uuid: order.uuid).product_image.url(:p50x50)) %></td>
+        <td><%= order.title %></td>
+        <td><%= "Price: #{number_to_currency(order.price.to_f / 100, precision: 2)}" %></td>
+        <td><%= "Shipping Option: #{order.shipping_option} (#{number_to_currency(Product.find(order.product_id).shipping_options.find_by(title: order.shipping_option).price, precision: 2)})" %></td>
+        <% if order.refunded? %>
+          <h4>This Purchase Has Been Refunded</h4>
+        <% else %>
+          <td><%= link_to 'Show', product_path(order.product_id) %></td>
+          <td>Status: <%= order.status %></td>
         <% end %>
       </tr>
     <% end %>
