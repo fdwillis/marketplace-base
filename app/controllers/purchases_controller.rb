@@ -116,6 +116,6 @@ class PurchasesController < ApplicationController
 private
   # Never trust parameters from the scary internet, only allow the white list through.
   def purchase_params
-    params.require(:purchase).permit(:shipping_option, :quantity, :description, :title, :price, :uuid, :user_id, :product_id, :refunded, :stripe_charge_id, :merchant_id, :application_fee, :purchase_id, :status)
+    params.require(:purchase).permit(:ship_to, :shipping_option, :quantity, :description, :title, :price, :uuid, :user_id, :product_id, :refunded, :stripe_charge_id, :merchant_id, :application_fee, :purchase_id, :status)
   end
 end

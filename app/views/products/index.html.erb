@@ -1,5 +1,8 @@
 <div class='container'>  
   <h1>Listing Products</h1>
+  <% current_user.shipping_to.each do |s| %>
+    <%= s %>
+  <% end %>
   <% if policy(Product.new).new? %>
     <%= link_to 'New Product', new_product_path %>
   <% end %>
@@ -39,6 +42,10 @@
                                   <h3>Shipping Options</h3>
                                   <% product.shipping_options.each do |shipping| %>
                                     <p><%= radio_button_tag(:shipping_option, (shipping.price * 100)) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
+                                  <% end %>
+                                  <h3>Ship To</h3>
+                                  <% current_user.shipping_to.each do |s| %>
+                                    <p> <%= radio_button_tag(:ship_to, s )%> <%= s %></p>
                                   <% end %>
                                   <h3>Refund Policy</h3>
                                   <%= radio_button_tag(:refund_agreement, "I Agree") %> Yes, I Agree

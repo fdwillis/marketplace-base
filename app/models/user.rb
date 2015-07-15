@@ -44,6 +44,10 @@ class User < ActiveRecord::Base
     SSN: #{tax_id.present?} \n Routing Number #{routing_number.present?} \n Legal Name: #{legal_name.present?} \n Account Number: #{account_number.present?}"
   end
 
+  def shipping_to
+    shipping_addresses.map{|f| [[f.street, f.zip].join(", ")].compact}
+  end
+
   def merchant_ready?
     tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && bank_currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
