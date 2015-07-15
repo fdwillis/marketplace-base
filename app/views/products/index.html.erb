@@ -25,8 +25,9 @@
                   <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
                     <div class="modal-dialog modal-lg">
                       <div class="modal-content">
-                        <div class="modal-header">
-                          <h1 class='text-center'> Review Purchase Of <%= product.title %> </h1>
+                        <div class="modal-header text-center">
+                          <h1> Review Purchase Of <strong><em><u><%= product.title %></u></em></strong></h1>
+                          <h3>Sold By: <%= link_to product.user.username.titleize, merchant_path(product.user.username) %></h3>
                         </div>
                         <%= form_tag purchases_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate)), title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id) do %>
                           <div class="modal-body">
@@ -36,15 +37,14 @@
                                 <div class="col-md-3">  
                                   <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
                                   <%= number_field_tag :quantity, class: 'form-control' %>
-                                  <h3>Shipping Options</h3>
                                   <% product.shipping_options.each do |shipping| %>
                                     <p><%= radio_button_tag(:shipping_option, (shipping.price * 100)) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
                                   <% end %>
-                                  <h3>Ship To</h3>
+                                  <h3>Shipping Address</h3>
                                   <% current_user.shipping_to.each do |s| %>
                                     <p> <%= radio_button_tag(:ship_to, s )%> <%= s %></p>
                                   <% end %>
-                                  <h3>Refund Policy</h3>
+                                  <h3><u><%= link_to "Return Policy", merchant_path(product.user.username) %></u></h3>
                                   <%= radio_button_tag(:refund_agreement, "I Agree") %> Yes, I Agree
                                 </div>
                             </div>
