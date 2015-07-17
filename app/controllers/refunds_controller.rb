@@ -16,7 +16,7 @@ class RefundsController < ApplicationController
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     Stripe.api_key = @crypt.decrypt_and_verify(Product.find_by(uuid: params[:uuid]).user.merchant_secret_key)
     ch = Stripe::Charge.retrieve(params[:refund_id])
-    refund = ch.refunds.create(refund_application_fee: true, amount: ((params[:price].to_i * 95) / 100))
+    refund = ch.refunds.create(refund_application_fee: true, amount: ch.amount)
     purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
     purchase.update_attributes(status: "Refunded", refunded: true)
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
