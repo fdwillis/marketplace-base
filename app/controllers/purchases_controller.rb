@@ -59,8 +59,8 @@ class PurchasesController < ApplicationController
           flash[:error] = "#{e}"
           return
         end
-
-        if @quantity
+        debugger
+        if @quantity > 0
           if params[:refund_agreement]
             if params[:shipping_option]
               if @product.user.role == 'admin'
