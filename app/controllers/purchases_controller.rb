@@ -16,9 +16,14 @@ class PurchasesController < ApplicationController
       return
     else
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      @price = params[:price].to_i
       @product = Product.find_by(uuid: params[:uuid])
       @user = User.find(@product.user_id)
+
+      @product_q = @product.quantity
+      @quantity = params[:quantity].to_i
+      @new_q = @product_q - @quantity
+      
+      @price = ((params[:price].to_i * @quantity) + params[:shipping_option].to_i)
 
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
@@ -26,13 +31,10 @@ class PurchasesController < ApplicationController
           @currency = @user.currency
           @stripe_account_id = @crypt.decrypt_and_verify(@user.stripe_account_id)
 
-          @shipping = params[:shipping_option].to_i
           @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
           @ship_to = params[:ship_to]
 
-          @product_q = @product.quantity
-          @quantity = params[:quantity].to_i
-          @new_q = @product_q - @quantity
+          
         end
         begin
           @token = Stripe::Token.create(
@@ -61,7 +63,7 @@ class PurchasesController < ApplicationController
           if params[:shipping_option]
             if @product.user.role == 'admin'
               begin
-                @charge = User.charge_for_admin(@price, @token.id, @shipping)
+                @charge = User.charge_for_admin(@price, @token.id)
                 Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
                                   title: params[:title], price: params[:price],
                                   user_id: current_user.id, product_id: params[:product_id],
@@ -83,7 +85,7 @@ class PurchasesController < ApplicationController
               end
             else
               begin
-                @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency, @shipping)
+                @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency)
                 Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
                                   title: params[:title], price: params[:price],
                                   user_id: current_user.id, product_id: params[:product_id],
