@@ -19,7 +19,9 @@ class RefundsController < ApplicationController
     @new_q = (@product.quantity + purchase.quantity)
     purchase.update_attributes(status: "Refunded", refunded: true)
     @product.update_attributes(quantity: @new_q)
-    
+    if @new_q > 0
+      @product.update_attributes(status: nil)
+    end
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     Stripe.api_key = @crypt.decrypt_and_verify((@product).user.merchant_secret_key)
     ch = Stripe::Charge.retrieve(params[:refund_id])

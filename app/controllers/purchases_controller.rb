@@ -33,7 +33,6 @@ class PurchasesController < ApplicationController
 
           @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
           @ship_to = params[:ship_to]
-
           
         end
         begin
@@ -59,7 +58,7 @@ class PurchasesController < ApplicationController
           flash[:error] = "#{e}"
           return
         end
-        debugger
+        
         if @quantity > 0
           if params[:refund_agreement]
             if params[:shipping_option]
@@ -72,6 +71,9 @@ class PurchasesController < ApplicationController
                                     application_fee: 0, purchase_id: SecureRandom.uuid,
                                     status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
                     )
+                  if @new_q == 0
+                    @product.update_attributes(status: "Sold Out")
+                  end
                   @product.update_attributes(quantity: @new_q)
                   redirect_to root_path
                   flash[:notice] = "Thanks for the purchase!"
@@ -94,6 +96,9 @@ class PurchasesController < ApplicationController
                                     application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
                                     status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
                     )
+                  if @new_q == 0
+                    @product.update_attributes(status: "Sold Out")
+                  end
                   @product.update_attributes(quantity: @new_q)
                   redirect_to root_path
                   flash[:notice] = "Thanks for the purchase!"

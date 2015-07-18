@@ -17,7 +17,7 @@
         <td><%= "Ship To: #{purchase.ship_to}" %></td>
         <td><%= "Quantity: #{purchase.quantity}" %></td>
         <% if purchase.refunded? %>
-          <h4>This Purchase Has Been Refunded</h4>
+          <td><h4>This Purchase Has Been Refunded</h4></td>
         <% elsif purchase.status == "Pending Refund" %>
           <td><%= link_to 'Show', product_path(purchase.product_id) %></td>
           <td>Status: <%= purchase.status %></td>

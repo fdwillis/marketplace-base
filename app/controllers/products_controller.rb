@@ -1,5 +1,5 @@
 class ProductsController < ApplicationController
-  before_filter :authenticate_user!, except: :index
+  before_filter :authenticate_user!, except: [:index, :show]
   before_action :set_product, only: [:show, :edit, :update, :destroy]
 
 
@@ -22,7 +22,7 @@ class ProductsController < ApplicationController
       authorize @product
     else
       redirect_to edit_user_registration_path
-      flash[:error] = "You Are Missin Bank Account and or Seller Info"
+      flash[:error] = "You Are Missing Bank Account and or Seller Info"
     end
   end
 
@@ -51,6 +51,9 @@ class ProductsController < ApplicationController
 
   def update
     if @product.update(product_params)
+      if @product.quantity > 0
+        @product.update_attributes(status: nil)
+      end
       redirect_to @product, notice: 'Product was successfully updated.'
     else
       flash[:error] = "Error saving Product. Try again"

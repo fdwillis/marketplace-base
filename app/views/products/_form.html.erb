@@ -31,7 +31,7 @@
       <div class="form-group">
         <%= f.file_field :product_image, as: :file, label: 'Product Image (extensions: .jpeg, .png, .gif)' %>
       </div>
-      <%= f.hidden_field :uuid, class: 'form-control', label: false, value: SecureRandom.uuid %>
+      <%= f.hidden_field :uuid, class: 'form-control', label: false, value: ("#{@product.uuid}" || SecureRandom.uuid) %>
     </div>
     <div class="col-md-4">
       <h3>Shipping Options</h3>
