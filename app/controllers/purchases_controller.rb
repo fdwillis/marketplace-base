@@ -59,61 +59,68 @@ class PurchasesController < ApplicationController
           flash[:error] = "#{e}"
           return
         end
-        if params[:refund_agreement]
-          if params[:shipping_option]
-            if @product.user.role == 'admin'
-              begin
-                @charge = User.charge_for_admin(@price, @token.id)
-                Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                  title: params[:title], price: params[:price],
-                                  user_id: current_user.id, product_id: params[:product_id],
-                                  application_fee: 0, purchase_id: SecureRandom.uuid,
-                                  status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
-                  )
-                @product.update_attributes(quantity: @new_q)
-                redirect_to root_path
-                flash[:notice] = "Thanks for the purchase!"
-                return
-              rescue Stripe::CardError => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              rescue => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
+
+        if @quantity
+          if params[:refund_agreement]
+            if params[:shipping_option]
+              if @product.user.role == 'admin'
+                begin
+                  @charge = User.charge_for_admin(@price, @token.id)
+                  Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                                    title: params[:title], price: @price,
+                                    user_id: current_user.id, product_id: params[:product_id],
+                                    application_fee: 0, purchase_id: SecureRandom.uuid,
+                                    status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
+                    )
+                  @product.update_attributes(quantity: @new_q)
+                  redirect_to root_path
+                  flash[:notice] = "Thanks for the purchase!"
+                  return
+                rescue Stripe::CardError => e
+                  redirect_to edit_user_registration_path
+                  flash[:error] = "#{e}"
+                  return
+                rescue => e
+                  redirect_to edit_user_registration_path
+                  flash[:error] = "#{e}"
+                  return
+                end
+              else
+                begin
+                  @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency)
+                  Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
+                                    title: params[:title], price: @price,
+                                    user_id: current_user.id, product_id: params[:product_id],
+                                    application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
+                                    status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
+                    )
+                  @product.update_attributes(quantity: @new_q)
+                  redirect_to root_path
+                  flash[:notice] = "Thanks for the purchase!"
+                  return
+                rescue Stripe::CardError => e
+                  redirect_to edit_user_registration_path
+                  flash[:error] = "#{e}"
+                  return
+                rescue => e
+                  redirect_to edit_user_registration_path
+                  flash[:error] = "#{e}"
+                  return
+                end
               end
             else
-              begin
-                @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency)
-                Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                  title: params[:title], price: params[:price],
-                                  user_id: current_user.id, product_id: params[:product_id],
-                                  application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
-                                  status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
-                  )
-                @product.update_attributes(quantity: @new_q)
-                redirect_to root_path
-                flash[:notice] = "Thanks for the purchase!"
-                return
-              rescue Stripe::CardError => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              rescue => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              end
+              redirect_to product_path(params[:product_id])
+              flash[:error] = "Please Choose A Shipping Option"
+              return
             end
           else
             redirect_to product_path(params[:product_id])
-            flash[:error] = "Please Choose A Shipping Option"
+            flash[:error] = "Please Agree To The Sellers Return Policy"
             return
           end
         else
           redirect_to product_path(params[:product_id])
-          flash[:error] = "Plese Agree To The Sellers Return Policy"
+          flash[:error] = "Please Choose Your Quantity"
           return
         end
       else

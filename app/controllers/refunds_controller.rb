@@ -13,12 +13,18 @@ class RefundsController < ApplicationController
   end
   def update
     #Track With Keen "refunds fullfilled"
+    @product = Product.find_by(uuid: params[:uuid])
+
+    purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
+    @new_q = (@product.quantity + purchase.quantity)
+    purchase.update_attributes(status: "Refunded", refunded: true)
+    @product.update_attributes(quantity: @new_q)
+    
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    Stripe.api_key = @crypt.decrypt_and_verify(Product.find_by(uuid: params[:uuid]).user.merchant_secret_key)
+    Stripe.api_key = @crypt.decrypt_and_verify((@product).user.merchant_secret_key)
     ch = Stripe::Charge.retrieve(params[:refund_id])
     refund = ch.refunds.create(refund_application_fee: true, amount: ch.amount)
-    purchase = Purchase.find_by(stripe_charge_id: params[:refund_id])
-    purchase.update_attributes(status: "Refunded", refunded: true)
+
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
     redirect_to refunds_path, notice: "Refund Fullfilled"
   end
