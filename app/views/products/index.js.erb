@@ -1,7 +1,7 @@
-$("#products").append("<%= j render(@products) %>");
+$("#products").append('<%= escape_javascript render(@products) %>');
 <% if @products.next_page %>
-	$(".pagination").replaceWith("<%= j will_paginate(@products) %>");
+	$(".pagination").replaceWith('<%= escape_javascript will_paginate(@products) %>');
 <% else %>
 	$(".pagination").remove();
 <% end %>
-<% sleep 2 %>
+<% sleep 1 %>
