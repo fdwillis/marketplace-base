@@ -32,6 +32,7 @@ source 'https://rubygems.org'
   gem 'ransack'
   gem 'simple_form'
   gem "cocoon"
+  gem 'will_paginate'
 
 #Images
   gem 'carrierwave'

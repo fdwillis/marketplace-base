@@ -53,7 +53,7 @@ admin.save!
 merchant.skip_confirmation!
 merchant.save!
 
-5.times do
+100.times do
   Product.create!(
     user_id: 2,
     title: Faker::Name.name,
