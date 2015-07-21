@@ -4,8 +4,10 @@ class NotificationsController < ApplicationController
   def create
     @update = params['msg']
     @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
-    @purchase.shipping_updates.create(message: @update['checkpoints']['message'])
-    puts @update
+    @checkpoints = @update['checkpoints']
+    @checkpoints.each do |chk|
+      @purchase.shipping_updates.find_or_create_by_message(message: chk['message'])
+    end
   end
 end
 
