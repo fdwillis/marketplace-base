@@ -1,5 +1,7 @@
 class Product < ActiveRecord::Base
 
+  default_scope {order ('updated_at DESC')}
+
   acts_as_taggable
 
   extend FriendlyId

@@ -46,6 +46,13 @@ merchant = User.create!(
               tax_rate: 2.0,
 )
 
+a = User.create!(
+  email: 'a@a.com',
+  password: 'pa',
+  )
+
+a.skip_confirmation!
+a.save!
 
 admin.skip_confirmation!
 admin.save!
