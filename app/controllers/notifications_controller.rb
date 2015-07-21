@@ -3,10 +3,9 @@ class NotificationsController < ApplicationController
 
   def create
     @update = params['msg']
-    @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
-    @purchase.shipping_updates.create(message: @update['checkpoints']['message'])
-    render status: :ok
-    render nothing: true
+    # @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
+    # @purchase.shipping_updates.create(message: @update['checkpoints']['message'])
+    puts @update
   end
 end
 
