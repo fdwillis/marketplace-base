@@ -9,6 +9,7 @@
       <%= "Ship To: #{purchase.ship_to}" %><br>
       <%= "Quantity: #{purchase.quantity}" %><br>
       <%= "Status: #{purchase.status}" %><br>
+      <%= "Tracking Number: #{purchase.tracking_number}" %><br>
       <% if purchase.refunded? %>
         <h4>This Purchase Has Been Refunded</h4>
       <% elsif purchase.status == "Pending Refund" %>
@@ -33,6 +34,7 @@
           <%= "Ship To: #{order.ship_to}" %><br>
           <%= "Quantity: #{order.quantity}" %><br>
           <%= "Status: #{order.status}" %><br>
+          <%= "Tracking Number: #{order.tracking_number}" %><br>
           <!-- Small modal -->
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Add Tracking Number</button><br>
 

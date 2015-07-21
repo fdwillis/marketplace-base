@@ -147,7 +147,7 @@ class PurchasesController < ApplicationController
     @tracking_number = params[:tracking_number]
     @purchase = Purchase.find_by(uuid: params[:uuid])
     @purchase.update_attributes(tracking_number: @tracking_number)
-    AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@purchase.user.email}"]})
+    @s = AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@purchase.user.email}"]})
     redirect_to purchases_path
   end
 private
