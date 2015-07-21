@@ -6,7 +6,7 @@ class NotificationsController < ApplicationController
     @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
     @checkpoints = @update['checkpoints']
     @checkpoints.each do |chk|
-      @purchase.shipping_updates.find_or_create_by_message(message: chk['message'])
+      ShippingUpdate.find_or_create_by(message: chk['message'], purchase_id: @purchase.id)
     end
     render status: :ok
     render nothing: true
