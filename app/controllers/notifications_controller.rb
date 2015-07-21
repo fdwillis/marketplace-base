@@ -3,12 +3,12 @@ class NotificationsController < ApplicationController
 
   def create
     render status: :ok
-    # @update = params['msg']
-    # @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
-    # @checkpoints = @update['checkpoints']
-    # @checkpoints.each do |chk|
-    #   ShippingUpdate.find_or_create_by(message: chk['message'], purchase_id: @purchase.id)
-    # end
+    @update = params['msg']
+    @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
+    @checkpoints = @update['checkpoints']
+    @checkpoints.each do |chk|
+      ShippingUpdate.find_or_create_by(message: chk['message'], purchase_id: @purchase.id)
+    end
   end
 end
 
