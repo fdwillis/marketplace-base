@@ -142,9 +142,17 @@ class PurchasesController < ApplicationController
     end
   end
 
+  def update
+    AfterShip.api_key = ENV['AFTERSHIP_KEY']
+    @tracking_number = params[:tracking_number]
+    @purchase = Purchase.find_by(uuid: params[:uuid])
+    @purchase.update_attributes(tracking_number: @tracking_number)
+    AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@purchase.user.email}"]})
+    redirect_to purchases_path
+  end
 private
   # Never trust parameters from the scary internet, only allow the white list through.
   def purchase_params
-    params.require(:purchase).permit(:ship_to, :shipping_option, :quantity, :description, :title, :price, :uuid, :user_id, :product_id, :refunded, :stripe_charge_id, :merchant_id, :application_fee, :purchase_id, :status)
+    params.require(:purchase).permit(:tracking_number, :ship_to, :shipping_option, :quantity, :description, :title, :price, :uuid, :user_id, :product_id, :refunded, :stripe_charge_id, :merchant_id, :application_fee, :purchase_id, :status)
   end
 end

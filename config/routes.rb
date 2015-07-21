@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   resources :charges, only: [:create]
-  root to: 'products#index'
+  resources :notifications, only: [:create, :update]
+
 
   resources :merchants, only: [:index, :show]
   resources :pending_products, only: [:index, :show]
@@ -8,7 +9,7 @@ Rails.application.routes.draw do
   resources :plans, only: :index
   resources :products
 
-  resources :purchases, only: [:index, :create]
+  resources :purchases, only: [:index, :create, :update]
   resources :refunds, only: [:index, :create, :update]
   
   resources :reports, only: :index
@@ -18,6 +19,6 @@ Rails.application.routes.draw do
   resources :users, only: [:update]
 
   put 'approve_product' => 'pending_products#approve_product'
-
   post 'notifications' => 'notifications#create'
+  root to: 'products#index'
 end
