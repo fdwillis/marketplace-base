@@ -4,7 +4,7 @@ class NotificationsController < ApplicationController
   def create
     render status: :ok
     @update = params[:msg][:checkpoints]
-    Purchase.create(tag: @update.tag, message: @update.message, checkpoint_time: @update.checkpoint_time)
+    Purchase.create(tag: @update['tag'], message: @update['message'], checkpoint_time: @update['checkpoint_time'])
     render nothing: true
   end
 end
