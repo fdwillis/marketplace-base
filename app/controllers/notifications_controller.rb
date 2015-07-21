@@ -8,6 +8,8 @@ class NotificationsController < ApplicationController
     @checkpoints.each do |chk|
       @purchase.shipping_updates.find_or_create_by_message(message: chk['message'])
     end
+    render status: :ok
+    render nothing: true
   end
 end
 
