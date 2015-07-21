@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'notifications/create'
+
   resources :charges, only: [:create]
   root to: 'products#index'
 
@@ -18,4 +20,6 @@ Rails.application.routes.draw do
   resources :users, only: [:update]
 
   put 'approve_product' => 'pending_products#approve_product'
+
+  match '/purchases/notifications', to: 'notifications#create', via: :post
 end
