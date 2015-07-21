@@ -1,9 +1,7 @@
-class NotificationsController < ApplicationController::Base
+class NotificationsController < ApplicationController
   protect_from_forgery :except => :create
 
   def create
-    render nothing: true
-    # do stuff
-    status 200
+    render status: :ok
   end
 end
