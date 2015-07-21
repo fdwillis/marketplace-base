@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150718181259) do
+ActiveRecord::Schema.define(version: 20150721185342) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -80,6 +80,15 @@ ActiveRecord::Schema.define(version: 20150718181259) do
   end
 
   add_index "shipping_options", ["product_id"], name: "index_shipping_options_on_product_id", using: :btree
+
+  create_table "shipping_updates", force: :cascade do |t|
+    t.string   "message"
+    t.string   "checkpoint_time"
+    t.string   "tag"
+    t.integer  "purchase_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
 
   create_table "taggings", force: :cascade do |t|
     t.integer  "tag_id"
