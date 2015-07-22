@@ -31,7 +31,7 @@
       <div class="form-group">
         <%= f.file_field :product_image, as: :file, label: 'Product Image (extensions: .jpeg, .png, .gif)' %>
       </div>
-      <% if !@product.uuid.empty? %>
+      <% if @product.uuid.present? && !@product.uuid.nil? %>
         <%= f.hidden_field :uuid, class: 'form-control', label: false, value: "#{@product.uuid}" %>
       <% else %>
         <%= f.hidden_field :uuid, class: 'form-control', label: false, value: "#{SecureRandom.uuid}" %>

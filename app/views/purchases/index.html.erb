@@ -26,7 +26,7 @@
   </div>
 <% end %>
 
-<% if current_user.merchant? %>
+<% if current_user.merchant? || current_user.admin?%>
   <h1>Store Orders</h1>
   <div class='row'>
     <div class="col-md-4">

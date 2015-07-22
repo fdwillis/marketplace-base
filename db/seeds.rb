@@ -10,6 +10,7 @@ admin = User.create!(
               role: 'admin',
               username: 'admin',
               business_name: '',
+              tax_rate: 5,
 )
 
 merchant = User.create!(

@@ -29,7 +29,7 @@ class PurchasesController < ApplicationController
         @card = @crypt.decrypt_and_verify(current_user.card_number)
         @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
         @ship_to = params[:ship_to]
-        debugger
+        
         if @merchant.stripe_account_id
           @currency = @merchant.currency
           @merchant_account_id = @crypt.decrypt_and_verify(@merchant.stripe_account_id)
