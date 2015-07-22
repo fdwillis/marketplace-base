@@ -8,7 +8,6 @@
           <% else %>
             <% if current_user %>  
               <% if current_user.purchases %>  
-                <% unless current_user.purchases.map(&:product_id).include?(product.id) && !current_user.purchases.find_by(uuid: product.uuid).refunded %>
                   <td>
                     <%= link_to "Buy Now", "##{product.uuid}", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
                     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
@@ -46,10 +45,7 @@
                         </div>
                       </div>
                     </div>
-
-                    <%= link_to "Buy Now", purchases_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate)), title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for #{number_to_currency((((product.price * product.user.tax_rate)/100) + product.price), precision:2)}?\nIncludes 5.0% Non-Refundable Application Fee" }, id: 'stripeForm'  %>
                   </td>
-                <% end %>
               <% end %>
             <% else %>
               <td>

@@ -3,7 +3,7 @@ class PurchasesController < ApplicationController
   
   def index
     @purchases = Purchase.all.where(user_id: current_user.id).order("refunded ASC")
-    @orders = Purchase.all.where(merchant_id: current_user.id)
+    @orders = Purchase.all.where(merchant_id: current_user.id).order("created_at DESC")
   end
   def create
     #Track with Keen for Merchant & Admin
@@ -70,7 +70,7 @@ class PurchasesController < ApplicationController
                                       title: params[:title], price: @price,
                                       user_id: current_user.id, product_id: params[:product_id],
                                       application_fee: 0, purchase_id: SecureRandom.uuid,
-                                      status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
+                                      status: "#{@charge.status}", shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
                       )
                     if @new_q == 0
                       @product.update_attributes(status: "Sold Out")
@@ -95,7 +95,7 @@ class PurchasesController < ApplicationController
                                       title: params[:title], price: @price,
                                       user_id: current_user.id, product_id: params[:product_id],
                                       application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
-                                      status: 'Paid', shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
+                                      status: "#{@charge.status}", shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
                       )
                     if @new_q == 0
                       @product.update_attributes(status: "Sold Out")
