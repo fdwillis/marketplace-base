@@ -9,9 +9,11 @@
       <%= "Ship To: #{purchase.ship_to}" %><br>
       <%= "Quantity: #{purchase.quantity}" %><br>
       <%= "Status: #{purchase.status}" %><br>
-      <%= "Tracking Number: #{purchase.tracking_number}" %><br>
-      <%= "Carrier: #{purchase.carrier}" %>
-      <%= "Message: #{AfterShip::V4::LastCheckpoint.get(order.carrier, order.tracking_number)['data']['checkpoint']['message'].titleize}" %><br>
+      <% if purchase.tracking_number %>
+        <%= "Carrier: #{purchase.carrier}" %>
+        <%= "Message: #{AfterShip::V4::LastCheckpoint.get(purchase.carrier, purchase.tracking_number)['data']['tag']}" %><br>
+        <%= "Tracking Number: #{purchase.tracking_number}" %><br>
+      <% end %>
       <% if purchase.refunded? %>
         <h4>This Purchase Has Been Refunded</h4>
       <% elsif purchase.status == "Pending Refund" %>
@@ -36,12 +38,14 @@
           <%= "Ship To: #{order.ship_to}" %><br>
           <%= "Quantity: #{order.quantity}" %><br>
           <%= "Status: #{order.status}" %><br>
-          <%= "Tracking Number: #{order.tracking_number}" %><br>
-          <%= "Carrier: #{order.carrier}" %><br>
-          <% AfterShip.api_key = ENV['AFTERSHIP_KEY'] %>
-          <%= "Message: #{AfterShip::V4::LastCheckpoint.get(order.carrier, order.tracking_number)['data']['checkpoint']['message'].titleize}" %><br>
+          <% if order.tracking_number %>
+            <%= "Carrier: #{order.carrier}" %><br>
+            <%= "Tracking Number: #{order.tracking_number}" %><br>
+            <%= "Message: #{AfterShip::V4::LastCheckpoint.get(order.carrier, order.tracking_number)['data']['tag']}" %><br>
+          <% else %>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Add Tracking Number</button><br>
+          <% end %>
           <!-- Small modal -->
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Add Tracking Number</button><br>
 
           <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
             <div class="modal-dialog modal-lg">

@@ -2,7 +2,7 @@ class NotificationsController < ApplicationController
   protect_from_forgery :except => :create
 
   def create
-    render status: :ok
+    render nothing: true, status: :ok, content_type: "application/json"
     @update = params['msg']
     @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
     @checkpoints = @update['checkpoints']
