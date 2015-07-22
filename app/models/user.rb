@@ -144,8 +144,24 @@ class User < ActiveRecord::Base
         customer: @customer.id,
         description: 'MarketplaceBase',
       )
-      
     end
+
+  end
+
+  def self.new_token(current_user, card)
+    Stripe::Token.create(
+      card: {
+        number: card,
+        exp_month: current_user.exp_month,
+        exp_year: current_user.exp_year,
+        cvc: current_user.cvc_number,
+        name: current_user.legal_name,
+        address_city: current_user.address_city,
+        address_zip: current_user.address_zip,
+        address_state: current_user.address_state,
+        address_country: current_user.country_name,
+      },
+    )
   end
 end
 

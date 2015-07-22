@@ -12,4 +12,11 @@ class Purchase < ActiveRecord::Base
                 application_fee: application_fee, purchase_id: purchase_id, status: status, 
                 shipping_option: shipping_option, ship_to: ship_to, quantity: quantity)
   end
+
+  def self.update_quantity(new_q, product)
+    if new_q == 0
+      product.update_attributes(status: "Sold Out")
+    end
+    product.update_attributes(quantity: new_q)
+  end
 end

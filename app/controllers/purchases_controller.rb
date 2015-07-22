@@ -27,28 +27,15 @@ class PurchasesController < ApplicationController
 
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
+        @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
+        @ship_to = params[:ship_to]
+        debugger
         if @merchant.stripe_account_id
           @currency = @merchant.currency
           @merchant_account_id = @crypt.decrypt_and_verify(@merchant.stripe_account_id)
-
-          @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
-          @ship_to = params[:ship_to]
-          
         end
         begin
-          @token = Stripe::Token.create(
-            card: {
-              number: @card,
-              exp_month: current_user.exp_month,
-              exp_year: current_user.exp_year,
-              cvc: current_user.cvc_number,
-              name: current_user.legal_name,
-              address_city: current_user.address_city,
-              address_zip: current_user.address_zip,
-              address_state: current_user.address_state,
-              address_country: current_user.country_name,
-            },
-          )
+          @token = User.new_token(current_user, @card)
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
@@ -58,7 +45,7 @@ class PurchasesController < ApplicationController
           flash[:error] = "#{e}"
           return
         end
-        
+
         if @quantity > 0
           if @quantity  
             if params[:refund_agreement]
@@ -72,11 +59,9 @@ class PurchasesController < ApplicationController
                                          @charge.application_fee, SecureRandom.uuid,
                                          "#{@charge.status}", @shipping_name, @ship_to, @quantity,
                       )
+
+                    Purchase.update_quantity(@new_q, @product)
                     
-                    if @new_q == 0
-                      @product.update_attributes(status: "Sold Out")
-                    end
-                    @product.update_attributes(quantity: @new_q)
                     redirect_to root_path
                     flash[:notice] = "Thanks for the purchase!"
                     return
@@ -101,10 +86,8 @@ class PurchasesController < ApplicationController
 
                     Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
-                    if @new_q == 0
-                      @product.update_attributes(status: "Sold Out")
-                    end
-                    @product.update_attributes(quantity: @new_q)
+                    Purchase.update_quantity(@new_q, @product)
+
                     redirect_to root_path
                     flash[:notice] = "Thanks for the purchase!"
                     return
