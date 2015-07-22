@@ -10,6 +10,8 @@
       <%= "Quantity: #{purchase.quantity}" %><br>
       <%= "Status: #{purchase.status}" %><br>
       <%= "Tracking Number: #{purchase.tracking_number}" %><br>
+      <%= "Carrier: #{purchase.carrier}" %>
+      <%= "Message: #{AfterShip::V4::LastCheckpoint.get(order.carrier, order.tracking_number)['data']['checkpoint']['message'].titleize}" %><br>
       <% if purchase.refunded? %>
         <h4>This Purchase Has Been Refunded</h4>
       <% elsif purchase.status == "Pending Refund" %>
@@ -35,6 +37,9 @@
           <%= "Quantity: #{order.quantity}" %><br>
           <%= "Status: #{order.status}" %><br>
           <%= "Tracking Number: #{order.tracking_number}" %><br>
+          <%= "Carrier: #{order.carrier}" %><br>
+          <% AfterShip.api_key = ENV['AFTERSHIP_KEY'] %>
+          <%= "Message: #{AfterShip::V4::LastCheckpoint.get(order.carrier, order.tracking_number)['data']['checkpoint']['message'].titleize}" %><br>
           <!-- Small modal -->
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Add Tracking Number</button><br>
 
