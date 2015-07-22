@@ -117,6 +117,7 @@ private
                                   :support_phone, :support_email, :business_url, :merchant_id, :business_name, 
                                   :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, 
                                   :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name, 
-                                  :tax_rate,:bank_currency, shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy])
+                                  :tax_rate,:bank_currency, shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy],
+                                  stripe_customer_ids_attributes: [:business_name, :customer_id, :customer_card, :_destroy])
   end
 end

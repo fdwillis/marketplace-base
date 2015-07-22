@@ -17,7 +17,7 @@ class PurchasesController < ApplicationController
     else
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       @product = Product.find_by(uuid: params[:uuid])
-      @user = User.find(@product.user_id)
+      @merchant = User.find(@product.user_id)
 
       @product_q = @product.quantity
       @quantity = params[:quantity].to_i
@@ -27,9 +27,9 @@ class PurchasesController < ApplicationController
 
       if current_user.card?
         @card = @crypt.decrypt_and_verify(current_user.card_number)
-        if @user.stripe_account_id
-          @currency = @user.currency
-          @stripe_account_id = @crypt.decrypt_and_verify(@user.stripe_account_id)
+        if @merchant.stripe_account_id
+          @currency = @merchant.currency
+          @merchant_account_id = @crypt.decrypt_and_verify(@merchant.stripe_account_id)
 
           @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
           @ship_to = params[:ship_to]
@@ -65,7 +65,7 @@ class PurchasesController < ApplicationController
               if params[:shipping_option]
                 if @product.user.role == 'admin'
                   begin
-                    @charge = User.charge_for_admin(@price, @token.id)
+                    @charge = User.charge_for_admin(current_user, @price, @token.id)
                     Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
                                       title: params[:title], price: @price,
                                       user_id: current_user.id, product_id: params[:product_id],
@@ -90,13 +90,15 @@ class PurchasesController < ApplicationController
                   end
                 else
                   begin
-                    @charge = User.charge_n_process(@price, @token, @stripe_account_id, @currency)
+                    @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
                     Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
                                       title: params[:title], price: @price,
                                       user_id: current_user.id, product_id: params[:product_id],
                                       application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
                                       status: "#{@charge.status}", shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
                       )
+                    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+                    debugger
                     if @new_q == 0
                       @product.update_attributes(status: "Sold Out")
                     end

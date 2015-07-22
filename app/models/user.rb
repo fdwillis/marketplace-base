@@ -9,13 +9,18 @@ class User < ActiveRecord::Base
   has_many :purchases
   has_many :transfers
   has_many :shipping_addresses
+  has_many :stripe_customer_ids
+
+  validates_uniqueness_of :business_name
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
+
   accepts_nested_attributes_for :shipping_addresses, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :stripe_customer_ids, reject_if: :all_blank, allow_destroy: true
 
 
 
@@ -60,24 +65,56 @@ class User < ActiveRecord::Base
     stripe_account_id.present?
   end
 
-  def self.charge_n_process(price, token, stripe_account_id, currency)
+  def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
+    @token = token.id
     @price = price
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
-    
-    charge = Stripe::Charge.create(
-    {
-      amount: @price,
-      currency: 'USD',
-      source: token.id ,
-      description: 'MarketplaceBase',
-      application_fee: @fee,
-    },
-    {stripe_account: stripe_account_id}
-    )  
+
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+    @merchant_secret = @crypt.decrypt_and_verify(secret_key)
+    Stripe.api_key = @merchant_secret
+
+    @customers = Stripe::Customer.all.data
+    @customer_ids = @customers.map(&:id)
+    @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
+
+    if @customer_ids.include? @customer_account.customer_id
+      customer_card = @customer_account.customer_card
+      charge = Stripe::Charge.create(
+      {
+        amount: @price,
+        currency: 'USD',
+        customer: @customer_account.customer_id ,
+        description: 'MarketplaceBase',
+        application_fee: @fee,
+      },
+      {stripe_account: merchant_account_id}
+        )  
+    else
+
+      @customer = Stripe::Customer.create(
+        :description => "Customer for test@example.com",
+        :source => @token
+      )
+
+      charge = Stripe::Charge.create(
+        {
+          amount: @price,
+          currency: 'USD',
+          customer: @customer.id,
+          description: 'MarketplaceBase',
+          application_fee: @fee,
+        },
+        {stripe_account: merchant_account_id}
+        )
+
+      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
+                                      customer_card: @customer.default_source, customer_id: @customer.id)
+    end
   end
 
-  def self.charge_for_admin(price, token)
+  def self.charge_for_admin(user, price, token)
     Stripe::Charge.create(
       amount: price,
       currency: "usd",
