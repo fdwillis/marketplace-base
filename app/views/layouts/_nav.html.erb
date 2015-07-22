@@ -5,7 +5,7 @@
       <%= link_to "Plans", plans_path %> |
       <%= link_to "Orders", purchases_path %> <% if current_user.merchant? %> <%="(#{Purchase.all.where(merchant_id: current_user.id).where(status: "Paid").count})" %> <% end %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
-      <% if current_user.merchant? %>
+      <% if current_user.merchant? || current_user.admin? %>
         <%= link_to "Reports", reports_path %> | 
         <%= link_to "Profile", merchant_path(current_user.username) %> | 
         Pending: <%= number_to_currency(current_user.pending_payment.to_f / 100, precision: 2) %> | 

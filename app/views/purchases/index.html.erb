@@ -20,7 +20,7 @@
         <%= link_to 'Show', product_path(purchase.product_id) %><br>
         Status: <%= purchase.status %><br>
       <% else %>
-        <%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.price, uuid: purchase.uuid, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund #{purchase.title.titleize} now for $#{number_to_currency(purchase.price.to_f / 100, precision: 2)}?" } %><br>
+        <%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.price, uuid: purchase.uuid, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund #{purchase.title.titleize} now for #{number_to_currency(purchase.price.to_f / 100, precision: 2)}?" } %><br>
       <% end %>
     </div>
   </div>
@@ -42,12 +42,12 @@
             <%= "Carrier: #{order.carrier}" %><br>
             <%= "Tracking Number: #{order.tracking_number}" %><br>
             <%= "Message: #{AfterShip::V4::LastCheckpoint.get(order.carrier, order.tracking_number)['data']['tag']}" %><br>
-          <% else %>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Add Tracking Number</button><br>
+          <% elsif !order.refunded? %>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".<%= order.purchase_id %>">Add Tracking Number</button><br>
           <% end %>
           <!-- Small modal -->
 
-          <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+          <div class="modal fade <%= order.purchase_id %>" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header text-center">
@@ -56,8 +56,12 @@
                 <%= form_tag purchase_path(id: order.id, uuid: order.uuid), method: :put do %>
                   <div class="modal-body">
                     <div class="container-fluid">  
-                      <div class="col-md-12" %>
+                      <div class="col-md-3" %>
                         <%= text_field_tag :tracking_number%>
+                      </div>
+                      <div class="col-md-9">
+                        <h3><%="Price:  #{number_to_currency(order.price/100, precision: 2)} "%></h3>
+                        <h3>Shipping Address: <u><%="#{order.ship_to} "%></u></h3>
                       </div>
                     </div>
                   </div>
