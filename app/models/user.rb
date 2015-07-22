@@ -78,8 +78,8 @@ class User < ActiveRecord::Base
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
-
-    if @customer_ids.include? @customer_account.customer_id
+  
+    if !@customer_account.nil? && @customer_account.present?
       customer_card = @customer_account.customer_card
       charge = Stripe::Charge.create(
       {
@@ -92,12 +92,15 @@ class User < ActiveRecord::Base
       {stripe_account: merchant_account_id}
         )  
     else
-
+      
       @customer = Stripe::Customer.create(
         :description => "Customer for test@example.com",
         :source => @token
       )
-
+    
+      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
+                                      customer_card: @customer.default_source, customer_id: @customer.id)
+      
       charge = Stripe::Charge.create(
         {
           amount: @price,
@@ -108,9 +111,7 @@ class User < ActiveRecord::Base
         },
         {stripe_account: merchant_account_id}
         )
-
-      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
-                                      customer_card: @customer.default_source, customer_id: @customer.id)
+      
     end
   end
 

@@ -92,13 +92,12 @@ class PurchasesController < ApplicationController
                   begin
                     @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
                     Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                      title: params[:title], price: @price,
-                                      user_id: current_user.id, product_id: params[:product_id],
+                                      title: params[:title], price: @price, user_id: current_user.id, product_id: params[:product_id],
                                       application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
                                       status: "#{@charge.status}", shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
                       )
+
                     Stripe.api_key = Rails.configuration.stripe[:secret_key]
-                    debugger
                     if @new_q == 0
                       @product.update_attributes(status: "Sold Out")
                     end

@@ -9,6 +9,7 @@ admin = User.create!(
               password: 'pa', 
               role: 'admin',
               username: 'admin',
+              business_name: '',
 )
 
 merchant = User.create!(
@@ -26,7 +27,7 @@ merchant = User.create!(
               tax_id: @crypt.encrypt_and_sign('000000000'),
               first_name: 'Merchant',
               last_name: 'Doe',
-              business_name: 'Merchant Merchant',
+              business_name: 'Merchant 98kj',
               business_url: 'https://www.merchant.com',
               support_email: 'support@fa.com',
               support_phone: '4143997842',
@@ -49,6 +50,7 @@ merchant = User.create!(
 a = User.create!(
   email: 'a@a.com',
   password: 'pa',
+  business_name: '34'
   )
 
 a.skip_confirmation!
