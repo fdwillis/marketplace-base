@@ -66,12 +66,13 @@ class PurchasesController < ApplicationController
                 if @product.user.role == 'admin'
                   begin
                     @charge = User.charge_for_admin(current_user, @price, @token.id)
-                    Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                      title: params[:title], price: @price,
-                                      user_id: current_user.id, product_id: params[:product_id],
-                                      application_fee: 0, purchase_id: SecureRandom.uuid,
-                                      status: "#{@charge.status}", shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
+                    
+                    Purchase.new_product(params[:uuid], params[:merchant_id], @charge.id,
+                                         params[:title], @price, current_user.id, params[:product_id],
+                                         @charge.application_fee, SecureRandom.uuid,
+                                         "#{@charge.status}", @shipping_name, @ship_to, @quantity,
                       )
+                    
                     if @new_q == 0
                       @product.update_attributes(status: "Sold Out")
                     end
@@ -91,13 +92,15 @@ class PurchasesController < ApplicationController
                 else
                   begin
                     @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
-                    Purchase.create(uuid: params[:uuid], merchant_id: params[:merchant_id], stripe_charge_id: @charge.id,
-                                      title: params[:title], price: @price, user_id: current_user.id, product_id: params[:product_id],
-                                      application_fee: @charge.application_fee, purchase_id: SecureRandom.uuid,
-                                      status: "#{@charge.status}", shipping_option: @shipping_name, ship_to: @ship_to, quantity: @quantity,
+                    
+                    Purchase.new_product(params[:uuid], params[:merchant_id], @charge.id,
+                                         params[:title], @price, current_user.id, params[:product_id],
+                                         @charge.application_fee, SecureRandom.uuid,
+                                         "#{@charge.status}", @shipping_name, @ship_to, @quantity,
                       )
 
                     Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
                     if @new_q == 0
                       @product.update_attributes(status: "Sold Out")
                     end
