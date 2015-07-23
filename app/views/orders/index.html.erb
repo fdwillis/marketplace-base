@@ -1,0 +1,20 @@
+<h1>Listing Orders</h1>
+
+<% @orders.each do |order| %>
+  <h3><%="Status: #{order.status}" %></h3><br>
+  <%= order.ship_to %><br>
+  <%= order.customer_name %><br>
+  <%= order.tracking_number %><br>
+  <%= order.shipping_option %><br>
+  <%= order.total_price %><br>
+  <%= order.user_id %><br>
+  <%= order.paid %><br>
+  <%= order.shipping_price %><br>
+  <%= order.merchant_id %><br>
+  <h1>Product Information</h1>
+  <% order.products.each do |product| %>
+    <%= product.title %><br>
+    <%= product.quantity %><br>
+    <%= number_to_currency(product.price, precision:2) %><br>
+  <% end %>
+<% end %>

@@ -8,10 +8,11 @@ class Product < ActiveRecord::Base
   friendly_id :title, use: [:slugged, :finders]
 
   belongs_to :user
+  belongs_to :order
 
-  has_many :purchases
+  # has_many :purchases
   has_many :shipping_options
-  has_many :users, through: :purchases
+  # has_many :users, through: :purchases
 
   validates_uniqueness_of :title
   validates :price, format: { with: /\A\d+(?:\.\d{0,2})?\z/ }

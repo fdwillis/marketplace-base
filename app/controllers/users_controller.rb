@@ -118,6 +118,7 @@ private
                                   :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, 
                                   :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name, 
                                   :tax_rate,:bank_currency, shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy],
-                                  stripe_customer_ids_attributes: [:business_name, :customer_id, :customer_card, :_destroy])
+                                  stripe_customer_ids_attributes: [:business_name, :customer_id, :customer_card, :_destroy],
+                                  orders_attributes: [:id, :status, :ship_to, :customer_name, :tracking_number, :shipping_option, :total_price, :user_id, :_destroy])
   end
 end
