@@ -21,11 +21,8 @@ class RefundsController < ApplicationController
       @product.update_attributes(status: nil)
     end
     if Product.find_by(uuid: params[:uuid]).user.role == 'admin'
-      debugger
       ch = Stripe::Charge.retrieve(params[:refund_id])
-      debugger
       refund = ch.refunds.create(amount: ch.amount)
-      debugger
     else
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       Stripe.api_key = @crypt.decrypt_and_verify((@product).user.merchant_secret_key)

@@ -15,7 +15,7 @@ admin = User.create!(
 
 merchant = User.create!(
               name: "Merchant", 
-              email: 'merchant@test.com', 
+              email: 'merch@test.com', 
               password: 'pa', 
               role: 'merchant',
               username: 'merchant',
@@ -51,7 +51,11 @@ merchant = User.create!(
 a = User.create!(
   email: 'a@a.com',
   password: 'pa',
-  business_name: '34'
+  business_name: '34',
+  card_number: '4242424242424242', 
+  exp_year: '2018',
+  exp_month: '09',
+  cvc_number: '3333',
   )
 
 a.skip_confirmation!
