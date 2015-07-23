@@ -32,7 +32,7 @@
     <div class="col-md-4">
       <% @orders.each do |order| %>
           <%= image_tag(Product.find_by(uuid: order.uuid).product_image.url(:p50x50)) %><br>
-          <%= order.title %><br>
+          <%= "Item: #{order.title} "%><br>
           <%= "Price: #{number_to_currency(order.price.to_f / 100, precision: 2)}" %><br>
           <%= "Shipping Option: #{order.shipping_option} (#{number_to_currency(Product.find(order.product_id).shipping_options.find_by(title: order.shipping_option).price, precision: 2)})" %><br>
           <%= "Ship To: #{order.ship_to}" %><br>
