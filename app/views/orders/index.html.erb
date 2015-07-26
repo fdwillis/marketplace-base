@@ -1,7 +1,7 @@
 <h1>Personal Orders</h1>
 <% @purchases.each do |purchase| %>
   <div class="col-md-4">
-    <%= "Price: #{number_to_currency(purchase.total_price, precision: 2)}" %><br>
+    <%= "Total Price: #{number_to_currency(purchase.total_price, precision: 2)}" %><br>
     <%= "Shipping Option: #{purchase.shipping_option}" %><br>
     <%= "Ship To: #{purchase.ship_to}" %><br>
     <%= "Status: #{purchase.status}" %><br>
@@ -17,7 +17,7 @@
         <li>Quantity: <%= p.quantity %></li>
       </ul>
     <% end %>
-    <%= link_to "Submit Order #{number_to_currency((purchase.product_price + purchase.shipping_price) + ((purchase.product_price + purchase.shipping_price) * User.find(purchase.merchant_id).tax_rate / 100 ), precision:2 )}", "#", class: 'btn btn-success'%>
+    <%= link_to "Submit Order #{number_to_currency(purchase.total_price, precision: 2)}", "#", class: 'btn btn-success'%>
     <% if purchase.refunded? %>
       <h4>This Purchase Has Been Refunded</h4>
     <% elsif purchase.refunded && purchase.status != "Pending Submission"
@@ -27,23 +27,25 @@
   </div>
 <% end %>
 <% if current_user.admin? || current_user.merchant? %>
-  <h1>Store Orders</h1>
+  <h1>Store Orders</h1> 
   <% @orders.each do |order| %>
-    <h3><%="Status: #{order.status}" %></h3><br>
-    <%= order.ship_to %><br>
-    <%= order.customer_name %><br>
-    <%= order.tracking_number %><br>
-    <%= order.shipping_option %><br>
-    <%= order.total_price %><br>
-    <%= order.user_id %><br>
-    <%= order.paid %><br>
-    <%= order.shipping_price %><br>
-    <%= order.merchant_id %><br>
-    <h1>Product Information</h1>
-    <% order.products.each do |product| %>
-      <%= product.title %><br>
-      <%= product.quantity %><br>
-      <%= number_to_currency(product.price, precision:2) %><br>
-    <% end %>
+    <div class='col-md-4'>  
+      <h4><%="Status: #{order.status}" %></h4><br>
+      <%= "Tracking Number: #{order.tracking_number}" %><br>
+      <%= "Shipping Address: #{order.ship_to}" %><br>
+      <%= "Customer Contact: #{order.customer_name}" %><br>
+      <%= "Shipping Option: #{order.shipping_option}" %><br>
+      <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+      <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+      <%= "Paid: #{order.paid}" %><br>
+      <h4>Product Information</h4>
+      <% order.order_items.each do |oi| %>
+        <ul class='col-md-6'>
+          <li><%= oi.title %><br></li>
+          <li><%= oi.quantity %><br></li>
+          <li><%= number_to_currency(oi.price, precision:2) %></li><br>
+        </ul>  
+      <% end %>
+    </div>
   <% end %>
 <% end %>

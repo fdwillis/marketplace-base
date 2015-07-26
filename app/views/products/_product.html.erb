@@ -63,8 +63,9 @@
                                     <% current_user.orders.each do |s| %>
                                       <% if s.status == "Pending Submission" %>
                                         <div class='col-md-6'>
-                                          <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
                                           <%= radio_button_tag(:add_order, s.ship_to) %> <%= s.ship_to %><br>
+                                          <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
+                                          <h5>Total Price: <%= "#{number_to_currency((s.product_price + s.shipping_price) + ((s.product_price + s.shipping_price) * User.find(s.merchant_id).tax_rate / 100 ), precision:2 )}"%></h5>
                                           <h5>Products</h5>
                                           <% s.order_items.each do |item| %>
                                             <ul>

@@ -9,4 +9,10 @@ class Order < ActiveRecord::Base
   def product_price
     self.total_price = order_items.map(&:price).sum
   end
+  def total_price
+    (product_price + shipping_price) + ((product_price + shipping_price) * User.find(merchant_id).tax_rate / 100 )
+  end
+  def self.product_price(order)
+    total_price = order.order_items.map(&:price).sum
+  end
 end

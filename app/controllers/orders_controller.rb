@@ -5,7 +5,7 @@ class OrdersController < ApplicationController
   # GET /orders
   def index
     @purchases = Order.all.where(user_id: current_user.id).order("refunded ASC")
-    @orders = Order.all.where(merchant_id: current_user.id).order("created_at DESC")
+    @orders = Order.all.where(merchant_id: current_user.id).order("created_at DESC").where(paid: true)
   end
 
   # GET /orders/1
@@ -26,17 +26,18 @@ class OrdersController < ApplicationController
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
-    debugger
-    if @current_orders.present?
-      @order = current_user.orders.find_by(ship_to: params[:add_order])
-      @total_price = @order.product_price
+    @order = current_user.orders.find_by(ship_to: params[:add_order])
+    
+    if @current_orders.present? && !@order.nil?
       @add_order = params[:add_order]
       @merchant_id = @current_orders.map(&:merchant_id).uniq
-
+      
       if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order && @order.status == "Pending Submission"
         @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
                                   user_id: @product.user_id, uuid: @product.uuid,
                                   quantity: @quantity )
+  
+        @order.update_attributes(total_price: Order.product_price(@order))
         redirect_to root_path
         flash[:notice] = "Added #{@product.title} To Your Cart"
       else
@@ -48,7 +49,7 @@ class OrdersController < ApplicationController
       if @order.save
         @order.update_attributes(status: "Pending Submission", ship_to: params[:ship_to],
                                  customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title,
-                                 total_price: (@quantity * @product.price) , user_id: current_user.id, paid: true,
+                                 total_price: (@quantity * @product.price) , user_id: current_user.id,
                                  shipping_price: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).price,
                                  merchant_id: @product.user_id, uuid: SecureRandom.uuid)
 
