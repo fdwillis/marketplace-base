@@ -37,7 +37,7 @@ class OrdersController < ApplicationController
                                   user_id: @product.user_id, uuid: @product.uuid,
                                   quantity: @quantity )
   
-        @order.update_attributes(total_price: Order.product_price(@order))
+        @order.update_attributes(total_price: @order.total_price)
         redirect_to root_path
         flash[:notice] = "Added #{@product.title} To Your Cart"
       else
@@ -48,13 +48,13 @@ class OrdersController < ApplicationController
       @order = Order.new
       if @order.save
         @order.update_attributes(status: "Pending Submission", ship_to: params[:ship_to],
-                                 customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title,
-                                 total_price: (@quantity * @product.price) , user_id: current_user.id,
-                                 shipping_price: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).price,
+                                 customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (params[:shipping_option].to_i/100)).title,
+                                 user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: params[:shipping_option].to_i / 100).price,
                                  merchant_id: @product.user_id, uuid: SecureRandom.uuid)
 
-        @order.order_items.create!(title: "#{@product.title}", price: @product.price, user_id: @product.user_id, uuid: @product.uuid,
+        @order.order_items.create!(title: "#{@product.title}", price: (@product.price * @quantity), user_id: @product.user_id, uuid: @product.uuid,
                                quantity: @quantity)
+        @order.update_attributes(total_price: @order.total_price)
         @order.save
        redirect_to root_path, notice: 'Order was successfully saved.'
       else

@@ -16,8 +16,7 @@ class PurchasesController < ApplicationController
 
     @merchant = User.find(params[:merchant_id])
     
-    @price = @order.total_price
-    debugger
+    @price = (@order.total_price * 100).to_i
 
     if current_user.card?
       @card = @crypt.decrypt_and_verify(current_user.card_number)
@@ -60,11 +59,21 @@ class PurchasesController < ApplicationController
         end
       else
         begin
+          @order.order_items.each do |oi|
+            @product = Product.find_by(uuid: oi.uuid)
+            @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
+          end
+
           @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
+
           @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
                                    paid: true, application_fee: @charge.application_fee)
 
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
+          redirect_to root_path
+          return
+          @order.update_attributes(paid: true, status: "Paid")
 
           redirect_to root_path
           flash[:notice] = "Thanks for the purchase!"
@@ -84,12 +93,6 @@ class PurchasesController < ApplicationController
       flash[:error] = "You Are Missing Credit Card Details Or Shipping Information"
       return
     end
-
-    @order.order_items.each do |oi|
-      @product = Product.find_by(uuid: oi.uuid)
-      @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
-    end
-    @order.update_attributes(paid: true)
   end
 
   def update
