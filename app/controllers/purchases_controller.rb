@@ -10,34 +10,45 @@ class PurchasesController < ApplicationController
     #Time between purchases for customers in hours
     #Track product tags as well with Keen
     #Grab country of the card by switching to the merchant and using Stripe::Charge.retrieve(charge_id).source.country
-      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      debugger
-      redirect_to root_path
-      return
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
-      @merchant = User.find(params[:merchant_id])
-      Order.find(params[:order]).order_items.each do |oi|
-        @product = Product.find_by(uuid: oi.uuid)
-        @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
+    @order = Order.find(params[:order])
+
+    @merchant = User.find(params[:merchant_id])
+    
+    @price = @order.total_price
+    debugger
+
+    if current_user.card?
+      @card = @crypt.decrypt_and_verify(current_user.card_number)
+      @shipping_name = @order.shipping_option
+      @ship_to = @order.ship_to
+      
+      if @merchant.stripe_account_id
+        @currency = @merchant.currency
+        @merchant_account_id = @crypt.decrypt_and_verify(@merchant.stripe_account_id)
+      end
+      begin
+        @token = User.new_token(current_user, @card)
+      rescue Stripe::CardError => e
+        redirect_to edit_user_registration_path
+        flash[:error] = "#{e}"
+        return
+      rescue => e
+        redirect_to edit_user_registration_path
+        flash[:error] = "#{e}"
+        return
       end
 
-      @product_q = @product.quantity
-      @quantity = params[:quantity].to_i
-      @new_q = @product_q - @quantity
-      
-      @price = ((params[:price].to_i * @quantity) + params[:shipping_option].to_i)
-
-      if current_user.card?
-        @card = @crypt.decrypt_and_verify(current_user.card_number)
-        @shipping_name = @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title
-        @ship_to = params[:ship_to]
-        
-        if @merchant.stripe_account_id
-          @currency = @merchant.currency
-          @merchant_account_id = @crypt.decrypt_and_verify(@merchant.stripe_account_id)
-        end
+      if @merchant.role == 'admin'
         begin
-          @token = User.new_token(current_user, @card)
+          @charge = User.charge_for_admin(current_user, @price, @token.id)
+          @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
+                                   paid: true, application_fee: @charge.application_fee)
+                              
+          redirect_to root_path
+          flash[:notice] = "Thanks for the purchase!"
+          return
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
@@ -47,72 +58,39 @@ class PurchasesController < ApplicationController
           flash[:error] = "#{e}"
           return
         end
+      else
+        begin
+          @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
+          @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
+                                   paid: true, application_fee: @charge.application_fee)
 
-        if @quantity > 0
-          if @quantity  
-            if params[:refund_agreement]
-              if params[:shipping_option]
-                if @product.user.role == 'admin'
-                  begin
-                    @charge = User.charge_for_admin(current_user, @price, @token.id)
-                                        
-                    redirect_to root_path
-                    flash[:notice] = "Thanks for the purchase!"
-                    return
-                  rescue Stripe::CardError => e
-                    redirect_to edit_user_registration_path
-                    flash[:error] = "#{e}"
-                    return
-                  rescue => e
-                    redirect_to edit_user_registration_path
-                    flash[:error] = "#{e}"
-                    return
-                  end
-                else
-                  begin
-                    @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
-                    
-                    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+          Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
-                    redirect_to root_path
-                    flash[:notice] = "Thanks for the purchase!"
-                    return
-                  rescue Stripe::CardError => e
-                    redirect_to edit_user_registration_path
-                    flash[:error] = "#{e}"
-                    return
-                  rescue => e
-                    redirect_to edit_user_registration_path
-                    flash[:error] = "#{e}"
-                    return
-                  end
-                end
-              else
-                redirect_to product_path(params[:product_id])
-                flash[:error] = "Please Choose A Shipping Option"
-                return
-              end
-            else
-              redirect_to product_path(params[:product_id])
-              flash[:error] = "Please Agree To The Sellers Return Policy"
-              return
-            end
-          else
-            redirect_to product_path(params[:product_id])
-            flash[:error] = "Please Choose Your Desired Quantity"
-            return
-          end
-        else
-          redirect_to product_path(params[:product_id])
-          flash[:error] = "Please Choose Your Quantity"
+          redirect_to root_path
+          flash[:notice] = "Thanks for the purchase!"
+          return
+        rescue Stripe::CardError => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
           return
         end
-      else
-        redirect_to edit_user_registration_path
-        flash[:error] = "You Are Missing Credit Card Details Or Shipping Information"
-        return
       end
+    else
+      redirect_to edit_user_registration_path
+      flash[:error] = "You Are Missing Credit Card Details Or Shipping Information"
+      return
     end
+
+    @order.order_items.each do |oi|
+      @product = Product.find_by(uuid: oi.uuid)
+      @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
+    end
+    @order.update_attributes(paid: true)
+  end
 
   def update
     AfterShip.api_key = ENV['AFTERSHIP_KEY']

@@ -17,7 +17,7 @@
         <li>Quantity: <%= p.quantity %></li>
       </ul>
     <% end %>
-    <%= link_to "Submit Order #{number_to_currency(purchase.total_price, precision: 2)}", purchases_path(merchant_id: purchase.merchant_id, order: purchase), class: 'btn btn-success', method: :post %>
+    <%= link_to "Submit Order #{number_to_currency(purchase.total_price, precision: 2)}", purchases_path(merchant_id: purchase.merchant_id, order: purchase), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(purchase.merchant_id).username}'s Return Policy?"} %>
     <% if purchase.refunded? %>
       <h4>This Purchase Has Been Refunded</h4>
     <% elsif purchase.refunded && purchase.status != "Pending Submission"
