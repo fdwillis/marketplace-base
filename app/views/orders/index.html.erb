@@ -1,30 +1,31 @@
 <h1>Personal Orders</h1>
-<% @purchases.each do |purchase| %>
+<% @purchases.each do |order| %>
   <div class="col-md-4">
-    <%= "Total Price: #{number_to_currency(purchase.total_price, precision: 2)}" %><br>
-    <%= "Shipping Option: #{purchase.shipping_option}" %><br>
-    <%= "Ship To: #{purchase.ship_to}" %><br>
-    <%= "Status: #{purchase.status}" %><br>
-    <% if purchase.tracking_number %>
-      <%= "Carrier: #{purchase.carrier}" %><br>
-      <%= "Tracking Number: #{purchase.tracking_number}" %><br>
+    <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+    <%= "Shipping Option: #{order.shipping_option}" %><br>
+    <%= "Ship To: #{order.ship_to}" %><br>
+    <%= "Status: #{order.status}" %><br>
+    <% if order.tracking_number %>
+      <%= "Carrier: #{order.carrier}" %><br>
+      <%= "Tracking Number: #{order.tracking_number}" %><br>
     <% end %>
     <h4>Products</h4>
-    <% purchase.order_items.each do |p,g| %>        
+    <% order.order_items.each do |p,g| %>        
       <ul class='col-md-6'>
         <li>Item: <%= p.title %></li>
         <li>Price: <%= number_to_currency(p.price, precision: 2) %></li>
         <li>Quantity: <%= p.quantity %></li>
       </ul>
     <% end %>
-    <% if !purchase.paid? %>
-      <%= link_to "Submit Order #{number_to_currency(purchase.total_price, precision: 2)}", purchases_path(merchant_id: purchase.merchant_id, order: purchase), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(purchase.merchant_id).username}'s Return Policy?"} %>
+    <% if !order.paid? %>
+      <%= link_to "Submit Order #{number_to_currency(order.total_price, precision: 2)}", orders_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %>
     <% end %>
-    <% if purchase.refunded? %>
+    <% if !order.refunded && order.status == "Pending Submission" %>
+      <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-warning' %><br>
+    <% elsif order.status == "Pending Refund"  %>
+      <h4>This Is A Pending Refund</h4>
+    <% else %>
       <h4>This Purchase Has Been Refunded</h4>
-    <% elsif purchase.refunded && purchase.status != "Pending Submission"
-       %>
-      <%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.total_price, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(purchase.total_price.to_f / 100, precision: 2)}?" }, class: 'btn btn-danger' %><br>
     <% end %>
   </div>
 <% end %>

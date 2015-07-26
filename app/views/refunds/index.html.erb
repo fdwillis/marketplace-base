@@ -1,9 +1,8 @@
 <h1>Refunds</h1>
 <% @refunds.each do |refund| %>
-  <%= refund.title %>
-  <%= number_to_currency((refund.price / 100), precision: 2) %>
+  <%= number_to_currency((refund.total_price), precision: 2) %>
   <%= refund.status %>
   <%= refund.purchase_id %>
   <%= refund.created_at.to_date.strftime("%B #{refund.created_at.to_date.day.ordinalize}, %Y") %>
-  <%= link_to "Issue Refund", refund_path(id: refund.id, uuid: refund.uuid, refund_id: refund.stripe_charge_id, price: refund.price), class: 'btn btn-warning', method: :put %>
+  <%= link_to "Issue Refund", refund_path(id: refund.id, uuid: refund.uuid, refund_id: refund.stripe_charge_id, price: refund.total_price), class: 'btn btn-warning', method: :put %>
 <% end %>
