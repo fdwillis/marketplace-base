@@ -1,20 +1,44 @@
-<h1>Listing Orders</h1>
-
-<% @orders.each do |order| %>
-  <h3><%="Status: #{order.status}" %></h3><br>
-  <%= order.ship_to %><br>
-  <%= order.customer_name %><br>
-  <%= order.tracking_number %><br>
-  <%= order.shipping_option %><br>
-  <%= order.total_price %><br>
-  <%= order.user_id %><br>
-  <%= order.paid %><br>
-  <%= order.shipping_price %><br>
-  <%= order.merchant_id %><br>
-  <h1>Product Information</h1>
-  <% order.products.each do |product| %>
-    <%= product.title %><br>
-    <%= product.quantity %><br>
-    <%= number_to_currency(product.price, precision:2) %><br>
+<h1>Personal Orders</h1>
+<% @purchases.each do |purchase| %>
+  <div class="row">  
+    <div class="col-md-4">
+      <%= "Price: #{number_to_currency(purchase.total_price.to_f / 100, precision: 2)}" %><br>
+      <%= "Shipping Option: #{purchase.shipping_option}" %><br>
+      <%= "Ship To: #{purchase.ship_to}" %><br>
+      <%= "Status: #{purchase.status}" %><br>
+      <% if purchase.tracking_number %>
+        <%= "Carrier: #{purchase.carrier}" %><br>
+        <%= "Tracking Number: #{purchase.tracking_number}" %><br>
+      <% end %>
+      <% if purchase.refunded? %>
+        <h4>This Purchase Has Been Refunded</h4>
+      <% elsif purchase.status == "Pending Refund" %>
+        <%= link_to 'Show', product_path(purchase.product_id) %><br>
+        Status: <%= purchase.status %><br>
+      <% else %>
+        <%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.total_price, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(purchase.total_price.to_f / 100, precision: 2)}?" } %><br>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<% if current_user.admin? || current_user.merchant? %>
+  <h1>Store Orders</h1>
+  <% @orders.each do |order| %>
+    <h3><%="Status: #{order.status}" %></h3><br>
+    <%= order.ship_to %><br>
+    <%= order.customer_name %><br>
+    <%= order.tracking_number %><br>
+    <%= order.shipping_option %><br>
+    <%= order.total_price %><br>
+    <%= order.user_id %><br>
+    <%= order.paid %><br>
+    <%= order.shipping_price %><br>
+    <%= order.merchant_id %><br>
+    <h1>Product Information</h1>
+    <% order.products.each do |product| %>
+      <%= product.title %><br>
+      <%= product.quantity %><br>
+      <%= number_to_currency(product.price, precision:2) %><br>
+    <% end %>
   <% end %>
 <% end %>

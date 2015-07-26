@@ -4,7 +4,8 @@ class OrdersController < ApplicationController
   # GET /orders
   # GET /orders.json
   def index
-    @orders = Order.all
+    @purchases = Order.all.where(user_id: current_user.id).order("refunded ASC")
+    @orders = Order.all.where(merchant_id: current_user.id).order("created_at DESC")
   end
 
   # GET /orders/1
