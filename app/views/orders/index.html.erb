@@ -17,7 +17,7 @@
         <li>Quantity: <%= p.quantity %></li>
       </ul>
     <% end %>
-    <%= link_to "Submit Order #{number_to_currency(purchase.total_price, precision: 2)}", "#", class: 'btn btn-success'%>
+    <%= link_to "Submit Order #{number_to_currency(purchase.total_price, precision: 2)}", purchases_path(merchant_id: purchase.merchant_id, order: purchase), class: 'btn btn-success', method: :post %>
     <% if purchase.refunded? %>
       <h4>This Purchase Has Been Refunded</h4>
     <% elsif purchase.refunded && purchase.status != "Pending Submission"

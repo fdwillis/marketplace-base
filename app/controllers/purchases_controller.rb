@@ -10,14 +10,16 @@ class PurchasesController < ApplicationController
     #Time between purchases for customers in hours
     #Track product tags as well with Keen
     #Grab country of the card by switching to the merchant and using Stripe::Charge.retrieve(charge_id).source.country
-    if !current_user.purchases.find_by(purchase_id: params[:purchase_id]).nil? && !current_user.purchases.find_by(purchase_id: params[:purchase_id]).refunded?
-      redirect_to root_path
-      flash[:error] = "You've Already Purchased This"
-      return
-    else
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      @product = Product.find_by(uuid: params[:uuid])
-      @merchant = User.find(@product.user_id)
+      debugger
+      redirect_to root_path
+      return
+
+      @merchant = User.find(params[:merchant_id])
+      Order.find(params[:order]).order_items.each do |oi|
+        @product = Product.find_by(uuid: oi.uuid)
+        @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
+      end
 
       @product_q = @product.quantity
       @quantity = params[:quantity].to_i
@@ -53,15 +55,7 @@ class PurchasesController < ApplicationController
                 if @product.user.role == 'admin'
                   begin
                     @charge = User.charge_for_admin(current_user, @price, @token.id)
-                    
-                    Purchase.new_product(params[:uuid], params[:merchant_id], @charge.id,
-                                         params[:title], @price, current_user.id, params[:product_id],
-                                         @charge.application_fee, SecureRandom.uuid,
-                                         "#{@charge.status}", @shipping_name, @ship_to, @quantity,
-                      )
-
-                    Purchase.update_quantity(@new_q, @product)
-                    
+                                        
                     redirect_to root_path
                     flash[:notice] = "Thanks for the purchase!"
                     return
@@ -78,15 +72,7 @@ class PurchasesController < ApplicationController
                   begin
                     @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
                     
-                    Purchase.new_product(params[:uuid], params[:merchant_id], @charge.id,
-                                         params[:title], @price, current_user.id, params[:product_id],
-                                         @charge.application_fee, SecureRandom.uuid,
-                                         "#{@charge.status}", @shipping_name, @ship_to, @quantity,
-                      )
-
                     Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
-                    Purchase.update_quantity(@new_q, @product)
 
                     redirect_to root_path
                     flash[:notice] = "Thanks for the purchase!"
@@ -127,7 +113,6 @@ class PurchasesController < ApplicationController
         return
       end
     end
-  end
 
   def update
     AfterShip.api_key = ENV['AFTERSHIP_KEY']
