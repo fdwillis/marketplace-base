@@ -17,7 +17,7 @@
                             <h1> Review Purchase Of <strong><em><u><%= product.title %></u></em></strong></h1>
                             <h3>Sold By: <%= link_to product.user.username.titleize, merchant_path(product.user.username) %></h3>
                           </div>
-                          <%= form_tag purchases_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate)), title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id) do %>
+                          <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
                             <div class="modal-body">
                               <div class="container-fluid">  
                                   <div class="col-md-9">

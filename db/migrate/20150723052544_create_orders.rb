@@ -6,7 +6,7 @@ class CreateOrders < ActiveRecord::Migration
       t.string :customer_name
       t.string :tracking_number
       t.string :shipping_option
-      t.string :total_price
+      t.decimal :total_price, precision: 12, scale: 2
 
       t.timestamps null: false
     end

@@ -2,7 +2,7 @@
 <% @purchases.each do |purchase| %>
   <div class="row">  
     <div class="col-md-4">
-      <%= "Price: #{number_to_currency(purchase.total_price.to_f / 100, precision: 2)}" %><br>
+      <%= "Price: #{number_to_currency(purchase.total_price, precision: 2)}" %><br>
       <%= "Shipping Option: #{purchase.shipping_option}" %><br>
       <%= "Ship To: #{purchase.ship_to}" %><br>
       <%= "Status: #{purchase.status}" %><br>

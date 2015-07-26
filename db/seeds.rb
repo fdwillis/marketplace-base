@@ -48,11 +48,12 @@ merchant = User.create!(
               tax_rate: 2.0,
 )
 
+@crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 a = User.create!(
   email: 'a@a.com',
   password: 'pa',
   business_name: '34',
-  card_number: '4242424242424242', 
+  card_number: @crypt.encrypt_and_sign('4242424242424242'), 
   exp_year: '2018',
   exp_month: '09',
   cvc_number: '3333',

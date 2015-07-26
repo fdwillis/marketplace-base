@@ -5,4 +5,9 @@ class Order < ActiveRecord::Base
   has_many :users, through: :products
   
   accepts_nested_attributes_for :products, reject_if: :all_blank, allow_destroy: true
+
+  def self.product_price(price)
+    debugger
+    total_price += price
+  end
 end

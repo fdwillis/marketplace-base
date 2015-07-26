@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
   extend FriendlyId
   friendly_id :username, use: [:slugged, :finders]
   
-  has_many :orders
+  has_many :orders, dependent: :delete_all
   has_many :products
   
   has_many :purchases
