@@ -8,7 +8,6 @@ class Product < ActiveRecord::Base
   friendly_id :title, use: [:slugged, :finders]
 
   belongs_to :user
-  belongs_to :order
 
   # has_many :purchases
   has_many :shipping_options

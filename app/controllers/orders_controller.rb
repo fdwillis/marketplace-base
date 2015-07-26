@@ -23,17 +23,29 @@ class OrdersController < ApplicationController
 
   # POST /orders
   def create
+    @product = Product.find_by(uuid: params[:uuid])
+    @current_orders = current_user.orders
+    # if @current_orders
+    #   @merchant_id = @current_orders.products.map(&:user_id).uniq
+    #   if @current_orders.products.present?
+    #     if @merchant_id.size == 1 && @merchant_id == @product.user_id
+        
+    #     end
+    #   end
+    # end
     @order = Order.new
     if @order.save
-      @product = Product.find_by(uuid: params[:uuid])
       @total_price = Order.product_price(@product.price)
-      @order.update_attributes(status: "Submitted", ship_to: params[:ship_to],
+      @order.update_attributes(status: "Pending Submission", ship_to: params[:ship_to],
                                customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title,
                                total_price: @total_price , user_id: current_user.id, paid: true,
                                shipping_price: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).price,
                                merchant_id: @product.user_id, uuid: SecureRandom.uuid)
-     redirect_to root_path, notice: 'Order was successfully created.'
-     debugger
+
+      @order.order_items.create!(title: "#{@product.title}", price: @product.price, user_id: @product.user_id, uuid: @product.uuid,
+                             quantity: params[:quantity])
+      @order.save
+     redirect_to root_path, notice: 'Order was successfully saved.'
     else
      render :new
     end
@@ -66,6 +78,6 @@ class OrdersController < ApplicationController
                                     :carrier, :refunded,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
-                                    :total_price, :user_id, products_attributes: [:id, :title, :price, :user_id, :uuid, :slug, :product_image, :pending, :active, :description, :quantity, :status, :_destroy])
+                                    :total_price, :user_id, order_items_attributes: [:id, :title, :price, :user_id, :uuid, :description, :quantity, :_destroy])
     end
 end

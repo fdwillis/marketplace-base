@@ -1,13 +1,12 @@
 class Order < ActiveRecord::Base
   belongs_to :user
 
-  has_many :products, dependent: :destroy
-  has_many :users, through: :products
+  has_many :order_items, dependent: :destroy
+  has_many :users, through: :order_items
   
-  accepts_nested_attributes_for :products, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :order_items, reject_if: :all_blank, allow_destroy: true
 
   def self.product_price(price)
-    debugger
-    total_price += price
+    total_price = total_price.to_i + price
   end
 end

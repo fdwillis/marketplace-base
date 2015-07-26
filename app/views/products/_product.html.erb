@@ -9,7 +9,7 @@
             <% if current_user %>  
               <% if current_user.purchases %>  
                   <td>
-                    <%= link_to "Buy Now", "##{product.uuid}", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
+                    <%= link_to "New Order", "##{product.uuid}", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
                     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
                       <div class="modal-dialog modal-lg">
                         <div class="modal-content">
@@ -34,6 +34,43 @@
                                     <% end %>
                                     <h3><u><%= link_to "Return Policy", merchant_path(product.user.username) %></u></h3>
                                     <%= radio_button_tag(:refund_agreement, "I Agree") %> Yes, I Agree
+                                  </div>
+                              </div>
+                            </div>
+                            <div class="modal-footer actions">
+                              <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                              <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <%= link_to "Add To Order", "#AddToOrder", class: 'btn btn-success', 'data-toggle' => 'modal' %>
+                    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="AddToOrder">
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header text-center">
+                            <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
+                          </div>
+                          <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
+                            <div class="modal-body">
+                              <div class="container-fluid">  
+                                  <div class="col-md-9">
+                                    <h3>Pending Orders</h3>
+                                    <% current_user.orders.each do |s| %>
+                                      <%= radio_button_tag(:add_order, s.ship_to) %> <%= s.ship_to %><br>
+                                      <h5>Products</h5>
+                                      <ul>
+                                        <li><%= s.order_items.map(&:title).join(" ") %></li><br>
+
+                                      </ul>
+                                    <% end %>
+                                  </div>
+                                  <div class="col-md-3">  
+                                    <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
+                                    <%= number_field_tag :quantity, class: 'form-control' %>
                                   </div>
                               </div>
                             </div>
