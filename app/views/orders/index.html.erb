@@ -1,24 +1,29 @@
 <h1>Personal Orders</h1>
 <% @purchases.each do |purchase| %>
-  <div class="row">  
-    <div class="col-md-4">
-      <%= "Price: #{number_to_currency(purchase.total_price, precision: 2)}" %><br>
-      <%= "Shipping Option: #{purchase.shipping_option}" %><br>
-      <%= "Ship To: #{purchase.ship_to}" %><br>
-      <%= "Status: #{purchase.status}" %><br>
-      <% if purchase.tracking_number %>
-        <%= "Carrier: #{purchase.carrier}" %><br>
-        <%= "Tracking Number: #{purchase.tracking_number}" %><br>
-      <% end %>
-      <% if purchase.refunded? %>
-        <h4>This Purchase Has Been Refunded</h4>
-      <% elsif purchase.status == "Pending Refund" %>
-        <%= link_to 'Show', product_path(purchase.product_id) %><br>
-        Status: <%= purchase.status %><br>
-      <% else %>
-        <%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.total_price, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(purchase.total_price.to_f / 100, precision: 2)}?" } %><br>
-      <% end %>
-    </div>
+  <div class="col-md-4">
+    <%= "Price: #{number_to_currency(purchase.total_price, precision: 2)}" %><br>
+    <%= "Shipping Option: #{purchase.shipping_option}" %><br>
+    <%= "Ship To: #{purchase.ship_to}" %><br>
+    <%= "Status: #{purchase.status}" %><br>
+    <% if purchase.tracking_number %>
+      <%= "Carrier: #{purchase.carrier}" %><br>
+      <%= "Tracking Number: #{purchase.tracking_number}" %><br>
+    <% end %>
+    <h4>Products</h4>
+    <% purchase.order_items.each do |p,g| %>        
+      <ul class='col-md-6'>
+        <li>Item: <%= p.title %></li>
+        <li>Price: <%= number_to_currency(p.price, precision: 2) %></li>
+        <li>Quantity: <%= p.quantity %></li>
+      </ul>
+    <% end %>
+    <%= link_to "Submit Order #{number_to_currency((purchase.product_price + purchase.shipping_price) + ((purchase.product_price + purchase.shipping_price) * User.find(purchase.merchant_id).tax_rate / 100 ), precision:2 )}", "#", class: 'btn btn-success'%>
+    <% if purchase.refunded? %>
+      <h4>This Purchase Has Been Refunded</h4>
+    <% elsif purchase.refunded && purchase.status != "Pending Submission"
+       %>
+      <%= link_to "Refund", refunds_path(purchase_id: purchase.purchase_id, price: purchase.total_price, application_fee: purchase.application_fee, refund_id: purchase.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(purchase.total_price.to_f / 100, precision: 2)}?" }, class: 'btn btn-danger' %><br>
+    <% end %>
   </div>
 <% end %>
 <% if current_user.admin? || current_user.merchant? %>

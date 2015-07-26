@@ -6,7 +6,7 @@ class Order < ActiveRecord::Base
   
   accepts_nested_attributes_for :order_items, reject_if: :all_blank, allow_destroy: true
 
-  def self.product_price(price)
-    total_price = total_price.to_i + price
+  def product_price
+    self.total_price = order_items.map(&:price).sum
   end
 end

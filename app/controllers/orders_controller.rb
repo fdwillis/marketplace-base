@@ -24,30 +24,41 @@ class OrdersController < ApplicationController
   # POST /orders
   def create
     @product = Product.find_by(uuid: params[:uuid])
+    @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
-    # if @current_orders
-    #   @merchant_id = @current_orders.products.map(&:user_id).uniq
-    #   if @current_orders.products.present?
-    #     if @merchant_id.size == 1 && @merchant_id == @product.user_id
-        
-    #     end
-    #   end
-    # end
-    @order = Order.new
-    if @order.save
-      @total_price = Order.product_price(@product.price)
-      @order.update_attributes(status: "Pending Submission", ship_to: params[:ship_to],
-                               customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title,
-                               total_price: @total_price , user_id: current_user.id, paid: true,
-                               shipping_price: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).price,
-                               merchant_id: @product.user_id, uuid: SecureRandom.uuid)
+    debugger
+    if @current_orders.present?
+      @order = current_user.orders.find_by(ship_to: params[:add_order])
+      @total_price = @order.product_price
+      @add_order = params[:add_order]
+      @merchant_id = @current_orders.map(&:merchant_id).uniq
 
-      @order.order_items.create!(title: "#{@product.title}", price: @product.price, user_id: @product.user_id, uuid: @product.uuid,
-                             quantity: params[:quantity])
-      @order.save
-     redirect_to root_path, notice: 'Order was successfully saved.'
+      if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order && @order.status == "Pending Submission"
+        @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
+                                  user_id: @product.user_id, uuid: @product.uuid,
+                                  quantity: @quantity )
+        redirect_to root_path
+        flash[:notice] = "Added #{@product.title} To Your Cart"
+      else
+        redirect_to @product
+        flash[:error] = "Please start a new order"
+      end
     else
-     render :new
+      @order = Order.new
+      if @order.save
+        @order.update_attributes(status: "Pending Submission", ship_to: params[:ship_to],
+                                 customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).title,
+                                 total_price: (@quantity * @product.price) , user_id: current_user.id, paid: true,
+                                 shipping_price: @product.shipping_options.find_by(price: (params[:shipping_option].to_f/100)).price,
+                                 merchant_id: @product.user_id, uuid: SecureRandom.uuid)
+
+        @order.order_items.create!(title: "#{@product.title}", price: @product.price, user_id: @product.user_id, uuid: @product.uuid,
+                               quantity: @quantity)
+        @order.save
+       redirect_to root_path, notice: 'Order was successfully saved.'
+      else
+       render :new
+      end
     end
   end
 
