@@ -18,14 +18,14 @@
       </ul>
     <% end %>
     <% if !order.paid? %>
-      <%= link_to "Submit Order #{number_to_currency(order.total_price, precision: 2)}", orders_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %>
+      <%= link_to "Submit Order #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %>
     <% end %>
     <% if !order.refunded && order.status == "Pending Submission" %>
       <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-warning' %><br>
-    <% elsif order.status == "Pending Refund"  %>
+    <% elsif !order.refunded && order.status == "Pending Refund"  %>
       <h4>This Is A Pending Refund</h4>
     <% else %>
-      <h4>This Purchase Has Been Refunded</h4>
+      
     <% end %>
   </div>
 <% end %>

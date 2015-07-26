@@ -71,8 +71,6 @@ class PurchasesController < ApplicationController
 
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
-          redirect_to root_path
-          return
           @order.update_attributes(paid: true, status: "Paid")
 
           redirect_to root_path

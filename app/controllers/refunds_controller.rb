@@ -13,7 +13,7 @@ class RefundsController < ApplicationController
   end
   def update
     #Track With Keen "refunds fullfilled"
-    debugger
+
     @order = Order.find_by(uuid: params[:uuid])
     order = Order.find_by(stripe_charge_id: params[:refund_id])
 
@@ -31,7 +31,7 @@ class RefundsController < ApplicationController
     end
     @order.order_items.each do |oi|
       @product = Product.find_by(uuid: oi.uuid)
-      @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
+      @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
     end
     order.update_attributes(status: "Refunded", refunded: true)
     redirect_to refunds_path, notice: "Refund Fullfilled"
