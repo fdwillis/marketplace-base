@@ -117,7 +117,14 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
-    @order.update_attributes(tracking_number: params[:tracking_number])
+    debugger
+    @tracking_number = params[:tracking_number]
+    @order.update_attributes(tracking_number: @tracking_number)
+    AfterShip.api_key = ENV['AFTERSHIP_KEY']
+
+    @s = AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@order.customer_name}"]})
+
+    @order.update_attributes(tracking_number: @tracking_number, carrier: @s['data']['tracking']['slug'])
     redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
   end
   def active_order
