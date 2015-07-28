@@ -3,7 +3,7 @@
   <div class="pull-right user-info">
     <% if current_user %>
       <%= link_to "Plans", plans_path %> |
-      <%= link_to "Orders", orders_path %> <% if current_user.merchant? || current_user.admin? %> <%="(#{Order.all.where(merchant_id: 2).where('tracking_number IS NULL').count})" %> <% end %> | 
+      <%= link_to "Orders", orders_path %> <% if current_user.merchant? || current_user.admin? %> <%="(#{Order.all.where(merchant_id: 2).where('tracking_number IS NULL').where(paid: true).count})" %> <% else%> (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>) <% end %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
       <% if current_user.merchant? || current_user.admin? %>
         <%= link_to "Reports", reports_path %> | 

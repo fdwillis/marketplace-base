@@ -57,6 +57,11 @@ a = User.create!(
   exp_year: '2018',
   exp_month: '09',
   cvc_number: '3333',
+  legal_name: 'full legal',
+  username: 'full_',
+  address_country: "US",
+  currency: "USD",
+  country_name: "United States",
   )
 
 a.skip_confirmation!

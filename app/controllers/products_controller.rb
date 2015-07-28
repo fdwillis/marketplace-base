@@ -8,6 +8,7 @@ class ProductsController < ApplicationController
   def index
     @products = Product.all.where(active: true).page(params[:page]).per_page(5)
     @pendings = Product.all.where(active: false)
+    @current_orders = current_user.orders.where(status: "Pending Submission").where(active: true)
     authorize @products
   end
 

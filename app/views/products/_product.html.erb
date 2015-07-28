@@ -45,7 +45,7 @@
                     </div>
                   </td>
                   <td>
-                    <% if current_user.orders.map(&:status).include? "Pending Submission" %>
+                    <% if @current_orders.present? %>
                       <%= link_to "Add To Order", "##{product.slug}", class: 'btn btn-success', 'data-toggle' => 'modal' %>
                       <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.slug%>">
                         <div class="modal-dialog modal-lg">
@@ -54,12 +54,12 @@
                               <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
                             </div>
                             <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
-                              <% if current_user.orders.present? %>
+                              <% if @current_orders.present? %>
                                 <div class="modal-body">
                                   <div class="container-fluid">  
                                     <div class="col-md-9">
                                       <h3>Pending Orders</h3>
-                                      <% current_user.orders.where(status: "Pending Submission").each do |s| %>
+                                      <% @current_orders.each do |s| %>
                                         <div class='col-md-6'>
                                           <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
                                           <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>

@@ -123,7 +123,7 @@ class OrdersController < ApplicationController
     AfterShip.api_key = ENV['AFTERSHIP_KEY']
 
     @s = AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@order.customer_name}"]})
-
+    
     @order.update_attributes(tracking_number: @tracking_number, carrier: @s['data']['tracking']['slug'])
     redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
   end
