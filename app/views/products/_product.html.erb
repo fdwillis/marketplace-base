@@ -45,50 +45,52 @@
                     </div>
                   </td>
                   <td>
-                    <%= link_to "Add To Order", "##{product.slug}", class: 'btn btn-success', 'data-toggle' => 'modal' %>
-                    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.slug%>">
-                      <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                          <div class="modal-header text-center">
-                            <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
-                          </div>
-                          <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
-
-                            <% if current_user.orders.where(status: "Pending Submission").each do |s| %>
-                              <div class="modal-body">
-                                <div class="container-fluid">  
-                                  <div class="col-md-9">
-                                    <h3>Pending Orders</h3>
-                                      <div class='col-md-6'>
-                                        <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
-                                        <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
-                                        <h5>Total Price: <%= "#{number_to_currency(s.total_price, precision:2 )}"%></h5>
-                                        <h5>Products</h5>
-                                        <% s.order_items.each do |item| %>
-                                          <ul>
-                                            <li><%= "#{item.title} (#{item.quantity})" %></li>
-                                          </ul>
-                                        <% end %>
-                                      </div>
-                                  </div>
-                                  <div class="col-md-3">  
-                                    <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
-                                    <%= number_field_tag :quantity, class: 'form-control' %>
+                    <% if current_user.orders.map(&:status).include? "Pending Submission" %>
+                      <%= link_to "Add To Order", "##{product.slug}", class: 'btn btn-success', 'data-toggle' => 'modal' %>
+                      <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.slug%>">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
+                            </div>
+                            <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
+                              <% if current_user.orders.present? %>
+                                <div class="modal-body">
+                                  <div class="container-fluid">  
+                                    <div class="col-md-9">
+                                      <h3>Pending Orders</h3>
+                                      <% current_user.orders.where(status: "Pending Submission").each do |s| %>
+                                        <div class='col-md-6'>
+                                          <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
+                                          <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
+                                          <h5>Total Price: <%= "#{number_to_currency((s.total_price + s.shipping_price) + ((s.total_price + s.shipping_price) * User.find(s.merchant_id).tax_rate / 100 ), precision:2 )}"%></h5>
+                                          <h5>Products</h5>
+                                          <% s.order_items.each do |item| %>
+                                            <ul>
+                                              <li><%= "#{item.title} (#{item.quantity})" %></li>
+                                            </ul>
+                                          <% end %>
+                                        </div>
+                                      <% end %>
+                                    </div>
+                                    <div class="col-md-3">  
+                                      <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
+                                      <%= number_field_tag :quantity, class: 'form-control' %>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div class="modal-footer actions">
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                                <%= submit_tag "Submit Order", class: 'btn btn-success' %>
-                              </div>
-                            <% end.empty? %>
-                              <h1>You Have No Pending Orders</h1>
+                                <div class="modal-footer actions">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                  <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                                </div>
+                              <% else %>
+                                <h1>You Have No Pending Orders</h1>
+                              <% end %>
                             <% end %>
-                            
-                          <% end %>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    <%end %>
                   </td>
               <% end %>
             <% else %>
