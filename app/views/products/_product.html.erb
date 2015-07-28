@@ -32,8 +32,6 @@
                                     <% current_user.shipping_to.each do |s| %>
                                       <p> <%= radio_button_tag(:ship_to, s )%> <%= s %></p>
                                     <% end %>
-                                    <h3><u><%= link_to "Return Policy", merchant_path(product.user.username) %></u></h3>
-                                    <%= radio_button_tag(:refund_agreement, "I Agree") %> Yes, I Agree
                                   </div>
                               </div>
                             </div>
