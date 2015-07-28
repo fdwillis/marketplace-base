@@ -27,9 +27,7 @@ class OrdersController < ApplicationController
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
     
-    if params[:ship_to]
-      @order = current_user.orders.find_by(ship_to: params[:ship_to])
-    else
+    if params[:add_order]
       @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
     end
     if params[:shipping_option]
@@ -40,7 +38,7 @@ class OrdersController < ApplicationController
     @ship_to = params[:ship_to]
     
     if @quantity <= @product.quantity && @quantity > 0
-      if @current_orders.present? && !@order.nil?
+      if @current_orders.present? && !@order.nil? && @order.status != 'Paid'
         @add_order = params[:add_order].partition('--').first
         @merchant_id = @current_orders.map(&:merchant_id).uniq
         

@@ -45,7 +45,7 @@ class PurchasesController < ApplicationController
           @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
                                    paid: true, application_fee: @charge.application_fee)
                               
-          redirect_to root_path
+          redirect_to orders_path
           flash[:notice] = "Thanks for the purchase!"
           return
         rescue Stripe::CardError => e
@@ -73,7 +73,7 @@ class PurchasesController < ApplicationController
 
           @order.update_attributes(paid: true, status: "Paid")
 
-          redirect_to root_path
+          redirect_to orders_path
           flash[:notice] = "Thanks for the purchase!"
           return
         rescue Stripe::CardError => e
