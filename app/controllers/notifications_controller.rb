@@ -9,6 +9,7 @@ class NotificationsController < ApplicationController
     @checkpoints.each do |chk|
       @order.shipping_updates.find_or_create_by(message: chk['message'], tag: @update['tag'], checkpoint_time: (chk['checkpoint_time']).to_date , order_id: @order.id)
     end
+    @order.update_attributes(status: @order.shipping_updates.last.message)
   end
 end
 
