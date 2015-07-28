@@ -9,10 +9,8 @@
           <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
           <%= "Ship To: #{order.ship_to}" %><br>
           <%= "Status: #{order.status}" %><br>
-          <% if order.tracking_number %>
-            <%= "Carrier: #{order.carrier}" %><br>
-            <%= "Tracking Number: #{order.tracking_number}" %><br>
-          <% end %>
+          <%= "Carrier: #{order.carrier}" %><br>
+          <%= "Tracking Number: #{order.tracking_number}" %><br>
         </div>
         <div class="row form-group">
           <h4>Products</h4>
@@ -137,7 +135,7 @@
         <div class="form-group col-md-4">
           <div class="row form-group">
             <%= "Tracking Number: #{order.tracking_number}" %><br>
-            <%= "Shipping To: #{order.ship_to}" %><br>
+            <%= "Address: #{order.ship_to}" %><br>
             <%= "Customer Contact: #{order.customer_name}" %><br>
             <%= "Shipping Option: #{order.shipping_option}" %><br>
             <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>

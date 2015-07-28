@@ -6,7 +6,7 @@ class OrdersController < ApplicationController
   def index
     @purchases = Order.all.where(user_id: current_user.id).order("refunded or paid DESC").where(active: true)
     @suspended = Order.all.where(user_id: current_user.id).where(active: false)
-    @orders = Order.all.where(merchant_id: current_user.id).order("created_at DESC").where(paid: true)
+    @orders = Order.all.where(merchant_id: current_user.id).order("updated_at ASC").where(paid: true)
   end
 
   # GET /orders/1
@@ -117,7 +117,7 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
-    debugger
+    
     @tracking_number = params[:tracking_number]
     @order.update_attributes(tracking_number: @tracking_number)
     AfterShip.api_key = ENV['AFTERSHIP_KEY']
@@ -128,7 +128,7 @@ class OrdersController < ApplicationController
     redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
   end
   def active_order
-    debugger
+    
     @order.update_attributes(active: true)
     redirect_to orders_url, notice: 'Order was successfully restarted.'
   end
@@ -136,7 +136,7 @@ class OrdersController < ApplicationController
   # DELETE /orders/1
   def destroy
     @order.update_attributes(active: false)
-    redirect_to orders_url, notice: 'Order was successfully suspended.'
+    redirect_to orders_url, notice: 'Order Was Successfully Saved.'
   end
 
   private
