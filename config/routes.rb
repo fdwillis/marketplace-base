@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   resources :plans, only: :index
   resources :products
-  resources :orders, only: [:update, :index, :create]
+  resources :orders
 
   resources :purchases, only: [:index, :create, :update]
   resources :refunds, only: [:index, :create, :update]

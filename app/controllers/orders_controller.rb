@@ -4,7 +4,8 @@ class OrdersController < ApplicationController
 
   # GET /orders
   def index
-    @purchases = Order.all.where(user_id: current_user.id).order("refunded ASC")
+    @purchases = Order.all.where(user_id: current_user.id).order("refunded or paid DESC").where(active: true)
+    @suspended = Order.all.where(user_id: current_user.id).where(active: false)
     @orders = Order.all.where(merchant_id: current_user.id).order("created_at DESC").where(paid: true)
   end
 
@@ -38,11 +39,17 @@ class OrdersController < ApplicationController
     @ship_to = params[:ship_to]
     
     if @quantity <= @product.quantity && @quantity > 0
-      if @current_orders.present? && !@order.nil? && @order.status != 'Paid'
-        @add_order = params[:add_order].partition('--').first
+
+      if @current_orders.present? && !@order.nil? && @order.status == "Pending Submission"
+        if params[:ship_to]
+          @add_order = current_user.orders.find_by(ship_to: params[:ship_to])
+        else
+          @add_order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
+        end
+
         @merchant_id = @current_orders.map(&:merchant_id).uniq
         
-        if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order && @order.status == "Pending Submission"
+        if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order.ship_to && @order.status == "Pending Submission"
           
           if @order.order_items.map(&:title).include? @product.title
             @item = @order.order_items.find_by(title: @product.title)
@@ -73,7 +80,7 @@ class OrdersController < ApplicationController
           if @shipping_option
             if @ship_to
               
-              @order.update_attributes(status: "Pending Submission", ship_to: @ship_to,
+              @order.update_attributes(active: true, status: "Pending Submission", ship_to: @ship_to,
                                        customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
                                        user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,
                                        merchant_id: @product.user_id, uuid: SecureRandom.uuid)
@@ -109,17 +116,14 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
-    if @order.update(order_params)
-     redirect_to @order, notice: 'Order was successfully updated.'
-    else
-     render :edit
-    end
+    @order.update_attributes(active: true)
+    redirect_to orders_url, notice: 'Order was successfully restarted.'
   end
 
   # DELETE /orders/1
   def destroy
-    @order.destroy
-   redirect_to orders_url, notice: 'Order was successfully destroyed.'
+    @order.update_attributes(active: false)
+    redirect_to orders_url, notice: 'Order was successfully suspended.'
   end
 
   private
@@ -130,7 +134,7 @@ class OrdersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_params
-      params.require(:order).permit(:uuid, :application_fee, :stripe_charge_id, :purchase_id,
+      params.require(:order).permit(:active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
                                     :carrier, :refunded,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
