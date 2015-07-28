@@ -1,3 +1,3 @@
 class ShippingUpdate < ActiveRecord::Base
-  belongs_to :purchase
+  belongs_to :order
 end

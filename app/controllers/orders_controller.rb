@@ -1,6 +1,6 @@
 class OrdersController < ApplicationController
   before_filter :authenticate_user!
-  before_action :set_order, only: [:show, :edit, :update, :destroy]
+  before_action :set_order, only: [:show, :edit, :update, :destroy, :active_order]
 
   # GET /orders
   def index
@@ -117,6 +117,11 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
+    @order.update_attributes(tracking_number: params[:tracking_number])
+    redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
+  end
+  def active_order
+    debugger
     @order.update_attributes(active: true)
     redirect_to orders_url, notice: 'Order was successfully restarted.'
   end
@@ -139,6 +144,7 @@ class OrdersController < ApplicationController
                                     :carrier, :refunded,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
-                                    :total_price, :user_id, order_items_attributes: [:id, :title, :price, :user_id, :uuid, :description, :quantity, :_destroy])
+                                    :total_price, :user_id, order_items_attributes: [:id, :title, :price, :user_id, :uuid, :description, :quantity, :_destroy],
+                                    shipping_updates_attributes: [:id, :message, :checkpoint_time, :tag, :order_id, :_destroy])
     end
 end
