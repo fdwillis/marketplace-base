@@ -4,10 +4,10 @@ class NotificationsController < ApplicationController
   def create
     render nothing: true, status: :ok, content_type: "application/json"
     @update = params['msg']
-    @purchase = Purchase.find_by(tracking_number: @update['tracking_number'])
+    @order = Order.find_by(tracking_number: @update['tracking_number'])
     @checkpoints = @update['checkpoints']
     @checkpoints.each do |chk|
-      ShippingUpdate.find_or_create_by(message: chk['message'], purchase_id: @purchase.id)
+      @order.shipping_updates.find_or_create_by(message: chk['message'], tag: @update['tag'], checkpoint_time: (chk['checkpoint_time']).to_date , order_id: @order.id)
     end
   end
 end
@@ -15,5 +15,5 @@ end
 
 
 
-# Need to get or create shipping_update by purchase.tracking_number?
+# Need to get or create shipping_update by order.tracking_number?
 # 780995494278
