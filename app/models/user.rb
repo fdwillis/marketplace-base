@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
   extend FriendlyId
   friendly_id :username, use: [:slugged, :finders]
   
-  has_many :orders, dependent: :delete_all
+  has_many :orders, dependent: :destroy
   has_many :products
   
   has_many :purchases
@@ -24,8 +24,6 @@ class User < ActiveRecord::Base
   accepts_nested_attributes_for :shipping_addresses, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :stripe_customer_ids, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :orders, reject_if: :all_blank, allow_destroy: true
-
-
 
   def admin?
     role == "admin"

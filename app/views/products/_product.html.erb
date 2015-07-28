@@ -53,14 +53,14 @@
                             <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
                           </div>
                           <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
-                            <% if current_user.orders.present? %>
+
+                            <% if current_user.orders.where(status: "Pending Submission").each do |s| %>
                               <div class="modal-body">
                                 <div class="container-fluid">  
                                   <div class="col-md-9">
                                     <h3>Pending Orders</h3>
-                                    <% current_user.orders.where(status: "Pending Submission").each do |s| %>
                                       <div class='col-md-6'>
-                                        <%= radio_button_tag(:add_order, s.ship_to) %> <%= s.ship_to %><br>
+                                        <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
                                         <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
                                         <h5>Total Price: <%= "#{number_to_currency(s.total_price, precision:2 )}"%></h5>
                                         <h5>Products</h5>
@@ -70,7 +70,6 @@
                                           </ul>
                                         <% end %>
                                       </div>
-                                    <% end %>
                                   </div>
                                   <div class="col-md-3">  
                                     <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
@@ -82,9 +81,10 @@
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                                 <%= submit_tag "Submit Order", class: 'btn btn-success' %>
                               </div>
-                            <% else %>
+                            <% end.empty? %>
                               <h1>You Have No Pending Orders</h1>
                             <% end %>
+                            
                           <% end %>
                         </div>
                       </div>

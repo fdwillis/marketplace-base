@@ -3,6 +3,7 @@
   <div class="col-md-4">
     <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
     <%= "Shipping Option: #{order.shipping_option}" %><br>
+    <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
     <%= "Ship To: #{order.ship_to}" %><br>
     <%= "Status: #{order.status}" %><br>
     <% if order.tracking_number %>

@@ -6,7 +6,7 @@ class ProductsController < ApplicationController
 #Track For Admin & Merchant on Show page for 'Product Views'
 
   def index
-    @products = Product.all.where(active: true).page(params[:page]).per_page(35)
+    @products = Product.all.where(active: true).page(params[:page]).per_page(5)
     @pendings = Product.all.where(active: false)
     authorize @products
   end

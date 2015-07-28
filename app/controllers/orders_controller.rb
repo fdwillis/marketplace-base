@@ -23,25 +23,44 @@ class OrdersController < ApplicationController
 
   # POST /orders
   def create
-    
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
-    @order = current_user.orders.find_by(ship_to: params[:add_order])
-    @shipping_option =  (params[:shipping_option].to_i / 100)
+    
+    if params[:ship_to]
+      @order = current_user.orders.find_by(ship_to: params[:ship_to])
+    else
+      @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
+    end
+    if params[:shipping_option]
+      @shipping_option =  (params[:shipping_option].to_i / 100)
+    else
+      @shipping_option = @order.shipping_price
+    end
     @ship_to = params[:ship_to]
     
     if @quantity <= @product.quantity && @quantity > 0
       if @current_orders.present? && !@order.nil?
-        @add_order = params[:add_order]
+        @add_order = params[:add_order].partition('--').first
         @merchant_id = @current_orders.map(&:merchant_id).uniq
         
         if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order && @order.status == "Pending Submission"
-          @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
-                                    user_id: @product.user_id, uuid: @product.uuid,
-                                    quantity: @quantity )
-
-          @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
+          
+          if @order.order_items.map(&:title).include? @product.title
+            @item = @order.order_items.find_by(title: @product.title)
+            @new_q = @item.quantity.to_i + @quantity
+            @new_o = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
+            
+            @item.update_attributes(quantity: @new_q, price: (@product.price * @new_q))
+            
+            @order.update_attributes(total_price: Order.total_price(@new_o, @shipping_option))
+          else
+            @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
+                                      user_id: @product.user_id, uuid: @product.uuid,
+                                      quantity: @quantity )
+            @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
+          end
+          
           redirect_to root_path
           flash[:notice] = "Added #{@product.title} To Your Cart"
           return
@@ -55,6 +74,7 @@ class OrdersController < ApplicationController
         if @order.save
           if @shipping_option
             if @ship_to
+              
               @order.update_attributes(status: "Pending Submission", ship_to: @ship_to,
                                        customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
                                        user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,
