@@ -28,7 +28,7 @@ class OrdersController < ApplicationController
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
     @order = current_user.orders.find_by(ship_to: params[:add_order])
-    @shipping_option =  params[:shipping_option]
+    @shipping_option =  (params[:shipping_option].to_i / 100)
     @ship_to = params[:ship_to]
     
     if @quantity <= @product.quantity && @quantity > 0
@@ -40,9 +40,7 @@ class OrdersController < ApplicationController
           @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
                                     user_id: @product.user_id, uuid: @product.uuid,
                                     quantity: @quantity )
-          debugger
-          redirect_to root_path
-          return
+
           @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
           redirect_to root_path
           flash[:notice] = "Added #{@product.title} To Your Cart"
@@ -56,8 +54,8 @@ class OrdersController < ApplicationController
           if @shipping_option
             if @ship_to
               @order.update_attributes(status: "Pending Submission", ship_to: @ship_to,
-                                       customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option.to_i/100)).title,
-                                       user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option.to_i / 100).price,
+                                       customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
+                                       user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,
                                        merchant_id: @product.user_id, uuid: SecureRandom.uuid)
             else
               redirect_to @product
@@ -72,7 +70,8 @@ class OrdersController < ApplicationController
 
           @order.order_items.create!(title: "#{@product.title}", price: (@product.price * @quantity), user_id: @product.user_id, uuid: @product.uuid,
                                  quantity: @quantity)
-          @order.update_attributes(total_price: @order.total_price)
+          debugger
+          @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
           @order.save
           redirect_to root_path
           flash[:notice] = 'Order was successfully saved.'

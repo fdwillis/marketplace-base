@@ -8,6 +8,6 @@ class Order < ActiveRecord::Base
   accepts_nested_attributes_for :order_items, reject_if: :all_blank, allow_destroy: true
 
   def self.total_price(order, shipping_price)
-    total_price = ((order.order_items.map(&:price).sum + shipping_price) + ((order_items.map(&:price).sum + shipping_price) * User.find(order.merchant_id).tax_rate / 100  ))
+    total_price = ((order.order_items.map(&:price).sum + shipping_price) + ((order.order_items.map(&:price).sum + shipping_price) * User.find(order.merchant_id).tax_rate / 100  ))
   end
 end
