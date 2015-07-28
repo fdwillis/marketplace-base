@@ -1,35 +1,103 @@
-<h1>Personal Orders</h1>
-<% @purchases.each do |order| %>
-  <div class="col-md-4">
-    <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-    <%= "Shipping Option: #{order.shipping_option}" %><br>
-    <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-    <%= "Ship To: #{order.ship_to}" %><br>
-    <%= "Status: #{order.status}" %><br>
-    <% if order.tracking_number %>
-      <%= "Carrier: #{order.carrier}" %><br>
-      <%= "Tracking Number: #{order.tracking_number}" %><br>
-    <% end %>
-    <h4>Products</h4>
-    <% order.order_items.each do |p,g| %>        
-      <ul class='col-md-6'>
-        <li>Item: <%= p.title %></li>
-        <li>Price: <%= number_to_currency(p.price, precision: 2) %></li>
-        <li>Quantity: <%= p.quantity %></li>
-      </ul>
-    <% end %>
-    <% if !order.paid? %>
-      <%= link_to "Submit Order #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
-    <% end %>
-    <% if !order.refunded && order.status == "Pending Submission" %>
-      <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-warning' %><br>
-    <% elsif !order.refunded && order.status == "Pending Refund"  %>
-      <h4>This Is A Pending Refund</h4>
-    <% else %>
-      
+<div class="row">  
+  <div class='container'>  
+    <h1>Personal Orders</h1>
+    <% @purchases.each do |order| %>
+      <div class="form-group col-md-4">
+        <div class="row form-group">
+          <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+          <%= "Shipping Option: #{order.shipping_option}" %><br>
+          <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+          <%= "Ship To: #{order.ship_to}" %><br>
+          <%= "Status: #{order.status}" %><br>
+          <% if order.tracking_number %>
+            <%= "Carrier: #{order.carrier}" %><br>
+            <%= "Tracking Number: #{order.tracking_number}" %><br>
+          <% end %>
+        </div>
+        <div class="row form-group">
+          <h4>Products</h4>
+          <% order.order_items.each do |p,g| %>        
+            <ul class='col-md-6'>
+              <li>Item: <%= p.title.truncate(15, omission: '...') %></li>
+              <li>Price: <%= number_to_currency(p.price, precision: 2) %></li>
+              <li>Quantity: <%= p.quantity %></li>
+            </ul>
+          <% end %>
+        </div>
+        <div class="row form-group">
+          <div class="col-md-12">
+            <%= link_to "View Product", product_path(order.id), class: 'btn btn-info form-control' %>
+          </div>
+        </div>
+        <div class="row form-group">
+          <% if !order.paid? %>
+            <div class='col-md-6'>    
+              <%= link_to "Submit Order #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
+            </div>
+            <div class='col-md-6'>
+              <%= link_to "Suspend Order", order_path(order.id), class: 'btn btn-danger form-control', method: :delete %>
+            </div>
+          <% end %>
+
+          <% if !order.refunded && order.status == "Paid" %>
+            <div class='col-md-12'>    
+              <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-warning form-control' %><br>
+            </div>
+          <% elsif !order.refunded && order.status == "Pending Refund"  %>
+            <h4>This Is A Pending Refund</h4>
+          <% end %>
+
+          <% if order.refunded %>
+            <h4>Successfully Refunded</h4>
+          <% end %>
+        </div>
+      </div>
     <% end %>
   </div>
-<% end %>
+</div>
+<div class='row'>
+  <div class='container'>
+    <h1>Suspended Orders</h1>
+    <% @suspended.each do |order| %>
+      <div class="form-group col-md-4">
+        <div class="row form-group">    
+          <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+          <%= "Shipping Option: #{order.shipping_option}" %><br>
+          <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+          <%= "Ship To: #{order.ship_to}" %><br>
+          <%= "Status: #{order.status}" %><br>
+          <% if order.tracking_number %>
+            <%= "Carrier: #{order.carrier}" %><br>
+            <%= "Tracking Number: #{order.tracking_number}" %><br>
+          <% end %>
+        </div>
+        <div class="row form-group">
+          <h4>Products</h4>
+          <% order.order_items.each do |p,g| %>        
+            <ul class='col-md-6'>
+              <li>Item: <%= p.title %></li>
+              <li>Price: <%= number_to_currency(p.price, precision: 2) %></li>
+              <li>Quantity: <%= p.quantity %></li>
+            </ul>
+          <% end %>
+        </div>
+        <div class="row form-group">
+          <div class="col-md-12">
+            <%= link_to "View Product", product_path(order.id), class: 'btn btn-info form-control' %>
+          </div>
+        </div>
+        <div class="row form-group">
+          <div class="col-md-12">
+            <%= link_to "Restart Order", order_path(order.id), class: 'btn btn-success form-control', method: :put %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+
 <% if current_user.admin? || current_user.merchant? %>
   <h1>Store Orders</h1> 
   <% @orders.each do |order| %>

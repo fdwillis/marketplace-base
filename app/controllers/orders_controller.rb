@@ -4,7 +4,8 @@ class OrdersController < ApplicationController
 
   # GET /orders
   def index
-    @purchases = Order.all.where(user_id: current_user.id).order("refunded ASC")
+    @purchases = Order.all.where(user_id: current_user.id).order("refunded or paid DESC").where(active: true)
+    @suspended = Order.all.where(user_id: current_user.id).where(active: false)
     @orders = Order.all.where(merchant_id: current_user.id).order("created_at DESC").where(paid: true)
   end
 
@@ -80,7 +81,7 @@ class OrdersController < ApplicationController
           if @shipping_option
             if @ship_to
               
-              @order.update_attributes(status: "Pending Submission", ship_to: @ship_to,
+              @order.update_attributes(active: true, status: "Pending Submission", ship_to: @ship_to,
                                        customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
                                        user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,
                                        merchant_id: @product.user_id, uuid: SecureRandom.uuid)
@@ -116,17 +117,14 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
-    if @order.update(order_params)
-     redirect_to @order, notice: 'Order was successfully updated.'
-    else
-     render :edit
-    end
+    @order.update_attributes(active: true)
+    redirect_to orders_url, notice: 'Order was successfully restarted.'
   end
 
   # DELETE /orders/1
   def destroy
-    @order.destroy
-   redirect_to orders_url, notice: 'Order was successfully destroyed.'
+    @order.update_attributes(active: false)
+    redirect_to orders_url, notice: 'Order was successfully suspended.'
   end
 
   private
@@ -137,7 +135,7 @@ class OrdersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_params
-      params.require(:order).permit(:uuid, :application_fee, :stripe_charge_id, :purchase_id,
+      params.require(:order).permit(:active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
                                     :carrier, :refunded,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
