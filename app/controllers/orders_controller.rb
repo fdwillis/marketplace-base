@@ -28,7 +28,9 @@ class OrdersController < ApplicationController
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
     
-    if params[:add_order]
+    if params[:ship_to]
+      @order = current_user.orders.find_by(ship_to: params[:ship_to])
+    else
       @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
     end
     if params[:shipping_option]
@@ -39,14 +41,13 @@ class OrdersController < ApplicationController
     @ship_to = params[:ship_to]
     
     if @quantity <= @product.quantity && @quantity > 0
-
+      
       if @current_orders.present? && !@order.nil? && @order.status == "Pending Submission"
         if params[:ship_to]
           @add_order = current_user.orders.find_by(ship_to: params[:ship_to])
         else
           @add_order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
         end
-
         @merchant_id = @current_orders.map(&:merchant_id).uniq
         
         if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order.ship_to && @order.status == "Pending Submission"
