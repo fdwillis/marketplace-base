@@ -44,9 +44,11 @@ class OrdersController < ApplicationController
           @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
           redirect_to root_path
           flash[:notice] = "Added #{@product.title} To Your Cart"
+          return
         else
           redirect_to @product
           flash[:error] = "Please start a new order"
+          return
         end
       else
         @order = Order.new
@@ -70,11 +72,12 @@ class OrdersController < ApplicationController
 
           @order.order_items.create!(title: "#{@product.title}", price: (@product.price * @quantity), user_id: @product.user_id, uuid: @product.uuid,
                                  quantity: @quantity)
-          debugger
+          
           @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
           @order.save
           redirect_to root_path
           flash[:notice] = 'Order was successfully saved.'
+          return
         else
          render :new
         end
@@ -82,6 +85,7 @@ class OrdersController < ApplicationController
     else
       redirect_to @product
       flash[:error] = 'Please Select Quantity'
+      return
     end
   end
 
