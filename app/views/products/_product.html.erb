@@ -37,7 +37,11 @@
                             </div>
                             <div class="modal-footer actions">
                               <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                              <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                              <% if !current_user.shipping_addresses.empty? %>
+                                <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                              <% else %>
+                                <%= link_to "Add Shipping Address", edit_user_registration_path, class: 'btn btn-warning' %>
+                              <% end %>
                             </div>
                           <% end %>
                         </div>

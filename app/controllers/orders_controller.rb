@@ -41,7 +41,7 @@ class OrdersController < ApplicationController
     end
 
     if params[:shipping_option]
-      @shipping_option =  (params[:shipping_option].to_i / 100)
+      @shipping_option =  (params[:shipping_option].to_f / 100)
     else
       @shipping_option = @order.shipping_price
     end
@@ -85,8 +85,9 @@ class OrdersController < ApplicationController
         if @order.save
           if @shipping_option
             if @ship_to
+              
               @order.update_attributes(active: true, status: "Pending Submission", ship_to: @ship_to,
-                                       customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
+                                       customer_name: current_user.email, shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
                                        user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,
                                        merchant_id: @product.user_id, uuid: SecureRandom.uuid)
             else

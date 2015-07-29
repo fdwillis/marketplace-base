@@ -13,37 +13,7 @@
           <%= "Tracking Number: #{order.tracking_number}" %><br>
         </div>
         <div class="row form-group">
-          <h4>Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
-        </div>
-        <div class="row form-group">
-          <div class="col-md-6">
-            <%= link_to "View Product", product_path(order.id), class: 'btn btn-primary form-control' %>
-          </div>
-          <div class="col-md-6">
-            <%= link_to "Order Details", "##{order.uuid}details", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
-            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details">
-              <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                  <div class="modal-header text-center">
-                    <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                  </div>
-                  <div class="modal-body">
-                    <div class="container-fluid text-center">
-                      <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
-                      <% order.order_items.each do |oi| %>
-                        <div class='col-md-6'>  
-                          <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
-                          <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
-                          <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
-                        </div>
-                      <% end %>
-                    </div>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
         </div>
         <div class="row form-group">
           <% if !order.paid? %>
@@ -57,11 +27,15 @@
 
           <% if !order.refunded && order.status == "Paid" %>
             <% if order.tracking_number %>  
-              <div class='form-group col-md-6'>    
+              <div class='col-md-6'>    
                 <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
               </div>
-              <div class='form-group col-md-6'>   
-                <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
+              <div class='col-md-6'>  
+                <% if order.tracking_number != "Waiting For Tracking Number" %> 
+                  <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
+                <% else %>
+                  <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
+                <% end %>
                 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
                   <div class="modal-dialog modal-sm">
                     <div class="modal-content">
@@ -92,9 +66,9 @@
                 </div>
               </div>
             <% else %>
-            <div class='form-group col-md-12'>    
-                <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
-              </div>
+            <div class='col-md-6'>    
+              <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
+            </div>
             <% end %>
           <% elsif !order.refunded && order.status == "Pending Refund"  %>
             <h4>This Is A Pending Refund</h4>
@@ -103,6 +77,33 @@
           <% if order.refunded %>
             <h4>Successfully Refunded</h4>
           <% end %>
+        </div>
+        <div class="row form-group">
+          <div class="col-md-12">
+            <%= link_to "Order Details", "##{order.uuid}details", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
+            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                  <div class="modal-header text-center">
+                    <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                  </div>
+                  <div class="modal-body">
+                    <div class="container-fluid text-center">
+                      <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
+                      <% order.order_items.each do |oi| %>
+                        <div class='col-md-6'>  
+                          <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                          <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                          <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+                        </div>
+                      <% end %>
+                    </div>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     <% end %>
@@ -126,14 +127,7 @@
           <% end %>
         </div>
         <div class="row form-group">
-          <h4>Products (<%= order.order_items.count %>) </h4>
-          <% order.order_items.each do |p,g| %>        
-            <ul class='col-md-6'>
-              <li>Item: <%= p.title %></li>
-              <li>Price: <%= number_to_currency(p.price, precision: 2) %></li>
-              <li>Quantity: <%= p.quantity %></li>
-            </ul>
-          <% end %>
+          <h4>Total Products (<%= order.order_items.count %>) </h4>
         </div>
         <div class="row form-group">
           <div class="col-md-12">
@@ -188,7 +182,7 @@
             <%= "Paid: #{order.paid}" %><br>
             <%= "Status: #{order.status}" %><br>
           </div>
-          <h4>Products (<%= order.order_items.count %>)</h4>
+          <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
           <!-- Large modal -->
             <% if order.tracking_number.nil? %>
               <div class="form-group col-md-12">  
