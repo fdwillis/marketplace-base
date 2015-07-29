@@ -26,11 +26,11 @@
                                     <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
                                     <%= number_field_tag :quantity, class: 'form-control' %>
                                     <% product.shipping_options.each do |shipping| %>
-                                      <p><%= radio_button_tag(:shipping_option, (shipping.price * 100)) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
+                                      <p><%= radio_button_tag(:shipping_option, shipping.price * 100) %> <%= shipping.title.titleize %>: <%= number_to_currency(shipping.price, precision: 2) %></p>
                                     <% end %>
                                     <h3>Shipping Address</h3>
                                     <% current_user.shipping_to.each do |s| %>
-                                      <p> <%= radio_button_tag(:ship_to, s )%> <%= s %></p>
+                                      <p> <%= radio_button_tag(:ship_to, "#{s}_new" )%> <%= s %></p>
                                     <% end %>
                                   </div>
                               </div>
@@ -63,7 +63,7 @@
                                         <div class='col-md-6'>
                                           <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
                                           <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
-                                          <h5>Total Price: <%= "#{number_to_currency((s.total_price + s.shipping_price) + ((s.total_price + s.shipping_price) * User.find(s.merchant_id).tax_rate / 100 ), precision:2 )}"%></h5>
+                                          <h5>Total Price: <%= "#{number_to_currency( s.total_price, precision:2 )}"%></h5>
                                           <h5>Products</h5>
                                           <% s.order_items.each do |item| %>
                                             <ul>

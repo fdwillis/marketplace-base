@@ -8,7 +8,9 @@ class ProductsController < ApplicationController
   def index
     @products = Product.all.where(active: true).page(params[:page]).per_page(5)
     @pendings = Product.all.where(active: false)
-    @current_orders = current_user.orders.where(status: "Pending Submission").where(active: true)
+    if current_user
+      @current_orders = current_user.orders.where(status: "Pending Submission").where(active: true)
+    end
     authorize @products
   end
 
@@ -74,6 +76,6 @@ class ProductsController < ApplicationController
     end
 
     def product_params
-      params.require(:product).permit(:quantity, :tag_list, :description, :active, :product_image, :title, :price, :uuid, shipping_options_attributes: [:id, :title, :price, :_destroy])
+      params.require(:product).permit(:quantity, :tag_list, :description, :active, :product_image, :title, :price, :uuid, shipping_options_attributes: [:id, :title, :uuid, :price, :_destroy])
     end
 end

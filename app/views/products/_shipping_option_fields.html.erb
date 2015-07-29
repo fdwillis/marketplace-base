@@ -1,5 +1,6 @@
 <div class="nested-fields">
   <%= f.text_field :title, class: 'form-control pricing', placeholder: "Overnight Shipping" %>
   <%= f.number_field :price, class: 'form-control pricing', placeholder: "348.89", step: 'any' %>
+  <%= f.text_field :uuid, hidden: true, value: (@product.uuid || SecureRandom.uuid) %>
   <%= link_to_remove_association "Remove", f %>
 </div>  

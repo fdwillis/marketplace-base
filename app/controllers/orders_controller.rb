@@ -24,24 +24,30 @@ class OrdersController < ApplicationController
 
   # POST /orders
   def create
+    
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
     
-    if params[:ship_to]
-      @order = current_user.orders.find_by(ship_to: params[:ship_to])
+    if params[:ship_to]  
+      if params[:ship_to].include? '_new'
+        @order = Order.new
+        @ship_to = params[:ship_to].gsub("_new", "")
+      else params[:ship_to]
+        @order = current_user.orders.find_by(ship_to: params[:ship_to])
+      end
     else
       @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
     end
+
     if params[:shipping_option]
       @shipping_option =  (params[:shipping_option].to_i / 100)
     else
       @shipping_option = @order.shipping_price
     end
-    @ship_to = params[:ship_to]
+
     
     if @quantity <= @product.quantity && @quantity > 0
-      
       if @current_orders.present? && !@order.nil? && @order.status == "Pending Submission"
         if params[:ship_to]
           @add_order = current_user.orders.find_by(ship_to: params[:ship_to])
@@ -76,11 +82,9 @@ class OrdersController < ApplicationController
           return
         end
       else
-        @order = Order.new
         if @order.save
           if @shipping_option
             if @ship_to
-              
               @order.update_attributes(active: true, status: "Pending Submission", ship_to: @ship_to,
                                        customer_name: current_user.email,shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
                                        user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,

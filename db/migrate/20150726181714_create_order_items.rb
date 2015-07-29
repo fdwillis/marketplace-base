@@ -5,7 +5,7 @@ class CreateOrderItems < ActiveRecord::Migration
       t.decimal :price, precision: 12, scale: 2
       t.string :user_id
       t.string :uuid
-      t.string :quantity
+      t.integer :quantity
 
       t.timestamps null: false
     end

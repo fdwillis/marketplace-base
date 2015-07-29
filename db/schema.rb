@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150728200943) do
+ActiveRecord::Schema.define(version: 20150729131352) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,17 +34,17 @@ ActiveRecord::Schema.define(version: 20150728200943) do
     t.string   "status"
     t.string   "ship_to"
     t.string   "customer_name"
-    t.string   "tracking_number"
+    t.string   "tracking_number",                           default: "Waiting For Tracking Number"
     t.string   "shipping_option"
     t.decimal  "total_price",      precision: 12, scale: 2
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
+    t.datetime "created_at",                                                                        null: false
+    t.datetime "updated_at",                                                                        null: false
     t.integer  "user_id"
     t.boolean  "paid"
     t.decimal  "shipping_price",   precision: 12, scale: 2
     t.integer  "merchant_id"
     t.boolean  "refunded"
-    t.string   "carrier"
+    t.string   "carrier",                                   default: "Waiting For Tracking Number"
     t.string   "purchase_id"
     t.string   "stripe_charge_id"
     t.string   "application_fee"
@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(version: 20150728200943) do
     t.integer  "product_id"
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
+    t.string   "uuid"
   end
 
   add_index "shipping_options", ["product_id"], name: "index_shipping_options_on_product_id", using: :btree

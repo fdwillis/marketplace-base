@@ -13,7 +13,7 @@
           <%= "Tracking Number: #{order.tracking_number}" %><br>
         </div>
         <div class="row form-group">
-          <h4>Products (<%= order.order_items.count %>) </h4>
+          <h4>Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
         </div>
         <div class="row form-group">
           <div class="col-md-6">
