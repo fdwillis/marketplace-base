@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 20150729131352) do
     t.decimal  "price",       precision: 12, scale: 2
     t.string   "user_id"
     t.string   "uuid"
-    t.string   "quantity"
+    t.integer  "quantity"
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
     t.integer  "order_id"
