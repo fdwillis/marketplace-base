@@ -27,6 +27,7 @@ source 'https://rubygems.org'
   gem 'lazy_high_charts'
   gem 'bitly'
   gem "aftership", "~> 4.1.0"
+  gem 'shippo'
 
 #Forms & Styling
   gem 'bootstrap-sass'
