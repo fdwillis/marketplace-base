@@ -184,7 +184,7 @@
           </div>
           <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
           <!-- Large modal -->
-            <% if order.tracking_number.nil? %>
+            <% if order.tracking_number. == "Waiting For Tracking Number" %>
               <div class="form-group col-md-12">  
                 <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
               </div>
@@ -213,7 +213,7 @@
                       <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
                       <%= "Paid: #{order.paid}" %><br>
                       <%= "Status: #{order.status}" %><br>
-                      <%= text_field_tag :tracking_number, nil, class: 'form-control' %>
+                      <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
                     </div>
                   </div>
                   <div class="modal-footer actions">
