@@ -35,7 +35,9 @@ class User < ActiveRecord::Base
   end
 
   def phone_number
-    write_attribute(:support_phone, support_phone.gsub(/\D/, ''))
+    if support_phone
+      write_attribute(:support_phone, support_phone.gsub(/\D/, ''))
+    end
   end
 
   def buyer?

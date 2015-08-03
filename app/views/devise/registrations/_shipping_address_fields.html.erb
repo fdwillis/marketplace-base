@@ -1,8 +1,13 @@
 <div class="nested-fields">
-  <%= f.input :street %>
-  <%= f.input :city %>
-  <%= f.input :state %>
-  <%= f.input :region, label: "Country" %>
-  <%= f.input :zip %>
-  <%= link_to_remove_association "Remove", f %>
+  <%= f.label :street %><br>
+  <%= f.text_field :street, class: 'form-control'  %><br>
+  <%= f.label :city %><br>
+  <%= f.text_field :city, class: 'form-control'  %><br>
+  <%= f.label :state %><br>
+  <%= f.text_field :state, class: 'form-control'  %><br>
+  <%= f.label :region, "Country Code" %><br>
+  <%= f.text_field :region, maxlength: 2, class: 'form-control'  %><br>
+  <%= f.label :zip %><br>
+  <%= f.text_field :zip, class: 'form-control'  %><br>
+  <%= link_to_remove_association "Remove", f %><br>
 </div>  

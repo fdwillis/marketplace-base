@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   devise_for :users
   resources :users, only: [:update]
 
+  get 'shipping_rates' => 'orders#shipping_rates'
   put 'approve_product' => 'pending_products#approve_product'
   put 'active_order' => 'orders#active_order'
   post 'notifications' => 'notifications#create'

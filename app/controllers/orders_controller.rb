@@ -115,18 +115,77 @@ class OrdersController < ApplicationController
 
   # PATCH/PUT /orders/1
   def update
+    @user_order = @order.user
+    @shipping = @order.ship_to.gsub(/\s+/, "").split(',')
     
     @tracking_number = params[:tracking_number]
     if @tracking_number  
       @order.update_attributes(tracking_number: @tracking_number)
-      AfterShip.api_key = ENV['AFTERSHIP_KEY']
 
       @s = AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@order.customer_name}"]})
       
       @order.update_attributes(tracking_number: @tracking_number, carrier: @s['data']['tracking']['slug'])
       redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
     else
+      
+      Shippo.api_token = ENV['SHIPPO_KEY']
+      address_from = Shippo::Address.create(
+        :object_purpose => "PURCHASE",
+        :name => current_user.username,
+        :company => current_user.business_name,
+        :street1 => current_user.address,
+        :city => current_user.address_city,
+        :state => current_user.address_state,
+        :zip => current_user.address_zip,
+        :country => current_user.address_country,
+        :phone => "+1 #{current_user.support_phone}",
+        :email => current_user.email
+      )
+
+      address_to = Shippo::Address.create(
+        :object_purpose => "PURCHASE",
+        :name => @user_order.username,
+        :street1 => @shipping[0],
+        :city => @shipping[1] ,
+        :state => @shipping[2] ,
+        :zip => @shipping[4],
+        :country => @shipping[3],
+        :email => @user_order.email,
+      )
+      
+      
+      parcel = Shippo::Parcel.create(
+        :length => params[:box_length].to_i,
+        :width => params[:box_width].to_i,
+        :height => params[:box_height].to_i,
+        :distance_unit => :in,
+        :weight => params[:box_weight].to_i,
+        :mass_unit => :lb,
+      )
+      shipment = Shippo::Shipment.create(
+        :object_purpose => 'PURCHASE',
+        :address_from => address_from,
+        :address_to => address_to,
+        :parcel => parcel
+      )
+      debugger
+
+      timeout_rates_request = 10 # seconds
+      while ["QUEUED","WAITING"].include? shipment.object_status do
+        Timeout::timeout(timeout_rates_request) do
+          shipment = Shippo::Shipment.get(shipment["object_id"])
+        end
+      end
+
+      # Retrieve all rates
+      rates = shipment.rates()
+      redirect_to shipping_rates_path(rates: rates)
     end
+
+  end
+
+  def shipping_rates
+    @rates = params[:rates]
   end
 
   def active_order

@@ -183,10 +183,10 @@
           <!-- Large modal -->
             <% if order.tracking_number. == "Waiting For Tracking Number" %>
               <div class="form-group col-md-12">  
-                <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
+                <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
               </div>
               <div class="form-group col-md-12">  
-                <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
+                <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
               </div>
             <% else %>
               <div class="form-group col-md-12">
@@ -233,18 +233,36 @@
                   <div class="modal-body">
                     <div class="container-fluid text-center">
                       <h1>Order Details</h1>
+                      <div class='row form-group'>
+                        <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
+                        <div class='col-md-3'>
+                          <h5>Box Length (inches)</h5>
+                          <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
+                        </div>
+                        <div class='col-md-3'>
+                          <h5>Box Width (inches)</h5>
+                          <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
+                        </div>
+                        <div class='col-md-3'>
+                          <h5>Box Height (inches)</h5>
+                          <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
+                        </div>
+                        <div class='col-md-3'>
+                          <h5>Weight (With Products)</h5>
+                          <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
+                        </div>
+                      </div>
                       <%= "Shipping To: #{order.ship_to}" %><br>
                       <%= "Customer Contact: #{order.customer_name}" %><br>
                       <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
                       <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
                       <%= "Paid: #{order.paid}" %><br>
                       <%= "Status: #{order.status}" %><br>
-                      <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
                     </div>
                   </div>
                   <div class="modal-footer actions">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                    <%= submit_tag "Add Tracking Number", class: 'btn btn-success' %>
+                    <%= submit_tag "Create Shipping Label", class: 'btn btn-success' %>
                   </div>
                 <% end %>
               </div>
