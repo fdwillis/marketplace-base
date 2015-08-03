@@ -28,7 +28,7 @@ class OrdersController < ApplicationController
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
-    
+
     if params[:ship_to]  
       if params[:ship_to].include? '_new'
         @order = Order.new
@@ -44,12 +44,6 @@ class OrdersController < ApplicationController
         flash[:error] = "Please Choose A Shipping Destination"
         return
       end
-    end
-
-    if params[:shipping_option]
-      @shipping_option =  (params[:shipping_option].to_f / 100)
-    else
-      @shipping_option = @order.shipping_price
     end
     
     if @quantity <= @product.quantity && @quantity > 0
@@ -70,12 +64,12 @@ class OrdersController < ApplicationController
             
             @item.update_attributes(quantity: @new_q, price: (@product.price * @new_q))
             
-            @order.update_attributes(total_price: Order.total_price(@new_o, @shipping_option))
+            @order.update_attributes(total_price: Order.total_price(@new_o))
           else
             @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
                                       user_id: @product.user_id, uuid: @product.uuid,
                                       quantity: @quantity )
-            @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
+            @order.update_attributes(total_price: Order.total_price(@order))
           end
           
           redirect_to root_path
@@ -88,28 +82,24 @@ class OrdersController < ApplicationController
         end
       else
         if @order.save
-          if @shipping_option
-            if @ship_to
-              
-              @order.update_attributes(active: true, status: "Pending Submission", ship_to: @ship_to,
-                                       customer_name: current_user.email, shipping_option: @product.shipping_options.find_by(price: (@shipping_option)).title,
-                                       user_id: current_user.id, shipping_price: @product.shipping_options.find_by(price: @shipping_option).price,
-                                       merchant_id: @product.user_id, uuid: SecureRandom.uuid)
-            else
-              redirect_to @product
-              flash[:error] = 'Please Select Shipping Address'
-              return
-            end
+          if @ship_to
+
+            @order.order_items.create!(title: "#{@product.title}", price: (@product.price * @quantity), user_id: @product.user_id, uuid: @product.uuid,
+                                 quantity: @quantity, shipping_price: @product.shipping_price)
+
+            Order.shipping_price(@order)
+
+            @order.update_attributes(active: true, status: "Pending Submission", ship_to: @ship_to,
+                                     customer_name: current_user.email,
+                                     user_id: current_user.id, shipping_price: Order.shipping_price(@order),
+                                     merchant_id: @product.user_id, uuid: SecureRandom.uuid)
           else
             redirect_to @product
-            flash[:error] = 'Please Select Shipping Option'
+            flash[:error] = 'Please Select Shipping Address'
             return
           end
-
-          @order.order_items.create!(title: "#{@product.title}", price: (@product.price * @quantity), user_id: @product.user_id, uuid: @product.uuid,
-                                 quantity: @quantity)
           
-          @order.update_attributes(total_price: Order.total_price(@order, @shipping_option))
+          @order.update_attributes(total_price: Order.total_price(@order))
           @order.save
           redirect_to root_path
           flash[:notice] = 'Order was successfully saved.'
