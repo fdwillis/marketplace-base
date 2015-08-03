@@ -39,7 +39,9 @@ class OrdersController < ApplicationController
     else
       @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
     end
-
+    debugger
+    redirect_to root_path
+    return
     if params[:shipping_option]
       @shipping_option =  (params[:shipping_option].to_f / 100)
     else
