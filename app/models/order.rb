@@ -12,10 +12,15 @@ class Order < ActiveRecord::Base
   def self.shipping_price(order)
     @oi_shipping_price = order.order_items.map(&:shipping_price)
     @oi_max = @oi_shipping_price.max
-    shipping_price = (@oi_max + ((@oi_shipping_price.sum - @oi_max ) * 0.65 ) )
+
+    @total_shipp = []
+    order.order_items.each do |oi|
+      @total_shipp << oi.shipping_price * oi.quantity
+    end
+    shipping_price = (@oi_max + ((@total_shipp.sum - @oi_max ) * 0.65 ) ).round(2)
   end
   def self.total_price(order)
-    @prod_shipp = order.order_items.map(&:price).sum + order.shipping_price
-    total_price = ((@prod_shipp) + ((@prod_shipp) * User.find(order.merchant_id).tax_rate / 100  ))
+    @prod_shipp = order.order_items.map(&:total_price).sum + self.shipping_price(order)
+    total_price = ((@prod_shipp.to_f.round(2)) + ((@prod_shipp.to_f.round(2)) * User.find(order.merchant_id).tax_rate / 100  ))
   end
 end

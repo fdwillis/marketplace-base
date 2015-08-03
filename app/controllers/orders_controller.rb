@@ -48,11 +48,8 @@ class OrdersController < ApplicationController
     
     if @quantity <= @product.quantity && @quantity > 0
       if @current_orders.present? && !@order.nil? && @order.status == "Pending Submission"
-        if params[:ship_to]
-          @add_order = current_user.orders.find_by(ship_to: params[:ship_to])
-        else
-          @add_order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
-        end
+
+        @add_order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
         @merchant_id = @current_orders.map(&:merchant_id).uniq
         
         if @merchant_id.size == 1 && @merchant_id.join("").to_i == @product.user_id && @order.ship_to == @add_order.ship_to && @order.status == "Pending Submission"
@@ -60,16 +57,17 @@ class OrdersController < ApplicationController
           if @order.order_items.map(&:title).include? @product.title
             @item = @order.order_items.find_by(title: @product.title)
             @new_q = @item.quantity.to_i + @quantity
-            @new_o = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
-            
-            @item.update_attributes(quantity: @new_q, price: (@product.price * @new_q))
-            
-            @order.update_attributes(total_price: Order.total_price(@new_o))
+
+            @item.update_attributes(quantity: @new_q, price: @product.price, total_price: @new_q * @product.price)
+
+            @order = @add_order
+            @order.update_attributes(total_price: Order.total_price(@order), shipping_price: Order.shipping_price(@order))
           else
-            @order.order_items.create(title: @product.title, price: (@product.price * @quantity), 
+            @order.order_items.create(title: @product.title, price: @product.price, 
                                       user_id: @product.user_id, uuid: @product.uuid,
-                                      quantity: @quantity )
-            @order.update_attributes(total_price: Order.total_price(@order))
+                                      quantity: @quantity, shipping_price: @product.shipping_price, total_price: @quantity * @product.price )
+
+            @order.update_attributes(total_price: Order.total_price(@order), shipping_price: Order.shipping_price(@order))
           end
           
           redirect_to root_path
@@ -84,8 +82,8 @@ class OrdersController < ApplicationController
         if @order.save
           if @ship_to
 
-            @order.order_items.create!(title: "#{@product.title}", price: (@product.price * @quantity), user_id: @product.user_id, uuid: @product.uuid,
-                                 quantity: @quantity, shipping_price: @product.shipping_price)
+            @order.order_items.create!(title: "#{@product.title}", price:@product.price, user_id: @product.user_id, uuid: @product.uuid,
+                                 quantity: @quantity, shipping_price: @product.shipping_price, total_price: @product.price * @quantity)
 
             Order.shipping_price(@order)
 
@@ -151,7 +149,7 @@ class OrdersController < ApplicationController
                                     :carrier, :refunded,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
-                                    :total_price, :user_id, order_items_attributes: [:id, :title, :price, :user_id, :uuid, :description, :quantity, :_destroy],
+                                    :total_price, :user_id, order_items_attributes: [:id, :title, :price, :total_price, :user_id, :uuid, :description, :quantity, :_destroy],
                                     shipping_updates_attributes: [:id, :message, :checkpoint_time, :tag, :order_id, :_destroy])
     end
 end

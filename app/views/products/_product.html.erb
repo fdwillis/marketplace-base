@@ -63,7 +63,9 @@
                                       <% @current_orders.each do |s| %>
                                         <div class='col-md-6'>
                                           <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
-                                          <h5>Shipping Option: <%= "#{s.shipping_option} (#{number_to_currency(s.shipping_price, precision: 2)})" %></h5>
+                                          <h5>Item Total: <%= number_to_currency(s.order_items.map(&:total_price).sum, precision: 2 ) %></h5>
+                                          <h5>Shipping: <%= "#{s.shipping_option} #{number_to_currency(s.shipping_price, precision: 2)}" %></h5>
+                                          <h5>Tax: <%= "#{number_with_precision(product.user.tax_rate, precision: 2)}%" %></h5>
                                           <h5>Total Price: <%= "#{number_to_currency( s.total_price, precision:2 )}"%></h5>
                                           <h5>Products</h5>
                                           <% s.order_items.each do |item| %>
