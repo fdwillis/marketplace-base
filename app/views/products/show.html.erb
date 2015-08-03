@@ -8,5 +8,7 @@
 
 <% @product.shipping_options.each do |option| %>
   <%= option.title %>
-  <%= number_to_currency(option.price, precision: 2) %>
+  <%= number_to_currency(option.price, precision: 2) %><br>
 <% end %>
+
+Shipping Price <%= number_to_currency(@product.shipping_price, precision: 2) %>

@@ -14,19 +14,28 @@
   <div class="row">
     <div class="col-md-8">
       <div class="form-group">
+        <%= f.label :title, "Title" %>
         <%= f.text_field :title, class: 'form-control', placeholder: "Enter Title", label: false %>
       </div>
       <div class="form-group" id='ProjectListButton'>
+        <%= f.label :price, "Price", step: 'any' %>
         <%= f.number_field :price, class: 'form-control pricing', placeholder: "Enter price", label: false, step: 'any' %>
       </div>
       <div class="form-group" id='ProjectListButton'>
+        <%= f.label :quantity, "Quantity" %>
         <%= f.number_field :quantity, class: 'form-control pricing', placeholder: "Enter Quantity", label: false %>
       </div>
       <div class="form-group" id='ProjectListButton'>
+        <%= f.label :shipping_price, "5-7 Day Shipping Price" %>
+        <%= f.number_field :shipping_price, class: 'form-control pricing', placeholder: "20.45", label: "5-7 Day Shipping Price", step: 'any' %>
+      </div>
+      <div class="form-group" id='ProjectListButton'>
+        <%= f.label :tag_list, "Tags (Seperated By Commas)" %>
         <%= f.text_field :tag_list, class: 'form-control pricing', placeholder: "Blue, Box, Paint", label: "Tags (Seperated By Commas)" %>
       </div>
       <div class="form-group" id='ProjectListButton'>
-        <%= f.text_area :description, class: 'form-control pricing', placeholder: "Enter Description", label: false, size: '50x50' %>
+        <%= f.label :description, "Description" %>
+        <%= f.text_area :description, class: 'form-control pricing', placeholder: "Enter Description", label: false, size: '50x5' %>
       </div>
       <div class="form-group">
         <%= f.file_field :product_image, as: :file, label: 'Product Image (extensions: .jpeg, .png, .gif)' %>
@@ -37,7 +46,7 @@
         <%= f.hidden_field :uuid, class: 'form-control', label: false, value: "#{SecureRandom.uuid}" %>
       <% end %>
     </div>
-    <div class="col-md-4">
+<!--     <div class="col-md-4">
       <h3>Shipping Options</h3>
       <%= f.fields_for :shipping_options do |option| %>
         <%= render 'shipping_option_fields', f: option %>
@@ -46,7 +55,7 @@
           <%= link_to_add_association 'Add Shipping Option', f, :shipping_options %>
         </div>
     </div>
-  </div>
+ -->  </div>
   <div class="actions">
     <%= f.submit %>
   </div>
