@@ -5,7 +5,6 @@
       <div class="form-group col-md-4">
         <div class="row form-group">
           <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-          <%= "Shipping Option: #{order.shipping_option}" %><br>
           <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
           <%= "Ship To: #{order.ship_to}" %><br>
           <%= "Status: #{order.status}" %><br>
@@ -117,7 +116,6 @@
       <div class="form-group col-md-4">
         <div class="row form-group">
           <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-          <%= "Shipping Option: #{order.shipping_option}" %><br>
           <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
           <%= "Ship To: #{order.ship_to}" %><br>
           <%= "Status: #{order.status}" %><br>
@@ -176,7 +174,6 @@
             <%= "Tracking Number: #{order.tracking_number}" %><br>
             <%= "Address: #{order.ship_to}" %><br>
             <%= "Customer Contact: #{order.customer_name}" %><br>
-            <%= "Shipping Option: #{order.shipping_option}" %><br>
             <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
             <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
             <%= "Paid: #{order.paid}" %><br>
@@ -187,6 +184,9 @@
             <% if order.tracking_number. == "Waiting For Tracking Number" %>
               <div class="form-group col-md-12">  
                 <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
+              </div>
+              <div class="form-group col-md-12">  
+                <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
               </div>
             <% else %>
               <div class="form-group col-md-12">
@@ -208,7 +208,33 @@
                       <h1>Order Details</h1>
                       <%= "Shipping To: #{order.ship_to}" %><br>
                       <%= "Customer Contact: #{order.customer_name}" %><br>
-                      <%= "Shipping Option: #{order.shipping_option}" %><br>
+                      <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                      <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                      <%= "Paid: #{order.paid}" %><br>
+                      <%= "Status: #{order.status}" %><br>
+                      <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
+                    </div>
+                  </div>
+                  <div class="modal-footer actions">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <%= submit_tag "Add Tracking Number", class: 'btn btn-success' %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_ship_label">
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <div class="modal-header text-center">
+                  <h2>Shipping Label For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
+                </div>
+                <%= form_tag order_path(id: order.id), method: :put do %>
+                  <div class="modal-body">
+                    <div class="container-fluid text-center">
+                      <h1>Order Details</h1>
+                      <%= "Shipping To: #{order.ship_to}" %><br>
+                      <%= "Customer Contact: #{order.customer_name}" %><br>
                       <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
                       <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
                       <%= "Paid: #{order.paid}" %><br>

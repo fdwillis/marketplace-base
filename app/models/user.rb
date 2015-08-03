@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  before_save :phone_number
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
 
@@ -31,6 +32,10 @@ class User < ActiveRecord::Base
 
   def merchant?
     role == 'merchant'
+  end
+
+  def phone_number
+    write_attribute(:support_phone, support_phone.gsub(/\D/, ''))
   end
 
   def buyer?
