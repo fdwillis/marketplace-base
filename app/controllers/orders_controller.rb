@@ -37,17 +37,20 @@ class OrdersController < ApplicationController
         @order = current_user.orders.find_by(ship_to: params[:ship_to])
       end
     else
-      @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
+      if params[:add_order]
+        @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
+      else
+        redirect_to @product
+        flash[:error] = "Please Choose A Shipping Destination"
+        return
+      end
     end
-    debugger
-    redirect_to root_path
-    return
+
     if params[:shipping_option]
       @shipping_option =  (params[:shipping_option].to_f / 100)
     else
       @shipping_option = @order.shipping_price
     end
-
     
     if @quantity <= @product.quantity && @quantity > 0
       if @current_orders.present? && !@order.nil? && @order.status == "Pending Submission"
