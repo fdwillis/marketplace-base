@@ -3,7 +3,7 @@
           <td><%= product.title %></td>
           <td><%= number_to_currency(product.price, precision: 2) %></td>
           <td><%= image_tag(product.product_image.url(:p200x200)) %></td>
-          <% if product.status == "Sold Out" %>
+          <% if product.quantity == 0 %>
             <td><h4>Sold Out</h4></td>
           <% else %>
             <% if current_user %>  

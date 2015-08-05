@@ -54,10 +54,11 @@ class ProductsController < ApplicationController
   end
 
   def update
+    
     if @product.update(product_params)
-      if @product.quantity > 0
-        @product.update_attributes(status: nil)
-      end
+      # if @product.quantity > 0
+      #   @product.update_attributes(status: nil)
+      # end
       redirect_to @product, notice: 'Product was successfully updated.'
     else
       flash[:error] = "Error saving Product. Try again"

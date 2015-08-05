@@ -168,7 +168,6 @@ class OrdersController < ApplicationController
         :address_to => address_to,
         :parcel => parcel
       )
-      debugger
 
       timeout_rates_request = 10 # seconds
       while ["QUEUED","WAITING"].include? shipment.object_status do
