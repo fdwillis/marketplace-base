@@ -6,7 +6,8 @@ class ProductsController < ApplicationController
 #Track For Admin & Merchant on Show page for 'Product Views'
 
   def index
-    @products = Product.all.where(active: true).page(params[:page]).per_page(5)
+    @search = Product.search(params[:q])
+    @products = @search.result.where(active: true).page(params[:page]).per_page(5)
     @pendings = Product.all.where(active: false)
     if current_user
       @current_orders = current_user.orders.where(status: "Pending Submission").where(active: true)
