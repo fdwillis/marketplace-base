@@ -4,8 +4,13 @@
     <%= link_to 'New Product', new_product_path %>
   <% end %>
   <%= search_form_for @search do |f| %>
-    <div class='form-group'>
-      <%= f.text_field :title_cont, placeholder: 'Title or Name of Products' %>
+    <div class='row'>  
+      <div class='col-md-3 form-group'>
+        <%= f.text_field :title_cont, placeholder: 'Title or Name of Products' %>
+      </div>
+      <div class='col-md-3 form-group'>
+        <%= f.text_field :description_cont, placeholder: 'Description' %>
+      </div>
     </div>
     <div class='actions'>
       <%= f.submit "Search", class: 'btn btn-success' %>

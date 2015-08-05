@@ -1,5 +1,8 @@
 class Product < ActiveRecord::Base
 
+
+  before_save :set_keywords
+
   default_scope {order ('updated_at DESC')}
 
   acts_as_taggable
@@ -21,6 +24,12 @@ class Product < ActiveRecord::Base
   mount_uploader :product_image, PhotoUploader
 
   accepts_nested_attributes_for :shipping_options, reject_if: :all_blank, allow_destroy: true
+
+protected
+  
+  def set_keywords
+    self.keywords = [description, title, tag_list, user.username, "#{ActionController::Base.helpers.number_to_currency(price, precision: 2)}"].join(", ")
+  end
 
   def total_price
     (price * 100) + (price * user.tax_rate) #+ chosen shipping_address
