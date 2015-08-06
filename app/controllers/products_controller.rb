@@ -8,6 +8,7 @@ class ProductsController < ApplicationController
   def index
     @search = Product.search(params[:q])
     @products = @search.result.where(active: true).page(params[:page]).per_page(5)
+    @tags = @search.result.where(active: true).page(params[:page]).per_page(5).map(&:tag_list)
     @pendings = Product.all.where(active: false)
     if current_user
       @current_orders = current_user.orders.where(status: "Pending Submission").where(active: true)

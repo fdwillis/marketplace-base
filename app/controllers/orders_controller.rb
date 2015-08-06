@@ -153,7 +153,6 @@ class OrdersController < ApplicationController
         :email => @user_order.email,
       )
       
-      
       parcel = Shippo::Parcel.create(
         :length => params[:box_length].to_i,
         :width => params[:box_width].to_i,
@@ -169,13 +168,10 @@ class OrdersController < ApplicationController
         :parcel => parcel
       )
 
-      timeout_rates_request = 10 # seconds
-      while ["QUEUED","WAITING"].include? shipment.object_status do
-        Timeout::timeout(timeout_rates_request) do
-          shipment = Shippo::Shipment.get(shipment["object_id"])
-        end
-      end
+      sleep = 3
 
+      shipment = Shippo::Shipment.get(shipment["object_id"])
+      
       # Retrieve all rates
       rates = shipment.rates()
       redirect_to shipping_rates_path(rates: rates)

@@ -8,8 +8,10 @@
           <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
           <%= "Ship To: #{order.ship_to}" %><br>
           <%= "Status: #{order.status}" %><br>
-          <%= "Carrier: #{order.carrier}" %><br>
-          <%= "Tracking Number: #{order.tracking_number}" %><br>
+          <% if !order.tracking_number.nil? %>  
+            <%= "Carrier: #{order.carrier}" %><br>
+            <%= "Tracking Number: #{order.tracking_number}" %><br>
+          <% end %>
         </div>
         <div class="row form-group">
           <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
@@ -25,15 +27,15 @@
           <% end %>
 
           <% if !order.refunded && order.status == "Paid" %>
-            <% if order.tracking_number %>  
+            <% if order.tracking_number.nil? %>  
               <div class='col-md-6'>    
                 <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
               </div>
               <div class='col-md-6'>  
-                <% if order.tracking_number != "Waiting For Tracking Number" %> 
-                  <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
-                <% else %>
+                <% if order.tracking_number.nil? %> 
                   <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
+                <% else %>
+                  <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
                 <% end %>
                 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
                   <div class="modal-dialog modal-sm">
@@ -64,10 +66,6 @@
                   </div>
                 </div>
               </div>
-            <% else %>
-            <div class='col-md-6'>    
-              <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
-            </div>
             <% end %>
           <% elsif !order.refunded && order.status == "Pending Refund"  %>
             <h4>This Is A Pending Refund</h4>
@@ -181,7 +179,7 @@
           </div>
           <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
           <!-- Large modal -->
-            <% if order.tracking_number. == "Waiting For Tracking Number" %>
+            <% if order.tracking_number.nil? %>
               <div class="form-group col-md-12">  
                 <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
               </div>

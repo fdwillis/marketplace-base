@@ -6,13 +6,13 @@
   <%= search_form_for @search do |f| %>
     <div class='row'>  
       <div class='col-md-3 form-group'>
-        <%= f.text_field :title_cont, placeholder: 'Title or Name of Products' %>
+        <%= f.text_field :title_cont, class: 'form-control text-center', placeholder: 'Title or Name of Products' %>
       </div>
       <div class='col-md-3 form-group'>
-        <%= f.text_field :description_cont, placeholder: 'Description' %>
+        <%= f.text_field :description_cont, class: 'form-control text-center', placeholder: 'Description' %>
       </div>
       <div class='col-md-3 form-group'>
-        <%= f.text_field :keywords_cont, placeholder: 'Keywords' %>
+        <%= f.text_field :keywords_cont, class: 'form-control text-center', placeholder: 'Keywords' %>
       </div>
     </div>
     <div class='actions'>
