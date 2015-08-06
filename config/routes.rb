@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   resources :users, only: [:update]
 
   get 'shipping_rates' => 'orders#shipping_rates'
+  get 'select_label' => 'orders#select_label'
   put 'approve_product' => 'pending_products#approve_product'
   put 'active_order' => 'orders#active_order'
   post 'notifications' => 'notifications#create'

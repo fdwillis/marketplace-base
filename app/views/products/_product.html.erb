@@ -1,111 +1,111 @@
 <% @products.each do |product| %>
-        <tr>
-          <td><%= product.title %></td>
-          <td><%= number_to_currency(product.price, precision: 2) %></td>
-          <td><%= image_tag(product.product_image.url(:p200x200)) %></td>
-          <% if product.quantity == 0 %>
-            <td><h4>Sold Out</h4></td>
-          <% else %>
-            <% if current_user %>  
-              <% if current_user.purchases %>  
-                  <td>
-                    <%= link_to "New Order", "##{product.uuid}", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
-                    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
-                      <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                          <div class="modal-header text-center">
-                            <h1> Review Purchase Of <strong><em><u><%= product.title %></u></em></strong></h1>
-                            <h3>Sold By: <%= link_to product.user.username.titleize, merchant_path(product.user.username) %></h3>
-                          </div>
-                          <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
-                            <div class="modal-body">
-                              <div class="container-fluid">  
-                                  <div class="col-md-9">
-                                  </div>
-                                  <div class="col-md-3">  
-                                    <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
-                                    <%= number_field_tag :quantity, class: 'form-control' %>
-                                    <h3>Shipping Destination</h3>
-                                    <% current_user.shipping_to.each do |s| %>
-                                      <p> <%= radio_button_tag(:ship_to, "#{s}_new" )%>   <%= s %></p>
+  <tr>
+    <td><%= product.title %></td>
+    <td><%= number_to_currency(product.price, precision: 2) %></td>
+    <td><%= image_tag(product.product_image.url(:p200x200)) %></td>
+    <% if product.quantity == 0 %>
+      <td><h4>Sold Out</h4></td>
+    <% else %>
+      <% if current_user %>  
+        <% if current_user.purchases %>  
+            <td>
+              <%= link_to "New Order", "##{product.uuid}", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
+              <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header text-center">
+                      <h1> Review Purchase Of <strong><em><u><%= product.title %></u></em></strong></h1>
+                      <h3>Sold By: <%= link_to product.user.username.titleize, merchant_path(product.user.username) %></h3>
+                    </div>
+                    <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
+                      <div class="modal-body">
+                        <div class="container-fluid">  
+                            <div class="col-md-9">
+                            </div>
+                            <div class="col-md-3">  
+                              <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
+                              <%= number_field_tag :quantity, class: 'form-control' %>
+                              <h3>Shipping Destination</h3>
+                              <% current_user.shipping_to.each do |s| %>
+                                <p> <%= radio_button_tag(:ship_to, "#{s}_new")%>   <%= s %></p>
+                              <% end %>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer actions">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <% if !current_user.shipping_addresses.empty? %>
+                          <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                        <% else %>
+                          <%= link_to "Add Shipping Address", edit_user_registration_path, class: 'btn btn-warning' %>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <% if @current_orders.present? %>
+                <%= link_to "Add To Order", "##{product.slug}", class: 'btn btn-success', 'data-toggle' => 'modal' %>
+                <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.slug%>">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header text-center">
+                        <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
+                      </div>
+                      <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
+                        <% if @current_orders.present? %>
+                          <div class="modal-body">
+                            <div class="container-fluid">  
+                              <div class="col-md-9">
+                                <h3>Pending Orders</h3>
+                                <% @current_orders.each do |s| %>
+                                  <div class='col-md-6'>
+                                    <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
+                                    <h5>Item Total: <%= number_to_currency(s.order_items.map(&:total_price).sum, precision: 2 ) %></h5>
+                                    <h5>Shipping: <%= "#{s.shipping_option} #{number_to_currency(s.shipping_price, precision: 2)}" %></h5>
+                                    <h5>Tax: <%= "#{number_with_precision(product.user.tax_rate, precision: 2)}%" %></h5>
+                                    <h5>Total Price: <%= "#{number_to_currency( s.total_price, precision:2 )}"%></h5>
+                                    <h5>Products</h5>
+                                    <% s.order_items.each do |item| %>
+                                      <ul>
+                                        <li><%= "#{item.title} (#{item.quantity})" %></li>
+                                      </ul>
                                     <% end %>
                                   </div>
+                                <% end %>
+                              </div>
+                              <div class="col-md-3">  
+                                <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
+                                <%= number_field_tag :quantity, class: 'form-control' %>
                               </div>
                             </div>
-                            <div class="modal-footer actions">
-                              <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                              <% if !current_user.shipping_addresses.empty? %>
-                                <%= submit_tag "Submit Order", class: 'btn btn-success' %>
-                              <% else %>
-                                <%= link_to "Add Shipping Address", edit_user_registration_path, class: 'btn btn-warning' %>
-                              <% end %>
-                            </div>
-                          <% end %>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <% if @current_orders.present? %>
-                      <%= link_to "Add To Order", "##{product.slug}", class: 'btn btn-success', 'data-toggle' => 'modal' %>
-                      <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.slug%>">
-                        <div class="modal-dialog modal-lg">
-                          <div class="modal-content">
-                            <div class="modal-header text-center">
-                              <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
-                            </div>
-                            <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
-                              <% if @current_orders.present? %>
-                                <div class="modal-body">
-                                  <div class="container-fluid">  
-                                    <div class="col-md-9">
-                                      <h3>Pending Orders</h3>
-                                      <% @current_orders.each do |s| %>
-                                        <div class='col-md-6'>
-                                          <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
-                                          <h5>Item Total: <%= number_to_currency(s.order_items.map(&:total_price).sum, precision: 2 ) %></h5>
-                                          <h5>Shipping: <%= "#{s.shipping_option} #{number_to_currency(s.shipping_price, precision: 2)}" %></h5>
-                                          <h5>Tax: <%= "#{number_with_precision(product.user.tax_rate, precision: 2)}%" %></h5>
-                                          <h5>Total Price: <%= "#{number_to_currency( s.total_price, precision:2 )}"%></h5>
-                                          <h5>Products</h5>
-                                          <% s.order_items.each do |item| %>
-                                            <ul>
-                                              <li><%= "#{item.title} (#{item.quantity})" %></li>
-                                            </ul>
-                                          <% end %>
-                                        </div>
-                                      <% end %>
-                                    </div>
-                                    <div class="col-md-3">  
-                                      <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
-                                      <%= number_field_tag :quantity, class: 'form-control' %>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="modal-footer actions">
-                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                                  <%= submit_tag "Submit Order", class: 'btn btn-success' %>
-                                </div>
-                              <% else %>
-                                <h1>You Have No Pending Orders</h1>
-                              <% end %>
-                            <% end %>
                           </div>
-                        </div>
-                      </div>
-                    <%end %>
-                  </td>
-              <% end %>
-            <% else %>
-              <td>
-                <%= link_to "Buy Now", purchases_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate)), title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for #{number_to_currency(product.price, precision:2)}?\nIncludes 5.0% Non-Refundable Application Fee" }, id: 'stripeForm'  %>
-              </td>
-            <% end %>
-          <% end %>
-          <td><%= link_to 'See More', product, class: 'btn btn-info' %></td>
-          <% if policy(product).edit? %>
-            <td><%= link_to 'Edit', edit_product_path(product), class: 'btn btn-warning' %></td>
-            <td><%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %></td>
-          <% end %>
-        </tr>
+                          <div class="modal-footer actions">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                            <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                          </div>
+                        <% else %>
+                          <h1>You Have No Pending Orders</h1>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <%end %>
+            </td>
+        <% end %>
+      <% else %>
+        <td>
+          <%= link_to "Buy Now", purchases_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate)), title: product.title, product_id: product.id, product_image: product.product_image, merchant_id: product.user_id), method: :post, data: { confirm: "Purchase #{product.title.titleize} now for #{number_to_currency(product.price, precision:2)}?\nIncludes 5.0% Non-Refundable Application Fee" }, id: 'stripeForm'  %>
+        </td>
       <% end %>
+    <% end %>
+    <td><%= link_to 'See More', product, class: 'btn btn-info' %></td>
+    <% if policy(product).edit? %>
+      <td><%= link_to 'Edit', edit_product_path(product), class: 'btn btn-warning' %></td>
+      <td><%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %></td>
+    <% end %>
+  </tr>
+<% end %>

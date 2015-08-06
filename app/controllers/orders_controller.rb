@@ -24,6 +24,8 @@ class OrdersController < ApplicationController
 
   # POST /orders
   def create
+    sleep 5
+
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
@@ -47,7 +49,7 @@ class OrdersController < ApplicationController
     
     if @quantity <= @product.quantity && @quantity > 0
       if @current_orders.present? && !@order.nil? && @order.status == "Pending Submission"
-
+        
         @add_order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
         @merchant_id = @current_orders.map(&:merchant_id).uniq
         
@@ -90,17 +92,16 @@ class OrdersController < ApplicationController
                                      customer_name: current_user.email,
                                      user_id: current_user.id, shipping_price: Order.shipping_price(@order),
                                      merchant_id: @product.user_id, uuid: SecureRandom.uuid)
-          else
-            redirect_to @product
-            flash[:error] = 'Please Select Shipping Address'
-            return
-          end
-          
           @order.update_attributes(total_price: Order.total_price(@order))
           @order.save
           redirect_to root_path
           flash[:notice] = 'Order was successfully saved.'
           return
+          else
+            redirect_to @product
+            flash[:error] = 'Please Select Shipping Address'
+            return
+          end
         else
          render :new
         end
@@ -126,7 +127,7 @@ class OrdersController < ApplicationController
       @order.update_attributes(tracking_number: @tracking_number, carrier: @s['data']['tracking']['slug'])
       redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
     else
-      
+
       Shippo.api_token = ENV['SHIPPO_KEY']
       address_from = Shippo::Address.create(
         :object_purpose => "PURCHASE",
@@ -140,7 +141,7 @@ class OrdersController < ApplicationController
         :phone => "+1 #{current_user.support_phone}",
         :email => current_user.email
       )
-
+      debugger
       address_to = Shippo::Address.create(
         :object_purpose => "PURCHASE",
         :name => @user_order.username,
@@ -167,18 +168,42 @@ class OrdersController < ApplicationController
         :parcel => parcel
       )
 
-      redirect_to shipping_rates_path(shipment_id: shipment["object_id"])
+      redirect_to shipping_rates_path(shipment_id: shipment["object_id"], order_uuid: @order.uuid)
     end
 
   end
 
   def shipping_rates
-    sleep 10
+    sleep 5
     Shippo.api_token = ENV['SHIPPO_KEY']
     shipment_id = params[:shipment_id]
     shipment = Shippo::Shipment.get(shipment_id)
     @rates = shipment.rates()
-    debugger
+    @order_uuid = params[:order_uuid]
+  end
+
+  def select_label
+
+    transaction = Shippo::Transaction.create(rate: params[:object_id] )
+
+    # Wait for transaction to be proccessed
+    sleep 10 # seconds
+    transaction = Shippo::Transaction.get(transaction["object_id"])
+
+    # label_url and tracking_number
+    if transaction.object_status == "SUCCESS"
+      Order.find_by(uuid: params[:order_uuid]).update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
+      redirect_to orders_path
+      flash[:notice] = "Label sucessfully generated:"
+      puts "label_url: #{transaction.label_url}" 
+      puts "tracking_number: #{transaction.tracking_number}" 
+      return
+    else
+      redirect_to orders_path
+      flash[:error] = "Error generating label:"
+      puts transaction.messages
+      return
+    end
   end
 
   def active_order
@@ -201,7 +226,7 @@ class OrdersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_params
       params.require(:order).permit(:active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
-                                    :carrier, :refunded,
+                                    :carrier, :refunded, :tracking_url,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
                                     :total_price, :user_id, order_items_attributes: [:id, :title, :price, :total_price, :user_id, :uuid, :description, :quantity, :_destroy],

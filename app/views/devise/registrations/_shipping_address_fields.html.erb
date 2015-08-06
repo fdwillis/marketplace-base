@@ -4,7 +4,7 @@
   <%= f.label :city %><br>
   <%= f.text_field :city, class: 'form-control'  %><br>
   <%= f.label :state %><br>
-  <%= f.text_field :state, class: 'form-control'  %><br>
+  <%= f.text_field :state, class: 'form-control', minlength: 2  %><br>
   <%= f.label :region, "Country Code" %><br>
   <%= f.text_field :region, maxlength: 2, class: 'form-control'  %><br>
   <%= f.label :zip %><br>

@@ -41,7 +41,7 @@ merchant = User.create!(
               address: '526 west wilson suite B',
               address_city: "Madison",
               address_state: "WI",
-              address_zip: 5055,
+              address_zip: 53703,
               address_country: 'US',
               currency: 'USD',
               bank_currency: 'USD',

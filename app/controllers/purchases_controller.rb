@@ -43,7 +43,7 @@ class PurchasesController < ApplicationController
         begin
           @charge = User.charge_for_admin(current_user, @price, @token.id)
           @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
-                                   paid: true, application_fee: @charge.application_fee)
+                                   paid: true, application_fee: @charge.application_fee, status: "Paid")
                               
           redirect_to orders_path
           flash[:notice] = "Thanks for the purchase!"

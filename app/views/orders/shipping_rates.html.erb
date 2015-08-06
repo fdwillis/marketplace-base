@@ -1,1 +1,18 @@
-<%= @rates %>
+<div class='container'>
+	<h1>Order Shipping Cost <%= number_to_currency(Order.find_by(uuid: @order_uuid).shipping_price, precision: 2) %></h1>
+	<% @rates.each do |rate| %>
+		<div class='col-md-12'>	
+			<%= rate.provider %><br>	
+			Esitmated Days Till Delivery: <%= rate.days %><br>	
+			<%= number_to_currency(rate.amount_local, precision: 2) %><br>	
+			<%= rate.servicelevel_name %><br>	
+			<% if rate.servicelevel_terms %>
+				<em><strong>Restrictions:</strong></em> <%= rate.servicelevel_terms %><br>
+			<% else %>
+			<% end %>
+			<%= link_to "Select Label", select_label_path(carrier: rate.provider ,object_id: rate['object_id'], order_uuid: @order_uuid), class: 'btn btn-primary' %><br>	
+		<br>
+		<br>
+		</div>
+	<% end %>
+</div>
