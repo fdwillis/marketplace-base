@@ -174,8 +174,6 @@
             <%= "Customer Contact: #{order.customer_name}" %><br>
             <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
             <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-            <%= "Paid: #{order.paid}" %><br>
-            <%= "Status: #{order.status}" %><br>
           </div>
           <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
           <!-- Large modal -->
@@ -208,8 +206,6 @@
                       <%= "Customer Contact: #{order.customer_name}" %><br>
                       <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
                       <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                      <%= "Paid: #{order.paid}" %><br>
-                      <%= "Status: #{order.status}" %><br>
                       <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
                     </div>
                   </div>
@@ -254,8 +250,6 @@
                       <%= "Customer Contact: #{order.customer_name}" %><br>
                       <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
                       <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                      <%= "Paid: #{order.paid}" %><br>
-                      <%= "Status: #{order.status}" %><br>
                     </div>
                   </div>
                   <div class="modal-footer actions">

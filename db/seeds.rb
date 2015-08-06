@@ -39,12 +39,12 @@ merchant = User.create!(
               stripe_account_type: 'sole_prop',
               statement_descriptor: "MarketBase",
               address: '526 west wilson suite B',
-              address_city: "Hordaland",
-              address_state: "Western Norway",
+              address_city: "Madison",
+              address_state: "WI",
               address_zip: 5055,
-              address_country: 'NO',
-              currency: 'NOK',
-              bank_currency: 'NOK',
+              address_country: 'US',
+              currency: 'USD',
+              bank_currency: 'USD',
               tax_rate: 2.0,
 )
 

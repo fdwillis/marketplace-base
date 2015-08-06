@@ -24,7 +24,6 @@ class OrdersController < ApplicationController
 
   # POST /orders
   def create
-    
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
@@ -168,23 +167,21 @@ class OrdersController < ApplicationController
         :parcel => parcel
       )
 
-      sleep = 3
-
-      shipment = Shippo::Shipment.get(shipment["object_id"])
-      
-      # Retrieve all rates
-      rates = shipment.rates()
-      redirect_to shipping_rates_path(rates: rates)
+      redirect_to shipping_rates_path(shipment_id: shipment["object_id"])
     end
 
   end
 
   def shipping_rates
-    @rates = params[:rates]
+    sleep 10
+    Shippo.api_token = ENV['SHIPPO_KEY']
+    shipment_id = params[:shipment_id]
+    shipment = Shippo::Shipment.get(shipment_id)
+    @rates = shipment.rates()
+    debugger
   end
 
   def active_order
-    
     @order.update_attributes(active: true)
     redirect_to orders_url, notice: 'Order was successfully restarted.'
   end
