@@ -25,7 +25,6 @@ class OrdersController < ApplicationController
   # POST /orders
   def create
     sleep 5
-
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
@@ -141,7 +140,7 @@ class OrdersController < ApplicationController
         :phone => "+1 #{current_user.support_phone}",
         :email => current_user.email
       )
-      debugger
+      
       address_to = Shippo::Address.create(
         :object_purpose => "PURCHASE",
         :name => @user_order.username,
@@ -150,6 +149,7 @@ class OrdersController < ApplicationController
         :state => @shipping[2] ,
         :zip => @shipping[4],
         :country => @shipping[3],
+        phone: @user_order.support_phone,
         :email => @user_order.email,
       )
       

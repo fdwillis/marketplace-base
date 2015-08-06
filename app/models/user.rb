@@ -49,7 +49,7 @@ class User < ActiveRecord::Base
     if card_number
       @card = @crypt.decrypt_and_verify(card_number)
     end
-    shipping_addresses.present? && (@card.present? || card_number.present?) && exp_year.present? && exp_month.present? && cvc_number.present? && currency.present? && legal_name.present?
+    shipping_addresses.present? && (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && legal_name.present?
   end
 
   def user_recipient
