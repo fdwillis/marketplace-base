@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
 
   def update
-
+    
     if current_user.update_attributes(user_params)
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
@@ -19,9 +19,53 @@ class UsersController < ApplicationController
         current_user.update_attributes(account_number: account_number)
       end
 
-      if !params[:user][:card_number].nil? 
+      if !params[:user][:card_number].nil?
+
+        begin
+          @token = Stripe::Token.create(
+            :card => {
+              :number => params[:user][:card_number],
+              :exp_month => params[:user][:exp_month].to_i,
+              :exp_year => params[:user][:exp_year].to_i,
+              :cvc => params[:user][:cvc_number].to_i
+            },
+          )
+        rescue Stripe::CardError => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        end
+
+        begin
+          @charge = Stripe::Charge.create(
+            :amount => 50,
+            :currency => "usd",
+            :source => @token.id,
+            :description => "Validation Charge"
+          )
+        rescue Stripe::CardError => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        end
+
+        ch = Stripe::Charge.retrieve(@charge.id)
+        refund = ch.refunds.create
+
         card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
+        debugger
         current_user.update_attributes(card_number: card_number)
+      else 
+        redirect_to edit_user_registration_path
+        flash[:error] = "Your Card Could Not Be Confirmed"
       end
       
       if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?        

@@ -49,7 +49,7 @@ class User < ActiveRecord::Base
     if card_number
       @card = @crypt.decrypt_and_verify(card_number)
     end
-    shipping_addresses.present? && (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && legal_name.present?
+    (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && (legal_name.present? || first_name.present && last_name.present?)
   end
 
   def user_recipient
@@ -62,7 +62,7 @@ class User < ActiveRecord::Base
   end
 
   def merchant_ready?
-    tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && bank_currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+    card?.present? && tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && bank_currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
   end
 
   def merchant_changed

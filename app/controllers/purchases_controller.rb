@@ -23,6 +23,7 @@ class PurchasesController < ApplicationController
         @currency = @merchant.currency
         @merchant_account_id = @crypt.decrypt_and_verify(@merchant.stripe_account_id)
       end
+      
       begin
         @token = User.new_token(current_user, @card)
       rescue Stripe::CardError => e
