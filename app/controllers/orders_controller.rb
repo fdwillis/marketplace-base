@@ -1,25 +1,12 @@
 class OrdersController < ApplicationController
   before_filter :authenticate_user!
-  before_action :set_order, only: [:show, :edit, :update, :destroy, :active_order]
+  before_action :set_order, only: [:update, :destroy, :active_order]
 
   # GET /orders
   def index
     @purchases = Order.all.where(user_id: current_user.id).order("refunded or paid DESC").where(active: true)
     @suspended = Order.all.where(user_id: current_user.id).where(active: false)
     @orders = Order.all.where(merchant_id: current_user.id).order("updated_at ASC").where(paid: true)
-  end
-
-  # GET /orders/1
-  def show
-  end
-
-  # GET /orders/new
-  def new
-    @order = Order.new
-  end
-
-  # GET /orders/1/edit
-  def edit
   end
 
   # POST /orders
@@ -69,13 +56,12 @@ class OrdersController < ApplicationController
 
             @order.update_attributes(total_price: Order.total_price(@order), shipping_price: Order.shipping_price(@order))
           end
-          
           redirect_to root_path
           flash[:notice] = "Added #{@product.title} To Your Cart"
           return
         else
           redirect_to @product
-          flash[:error] = "Please start a new order"
+          flash[:error] = "Please Start a New Order"
           return
         end
       else
@@ -94,7 +80,7 @@ class OrdersController < ApplicationController
           @order.update_attributes(total_price: Order.total_price(@order))
           @order.save
           redirect_to root_path
-          flash[:notice] = 'Order was successfully saved.'
+          flash[:notice] = 'Order Was Successfully Saved.'
           return
           else
             redirect_to @product
@@ -200,7 +186,7 @@ class OrdersController < ApplicationController
       return
     else
       redirect_to orders_path
-      flash[:error] = "Error generating label:"
+      flash[:error] = "Error Generating Label"
       puts transaction.messages
       return
     end
@@ -208,7 +194,7 @@ class OrdersController < ApplicationController
 
   def active_order
     @order.update_attributes(active: true)
-    redirect_to orders_url, notice: 'Order was successfully restarted.'
+    redirect_to orders_url, notice: 'Order Was Successfully Restarted.'
   end
 
   # DELETE /orders/1

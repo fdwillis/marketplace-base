@@ -1,16 +1,14 @@
 Rails.application.routes.draw do
+  resources :orders
   resources :charges, only: [:create]
   resources :notifications, only: [:create, :update]
-
 
   resources :merchants, only: [:index, :show]
   resources :pending_products, only: [:index, :show]
 
   resources :plans, only: :index
-  resources :products
-  resources :orders
 
-  resources :purchases, only: [:index, :create, :update]
+  resources :purchases, only: [:create, :update]
   resources :refunds, only: [:index, :create, :update]
   
   resources :reports, only: :index
@@ -25,4 +23,5 @@ Rails.application.routes.draw do
   put 'active_order' => 'orders#active_order'
   post 'notifications' => 'notifications#create'
   root to: 'products#index'
+  resources :products
 end

@@ -9,8 +9,8 @@
       <% if current_user %>  
         <% if current_user.purchases %>  
             <td>
-              <%= link_to "New Order", "##{product.uuid}", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
-              <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= product.uuid %>">
+              <%= link_to "New Order", "##{product.uuid}_new", class: 'btn btn-primary', 'data-toggle' => 'modal' %>
+              <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModal" id="<%= product.uuid %>_new">
                 <div class="modal-dialog modal-lg">
                   <div class="modal-content">
                     <div class="modal-header text-center">
@@ -47,8 +47,8 @@
             </td>
             <td>
               <% if @current_orders.present? %>
-                <%= link_to "Add To Order", "##{product.slug}", class: 'btn btn-success', 'data-toggle' => 'modal' %>
-                <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.slug%>">
+                <%= link_to "Add To Order", "##{product.uuid}_add", class: 'btn btn-success', 'data-toggle' => 'modal' %>
+                <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%=product.uuid%>_add">
                   <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                       <div class="modal-header text-center">

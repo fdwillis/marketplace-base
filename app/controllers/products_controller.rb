@@ -13,7 +13,6 @@ class ProductsController < ApplicationController
     if current_user
       @current_orders = current_user.orders.where(status: "Pending Submission").where(active: true)
     end
-    authorize @products
   end
 
   def show

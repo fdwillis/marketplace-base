@@ -1,10 +1,6 @@
 class PurchasesController < ApplicationController
   before_filter :authenticate_user!
   
-  def index
-    @purchases = Purchase.all.where(user_id: current_user.id).order("refunded ASC")
-    @orders = Purchase.all.where(merchant_id: current_user.id).order("created_at DESC")
-  end
   def create
     #Track with Keen for Merchant & Admin
     #Time between purchases for customers in hours
