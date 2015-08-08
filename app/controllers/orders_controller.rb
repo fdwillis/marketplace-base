@@ -102,13 +102,11 @@ class OrdersController < ApplicationController
   def update
     @user_order = @order.user
     @shipping = @order.ship_to.gsub(/\s+/, "").split(',')
-    
     @tracking_number = params[:tracking_number]
     if @tracking_number  
-      @order.update_attributes(tracking_number: @tracking_number)
 
+      @order.update_attributes(tracking_number: @tracking_number)
       @s = AfterShip::V4::Tracking.create( @tracking_number, {:emails => ["#{@order.customer_name}"]})
-      
       @order.update_attributes(tracking_number: @tracking_number, carrier: @s['data']['tracking']['slug'])
       redirect_to orders_url, notice: 'Tracking Number Was Successfully Added.'
     else
@@ -156,11 +154,10 @@ class OrdersController < ApplicationController
 
       redirect_to shipping_rates_path(shipment_id: shipment["object_id"], order_uuid: @order.uuid)
     end
-
   end
 
   def shipping_rates
-    sleep 5
+    sleep 10
     Shippo.api_token = ENV['SHIPPO_KEY']
     shipment_id = params[:shipment_id]
     shipment = Shippo::Shipment.get(shipment_id)
@@ -178,7 +175,9 @@ class OrdersController < ApplicationController
 
     # label_url and tracking_number
     if transaction.object_status == "SUCCESS"
-      Order.find_by(uuid: params[:order_uuid]).update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
+      @order = Order.find_by(uuid: params[:order_uuid])
+      @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
+      @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
       redirect_to orders_path
       flash[:notice] = "Label sucessfully generated:"
       puts "label_url: #{transaction.label_url}" 
