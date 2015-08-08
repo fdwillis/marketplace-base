@@ -6,7 +6,7 @@ class OrdersController < ApplicationController
   def index
     @purchases = Order.all.where(user_id: current_user.id).order("refunded or paid DESC").where(active: true)
     @suspended = Order.all.where(user_id: current_user.id).where(active: false)
-    @orders = Order.all.where(merchant_id: current_user.id).order("updated_at ASC").where(paid: true)
+    @orders = Order.all.where(merchant_id: current_user.id).order("updated_at DESC").where(paid: true)
   end
 
   # POST /orders
@@ -27,9 +27,15 @@ class OrdersController < ApplicationController
       if params[:add_order]
         @order = current_user.orders.find_by(uuid: params[:add_order].partition('--').last)
       else
-        redirect_to @product
-        flash[:error] = "Please Choose A Shipping Destination"
-        return
+        if current_user.shipping_addresses.present?
+          redirect_to @product
+          flash[:error] = "Please Choose A Shipping Destination"
+          return
+        else
+          redirect_to edit_user_registration_path
+          flash[:error] = "Please Add A Shipping Address"
+          return
+        end
       end
     end
     
@@ -166,20 +172,50 @@ class OrdersController < ApplicationController
   end
 
   def select_label
+    @order = Order.find_by(uuid: params[:order_uuid])
+
+    sleep 10 # seconds
 
     transaction = Shippo::Transaction.create(rate: params[:object_id] )
 
     # Wait for transaction to be proccessed
-    sleep 10 # seconds
+    begin
+      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      @card = @crypt.decrypt_and_verify(current_user.card_number)
+      @token = User.new_token(current_user, @card)
+    rescue Stripe::CardError => e
+      redirect_to edit_user_registration_path
+      flash[:error] = "#{e}"
+      return
+    rescue => e
+      redirect_to edit_user_registration_path
+      flash[:error] = "#{e}"
+      return
+    end
+
+    begin
+      @shipping_cost = params[:price].to_i
+      @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 3.5) / 100) ), @token.id)
+      @order.update_attributes(stripe_shipping_charge: @charge.id)
+    rescue Stripe::CardError => e
+      redirect_to edit_user_registration_path
+      flash[:error] = "#{e}"
+      return
+    rescue => e
+      redirect_to edit_user_registration_path
+      flash[:error] = "#{e}"
+      return
+    end
+    
+
     transaction = Shippo::Transaction.get(transaction["object_id"])
 
     # label_url and tracking_number
     if transaction.object_status == "SUCCESS"
-      @order = Order.find_by(uuid: params[:order_uuid])
       @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
       @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
       redirect_to orders_path
-      flash[:notice] = "Label sucessfully generated:"
+      flash[:notice] = "Label Sucessfully Generated"
       puts "label_url: #{transaction.label_url}" 
       puts "tracking_number: #{transaction.tracking_number}" 
       return
@@ -217,7 +253,7 @@ class OrdersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_params
       params.require(:order).permit(:active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
-                                    :carrier, :refunded, :tracking_url,
+                                    :carrier, :refunded, :tracking_url, :stripe_shipping_charge,
                                     :merchant_id, :paid, :shipping_price, :status, :ship_to, 
                                     :customer_name, :tracking_number, :shipping_option, 
                                     :total_price, :user_id, order_items_attributes: [:id, :title, :price, :total_price, :user_id, :uuid, :description, :quantity, :_destroy],

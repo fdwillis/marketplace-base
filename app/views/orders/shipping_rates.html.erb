@@ -1,5 +1,5 @@
 <div class='container'>
-	<h1>Order Shipping Cost <%= number_to_currency(Order.find_by(uuid: @order_uuid).shipping_price, precision: 2) %></h1>
+	<h1>Order Shipping Cost <%= number_to_currency(((Order.find_by(uuid: @order_uuid).shipping_price) * 0.60), precision: 2) %></h1>
 	<% @rates.each do |rate| %>
 		<div class='col-md-12'>	
 			<%= rate.provider %><br>	
@@ -10,7 +10,7 @@
 				<em><strong>Restrictions:</strong></em> <%= rate.servicelevel_terms %><br>
 			<% else %>
 			<% end %>
-			<%= link_to "Select Label", select_label_path(carrier: rate.provider ,object_id: rate['object_id'], order_uuid: @order_uuid), class: 'btn btn-primary' %><br>	
+			<%= link_to "Select Label", select_label_path(price: (rate.amount_local.to_f * 100), carrier: rate.provider ,object_id: rate['object_id'], order_uuid: @order_uuid), class: 'btn btn-primary' %><br>	
 		<br>
 		<br>
 		</div>
