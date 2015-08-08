@@ -61,7 +61,6 @@ class UsersController < ApplicationController
         refund = ch.refunds.create
 
         card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
-        debugger
         current_user.update_attributes(card_number: card_number)
       else 
         redirect_to edit_user_registration_path
