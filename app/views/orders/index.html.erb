@@ -42,8 +42,11 @@
         </div>
         <div class="row form-group">
           <% if !order.paid? %>
-            <div class='col-md-12 form-group'>    
+            <div class='col-md-6 form-group'>    
               <%= link_to "Order Now #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success form-control', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
+            </div>
+            <div class='col-md-6 form-group'>    
+              <%= link_to "Cancel Order", order_path(order.id, uuid: order.uuid), method: :delete, data: {confirm: "Cancel this order?" }, class: 'btn btn-danger form-control' %>
             </div>
             <div class='col-md-12'>
               <%= link_to "Save Order", order_path(order.id), class: 'btn btn-info form-control', method: :delete %>

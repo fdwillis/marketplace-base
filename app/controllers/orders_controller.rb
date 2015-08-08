@@ -213,8 +213,14 @@ class OrdersController < ApplicationController
 
   # DELETE /orders/1
   def destroy
-    @order.update_attributes(active: false)
-    redirect_to orders_url, notice: 'Order Was Successfully Saved.'
+    if params[:action] == 'destroy'
+      @order = Order.find_by(uuid: params[:uuid])
+      @order.destroy
+    else
+      @order.update_attributes(active: false)
+      flash[:notice] = 'Order Was Successfully Saved.'
+    end
+    redirect_to orders_path
   end
 
   private
