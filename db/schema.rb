@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150809180629) do
+ActiveRecord::Schema.define(version: 20150809183547) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,6 +113,9 @@ ActiveRecord::Schema.define(version: 20150809180629) do
     t.string   "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean  "refunded"
+    t.string   "uuid"
+    t.string   "status"
   end
 
   add_index "refunds", ["order_id"], name: "index_refunds_on_order_id", using: :btree

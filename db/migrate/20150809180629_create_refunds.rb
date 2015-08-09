@@ -2,7 +2,7 @@ class CreateRefunds < ActiveRecord::Migration
   def change
     create_table :refunds do |t|
       t.belongs_to :order, index: true
-      t.string :amount
+      t.integer :amount
       t.string :note
 
       t.timestamps null: false
