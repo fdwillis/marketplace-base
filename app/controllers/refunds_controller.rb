@@ -9,7 +9,8 @@ class RefundsController < ApplicationController
     # let merchants handle refunds
     order = Order.find_by(stripe_charge_id: params[:refund_id])
     order.update_attributes(status: "Pending Refund")
-    redirect_to orders_path, alert: "Your Refund Is Pending"
+    redirect_to orders_path
+    flash[:alert] = "Your Refund Is Pending"
   end
   def update
     #Track With Keen "refunds fullfilled"

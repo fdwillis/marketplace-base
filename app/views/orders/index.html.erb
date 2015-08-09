@@ -4,11 +4,17 @@
     <% @paid.each do |order| %>
       <div class="form-group col-md-4">
         <div class="row form-group">
-          <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-          <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-          Ship To: <small><%= order.ship_to %></small><br>
-          <%= "Carrier: #{order.carrier}" %><br>
-          <%= "Tracking Number: #{order.tracking_number}" %><br>
+          <% if order.refunded %>
+            <h1>This Order Has Been Refunded</h1> 
+            <%= link_to "Refund Details", '#', class: 'btn btn-primary' %>
+          <% else %> 
+            <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+            <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+            Ship To: <small><%= order.ship_to %></small><br>
+            <%= "Carrier: #{order.carrier}" %><br>
+            <%= "Tracking Number: #{order.tracking_number}" %><br>
+            <%= "Status: #{order.status}" %>
+          <% end %>
         </div>
         <div class="row form-group">
           <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
