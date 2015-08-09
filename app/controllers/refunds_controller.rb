@@ -4,6 +4,9 @@ class RefundsController < ApplicationController
     @refunds = Order.all.where(merchant_id: current_user.id).where(status: "Pending Refund")
   end
   def create
+    debugger
+    redirect_to orders_path
+    return
     #Test refund for admin, might need to filter because admin doesnt have merchant_secret field
     #Track With Keen "refund requests"
     # let merchants handle refunds

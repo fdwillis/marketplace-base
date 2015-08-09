@@ -63,7 +63,7 @@
               <% if order.tracking_number.nil? %> 
                 <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
               <% else %>
-                <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
+                <%= link_to "Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
               <% end %>
               <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
                 <div class="modal-dialog modal-sm">
@@ -95,7 +95,39 @@
               </div>
             </div>
             <div class='col-md-12'>    
-              <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
+              <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
+              <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
+                <div class="modal-dialog modal-sm">
+                  <div class="modal-content">
+                    <div class="modal-header text-center">
+                      <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                    </div>
+                    <div class="modal-body">
+                      <div class="container-fluid text-center">
+                        <%= form_tag refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id) do %>
+                          <div class='row'>  
+                            <div class='col-md-4 col-md-offset-4'>  
+                              <%= text_field_tag :amount, nil, class: 'form-control text-center', placeholder: "Enter Refund Amount: 45.33" %>
+                            </div>
+                          </div>
+                          <div class='row'>  
+                            <h3>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h3>
+                            <h3>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h3>
+                            <% order.order_items.each do |oi| %>
+                              <div class='col-md-6'>  
+                                <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                                <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                                <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+                              </div>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+                      <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           <% elsif !order.refunded && order.status == "Pending Refund"  %>
             <h4>This Is A Pending Refund</h4>

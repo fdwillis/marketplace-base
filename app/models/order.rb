@@ -2,7 +2,8 @@ class Order < ActiveRecord::Base
   belongs_to :user
   after_update :total_price
 
-  has_many :shipping_updates
+  has_many :shipping_updates, dependent: :destroy
+  has_many :refunds, dependent: :destroy
   has_many :order_items, dependent: :destroy
   has_many :users, through: :order_items
   

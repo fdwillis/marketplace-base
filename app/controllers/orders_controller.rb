@@ -214,6 +214,7 @@ class OrdersController < ApplicationController
 
       # label_url and tracking_number
       if transaction.object_status == "SUCCESS"
+        # @order.shipping_option needs to be the name of the selected label
         @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
         @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
         redirect_to orders_path
