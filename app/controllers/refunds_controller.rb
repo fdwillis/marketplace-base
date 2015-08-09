@@ -1,14 +1,17 @@
 class RefundsController < ApplicationController
   before_filter :authenticate_user!
   def index
-    @refunds = Order.all.where(merchant_id: current_user.id).where(status: "Pending")
+    @refunds = Refund.all.where(merchant_id: current_user.id).where(status: "Pending")
   end
   def create
     #Test refund for admin, might need to filter because admin doesnt have merchant_secret field
     #Track With Keen "refund requests"
     # let merchants handle refunds
     order = Order.find_by(uuid: params[:uuid])
-    order.refunds.create(amount: params[:amount], note: params[:note], refunded: false, uuid: SecureRandom.uuid, status: "Pending Refund")
+    
+    if order.refunds.map(&:amount).sum + params[:amount].to_f < order.total_price
+      order.refunds.create(amount: params[:amount], note: params[:note], refunded: false, uuid: SecureRandom.uuid, status: "Pending", merchant_id: order.merchant_id)
+    end
     redirect_to orders_path
     flash[:alert] = "Your Refund Is Pending"
   end

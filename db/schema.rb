@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150809183547) do
+ActiveRecord::Schema.define(version: 20150809192925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -109,13 +109,14 @@ ActiveRecord::Schema.define(version: 20150809183547) do
 
   create_table "refunds", force: :cascade do |t|
     t.integer  "order_id"
-    t.string   "amount"
+    t.decimal  "amount",      precision: 12, scale: 2
     t.string   "note"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
     t.boolean  "refunded"
     t.string   "uuid"
     t.string   "status"
+    t.integer  "merchant_id"
   end
 
   add_index "refunds", ["order_id"], name: "index_refunds_on_order_id", using: :btree
