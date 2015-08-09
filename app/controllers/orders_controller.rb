@@ -121,7 +121,7 @@ class OrdersController < ApplicationController
       Shippo.api_token = ENV['SHIPPO_KEY']
       address_from = Shippo::Address.create(
         :object_purpose => "PURCHASE",
-        :name => current_user.username,
+        :name => current_user.business_name,
         :company => current_user.business_name,
         :street1 => current_user.address,
         :city => current_user.address_city,
@@ -134,7 +134,7 @@ class OrdersController < ApplicationController
       
       address_to = Shippo::Address.create(
         :object_purpose => "PURCHASE",
-        :name => @user_order.username,
+        :name => @user_order.legal_name,
         :street1 => @shipping[0],
         :city => @shipping[1] ,
         :state => @shipping[2] ,
@@ -215,7 +215,7 @@ class OrdersController < ApplicationController
       # label_url and tracking_number
       if transaction.object_status == "SUCCESS"
         # @order.shipping_option needs to be the name of the selected label
-        @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
+        @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier], shipping_option: params[:shipping_option] )
         @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
         redirect_to orders_path
         flash[:notice] = "Label Sucessfully Generated"

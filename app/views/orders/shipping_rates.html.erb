@@ -6,11 +6,11 @@
 			Esitmated Days Till Delivery: <%= rate.days %><br>	
 			<%= number_to_currency(rate.amount_local, precision: 2) %><br>	
 			<%= rate.servicelevel_name %><br>	
-			<% if rate.servicelevel_terms %>
+			<% if !rate.servicelevel_terms.empty? %>
 				<em><strong>Restrictions:</strong></em> <%= rate.servicelevel_terms %><br>
 			<% else %>
 			<% end %>
-			<%= link_to "Select Label", select_label_path(price: (rate.amount_local.to_f * 100), carrier: rate.provider ,object_id: rate['object_id'], order_uuid: @order_uuid), class: 'btn btn-primary' %><br>	
+			<%= link_to "Select Label", select_label_path(shipping_option: rate.servicelevel_name, price: (rate.amount_local.to_f * 100), carrier: rate.provider ,object_id: rate['object_id'], order_uuid: @order_uuid), class: 'btn btn-primary' %><br>	
 		<br>
 		<br>
 		</div>
