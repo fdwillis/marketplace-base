@@ -39,14 +39,14 @@ ActiveRecord::Schema.define(version: 20150808232041) do
     t.string   "tracking_number"
     t.string   "shipping_option"
     t.decimal  "total_price",            precision: 12, scale: 2
-    t.datetime "created_at",                                                                              null: false
-    t.datetime "updated_at",                                                                              null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.integer  "user_id"
     t.boolean  "paid"
     t.decimal  "shipping_price",         precision: 12, scale: 2
     t.integer  "merchant_id"
     t.boolean  "refunded"
-    t.string   "carrier",                                         default: "Waiting For Tracking Number"
+    t.string   "carrier"
     t.string   "purchase_id"
     t.string   "stripe_charge_id"
     t.string   "application_fee"
@@ -252,7 +252,6 @@ ActiveRecord::Schema.define(version: 20150808232041) do
     t.decimal  "tax_rate",                           precision: 12, scale: 2
     t.string   "bitly_link"
     t.string   "bank_currency"
-    t.string   "stripe_shipping_charge"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

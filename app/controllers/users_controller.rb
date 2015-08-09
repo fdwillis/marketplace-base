@@ -21,31 +21,27 @@ class UsersController < ApplicationController
 
       if !params[:user][:card_number].nil?
         begin
+          card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
+          current_user.update_attributes(card_number: card_number)
+
           @token = Stripe::Token.create(
             :card => {
-              :number => params[:user][:card_number],
+              :number => @crypt.decrypt_and_verify(current_user.card_number),
               :exp_month => params[:user][:exp_month].to_i,
               :exp_year => params[:user][:exp_year].to_i,
               :cvc => params[:user][:cvc_number].to_i
             },
           )
-        rescue Stripe::CardError => e
-          redirect_to edit_user_registration_path
-          flash[:error] = "#{e}"
-          return
-        rescue => e
-          redirect_to edit_user_registration_path
-          flash[:error] = "#{e}"
-          return
-        end
-
-        begin
+          
           @charge = Stripe::Charge.create(
             :amount => 50,
             :currency => "usd",
             :source => @token.id,
             :description => "Validation Charge"
           )
+          
+          ch = Stripe::Charge.retrieve(@charge.id)
+          refund = ch.refunds.create
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
@@ -56,11 +52,6 @@ class UsersController < ApplicationController
           return
         end
 
-        ch = Stripe::Charge.retrieve(@charge.id)
-        refund = ch.refunds.create
-
-        card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
-        current_user.update_attributes(card_number: card_number)
       else 
         redirect_to edit_user_registration_path
         flash[:error] = "Your Card Could Not Be Confirmed"

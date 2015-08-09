@@ -172,58 +172,63 @@ class OrdersController < ApplicationController
   end
 
   def select_label
-    @order = Order.find_by(uuid: params[:order_uuid])
+    if current_user.merchant_ready?  
+      @order = Order.find_by(uuid: params[:order_uuid])
+      
+      sleep 10 # seconds
 
-    sleep 10 # seconds
+      transaction = Shippo::Transaction.create(rate: params[:object_id] )
 
-    transaction = Shippo::Transaction.create(rate: params[:object_id] )
+      # Wait for transaction to be proccessed
+      begin
+        @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+        @card = @crypt.decrypt_and_verify(current_user.card_number)
+        @token = User.new_token(current_user, @card)
+      rescue Stripe::CardError => e
+        redirect_to edit_user_registration_path
+        flash[:error] = "#{e}"
+        return
+      rescue => e
+        redirect_to edit_user_registration_path
+        flash[:error] = "#{e}"
+        return
+      end
 
-    # Wait for transaction to be proccessed
-    begin
-      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      @card = @crypt.decrypt_and_verify(current_user.card_number)
-      @token = User.new_token(current_user, @card)
-    rescue Stripe::CardError => e
-      redirect_to edit_user_registration_path
-      flash[:error] = "#{e}"
-      return
-    rescue => e
-      redirect_to edit_user_registration_path
-      flash[:error] = "#{e}"
-      return
-    end
+      begin
+        @shipping_cost = params[:price].to_i
+        @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 3.6) / 100).to_i ), @token.id)
+        @order.update_attributes(stripe_shipping_charge: @charge.id)
+      rescue Stripe::CardError => e
+        redirect_to edit_user_registration_path
+        flash[:error] = "#{e}"
+        return
+      rescue => e
+        redirect_to edit_user_registration_path
+        flash[:error] = "#{e}"
+        return
+      end
+      
 
-    begin
-      @shipping_cost = params[:price].to_i
-      @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 3.5) / 100) ), @token.id)
-      @order.update_attributes(stripe_shipping_charge: @charge.id)
-    rescue Stripe::CardError => e
-      redirect_to edit_user_registration_path
-      flash[:error] = "#{e}"
-      return
-    rescue => e
-      redirect_to edit_user_registration_path
-      flash[:error] = "#{e}"
-      return
-    end
-    
+      transaction = Shippo::Transaction.get(transaction["object_id"])
 
-    transaction = Shippo::Transaction.get(transaction["object_id"])
-
-    # label_url and tracking_number
-    if transaction.object_status == "SUCCESS"
-      @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
-      @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
-      redirect_to orders_path
-      flash[:notice] = "Label Sucessfully Generated"
-      puts "label_url: #{transaction.label_url}" 
-      puts "tracking_number: #{transaction.tracking_number}" 
-      return
+      # label_url and tracking_number
+      if transaction.object_status == "SUCCESS"
+        @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier] )
+        @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
+        redirect_to orders_path
+        flash[:notice] = "Label Sucessfully Generated"
+        puts "label_url: #{transaction.label_url}" 
+        puts "tracking_number: #{transaction.tracking_number}" 
+        return
+      else
+        redirect_to orders_path
+        flash[:error] = "Error Generating Label"
+        puts transaction.messages
+        return
+      end
     else
-      redirect_to orders_path
-      flash[:error] = "Error Generating Label"
-      puts transaction.messages
-      return
+      redirect_to edit_user_registration_path
+      flash[:error] = "You are missing a credit card or valid seller information"
     end
   end
 
