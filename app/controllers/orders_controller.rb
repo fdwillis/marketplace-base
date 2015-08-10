@@ -163,10 +163,10 @@ class OrdersController < ApplicationController
   end
 
   def shipping_rates
-    sleep 1
     Shippo.api_token = ENV['SHIPPO_KEY']
     shipment_id = params[:shipment_id]
     shipment = Shippo::Shipment.get(shipment_id)
+    sleep 3
     @rates = shipment.rates()
     @order_uuid = params[:order_uuid]
   end
@@ -177,40 +177,40 @@ class OrdersController < ApplicationController
       
       transaction = Shippo::Transaction.create(rate: params[:object_id] )
 
-      # Wait for transaction to be proccessed
-      begin
-        @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-        @card = @crypt.decrypt_and_verify(current_user.card_number)
-        @token = User.new_token(current_user, @card)
-      rescue Stripe::CardError => e
-        redirect_to edit_user_registration_path
-        flash[:error] = "#{e}"
-        return
-      rescue => e
-        redirect_to edit_user_registration_path
-        flash[:error] = "#{e}"
-        return
-      end
-
-      begin
-        @shipping_cost = params[:price].to_i
-        @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 3.6) / 100).to_i ), @token.id)
-        @order.update_attributes(stripe_shipping_charge: @charge.id)
-      rescue Stripe::CardError => e
-        redirect_to edit_user_registration_path
-        flash[:error] = "#{e}"
-        return
-      rescue => e
-        redirect_to edit_user_registration_path
-        flash[:error] = "#{e}"
-        return
-      end
-      
+      sleep 5
 
       transaction = Shippo::Transaction.get(transaction["object_id"])
 
       # label_url and tracking_number
       if transaction.object_status == "SUCCESS"
+        begin
+          @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+          @card = @crypt.decrypt_and_verify(current_user.card_number)
+          @token = User.new_token(current_user, @card)
+        rescue Stripe::CardError => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        end
+
+        begin
+          @shipping_cost = params[:price].to_i
+          @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 4) / 100).to_i ), @token.id)
+          @order.update_attributes(stripe_shipping_charge: @charge.id)
+        rescue Stripe::CardError => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        end
+
         # @order.shipping_option needs to be the name of the selected label
         @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier], shipping_option: params[:shipping_option] )
         @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})

@@ -76,11 +76,9 @@ ActiveRecord::Schema.define(version: 20150810194326) do
     t.string   "shipping_title"
     t.decimal  "shipping_price", precision: 12, scale: 2
     t.text     "keywords"
-    t.integer  "refund_id"
   end
 
   add_index "products", ["order_id"], name: "index_products_on_order_id", using: :btree
-  add_index "products", ["refund_id"], name: "index_products_on_refund_id", using: :btree
   add_index "products", ["slug"], name: "index_products_on_slug", unique: true, using: :btree
   add_index "products", ["user_id"], name: "index_products_on_user_id", using: :btree
 
@@ -112,16 +110,13 @@ ActiveRecord::Schema.define(version: 20150810194326) do
   create_table "refunds", force: :cascade do |t|
     t.integer  "order_id"
     t.integer  "amount"
-    t.text     "note"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.string   "note"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.boolean  "refunded"
     t.string   "uuid"
     t.string   "status"
     t.integer  "merchant_id"
-    t.string   "product_title"
-    t.string   "product_uuid"
-    t.integer  "product_quantity"
   end
 
   add_index "refunds", ["order_id"], name: "index_refunds_on_order_id", using: :btree
@@ -291,7 +286,6 @@ ActiveRecord::Schema.define(version: 20150810194326) do
   add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "users"
   add_foreign_key "products", "orders"
-  add_foreign_key "products", "refunds"
   add_foreign_key "products", "users"
   add_foreign_key "purchases", "products"
   add_foreign_key "purchases", "users"
