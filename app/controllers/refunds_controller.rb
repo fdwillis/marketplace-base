@@ -9,22 +9,28 @@ class RefundsController < ApplicationController
     # let merchants handle refunds
     order = Order.find_by(uuid: params[:uuid])
 
-    if order.refunds.map(&:amount).sum <= order.total_price
+    if params[:full_refund]
       debugger
-      redirect_to orders_path
-      return
-      
-      @refund = order.refunds.create(amount: params[:amount].to_f, note: params[:note], refunded: false, uuid: SecureRandom.uuid, status: "Pending", merchant_id: order.merchant_id)
-      params[:order_item_uuids].each do |uuid|
-        @return_item = Product.find_by(uuid: uuid)
-        @refund.returned_products.create(title: @return_item.title, uuid: uuid, price: 1)
-        debugger
-      end
-
+      @refund = order.refunds.create_with(note: params[:full_refund_note].downcase, refunded: false, uuid: SecureRandom.uuid, status: "Pending").find_or_create_by(order_uuid: order.uuid, amount: order.total_price.to_f, merchant_id: order.merchant_id)
+      @refund.save!
     else
-      redirect_to orders_path
-      flash[:error] = "Your Refund Request Amount Is Too Big"
-      return
+      if order.refunds.map(&:amount).sum <= order.total_price
+        debugger
+        redirect_to orders_path
+        return
+        
+        @refund = order.refunds.create(amount: params[:amount].to_f, note: params[:note], refunded: false, uuid: SecureRandom.uuid, status: "Pending", merchant_id: order.merchant_id)
+        params[:order_item_uuids].each do |uuid|
+          @return_item = Product.find_by(uuid: uuid)
+          @refund.returned_products.create(title: @return_item.title, uuid: uuid, price: 1)
+          debugger
+        end
+
+      else
+        redirect_to orders_path
+        flash[:error] = "Your Refund Request Amount Is Too Big"
+        return
+      end
     end
     redirect_to orders_path
     flash[:alert] = "Your Refund Is Pending"
