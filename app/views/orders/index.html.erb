@@ -139,7 +139,7 @@
                                   <div class='row'>  
                                     <div class='col-md-6'>  
                                       <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: oi.total_price) %>
+                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
                                     </div>
                                     <div class='col-md-6'>  
                                       <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
@@ -184,7 +184,7 @@
                                   <div class='row'>  
                                     <div class='col-md-6'>  
                                       <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: oi.total_price) %>
+                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
                                     </div>
                                     <div class='col-md-6'>  
                                       <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
