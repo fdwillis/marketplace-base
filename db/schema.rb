@@ -109,7 +109,7 @@ ActiveRecord::Schema.define(version: 20150810230254) do
 
   create_table "refunds", force: :cascade do |t|
     t.integer  "order_id"
-    t.integer  "amount"
+    t.decimal  "amount"
     t.string   "note"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
