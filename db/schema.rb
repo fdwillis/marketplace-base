@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150809192925) do
+ActiveRecord::Schema.define(version: 20150810194326) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -76,9 +76,11 @@ ActiveRecord::Schema.define(version: 20150809192925) do
     t.string   "shipping_title"
     t.decimal  "shipping_price", precision: 12, scale: 2
     t.text     "keywords"
+    t.integer  "refund_id"
   end
 
   add_index "products", ["order_id"], name: "index_products_on_order_id", using: :btree
+  add_index "products", ["refund_id"], name: "index_products_on_refund_id", using: :btree
   add_index "products", ["slug"], name: "index_products_on_slug", unique: true, using: :btree
   add_index "products", ["user_id"], name: "index_products_on_user_id", using: :btree
 
@@ -109,17 +111,31 @@ ActiveRecord::Schema.define(version: 20150809192925) do
 
   create_table "refunds", force: :cascade do |t|
     t.integer  "order_id"
-    t.decimal  "amount",      precision: 12, scale: 2
-    t.string   "note"
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
+    t.integer  "amount"
+    t.text     "note"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
     t.boolean  "refunded"
     t.string   "uuid"
     t.string   "status"
     t.integer  "merchant_id"
+    t.string   "product_title"
+    t.string   "product_uuid"
+    t.integer  "product_quantity"
   end
 
   add_index "refunds", ["order_id"], name: "index_refunds_on_order_id", using: :btree
+
+  create_table "returned_products", force: :cascade do |t|
+    t.string   "title"
+    t.string   "price"
+    t.string   "uuid"
+    t.integer  "refund_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "returned_products", ["refund_id"], name: "index_returned_products_on_refund_id", using: :btree
 
   create_table "shipping_addresses", force: :cascade do |t|
     t.string   "street"
@@ -275,10 +291,12 @@ ActiveRecord::Schema.define(version: 20150809192925) do
   add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "users"
   add_foreign_key "products", "orders"
+  add_foreign_key "products", "refunds"
   add_foreign_key "products", "users"
   add_foreign_key "purchases", "products"
   add_foreign_key "purchases", "users"
   add_foreign_key "refunds", "orders"
+  add_foreign_key "returned_products", "refunds"
   add_foreign_key "shipping_addresses", "users"
   add_foreign_key "shipping_options", "products"
   add_foreign_key "shipping_updates", "orders"

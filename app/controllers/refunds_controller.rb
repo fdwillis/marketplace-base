@@ -8,8 +8,19 @@ class RefundsController < ApplicationController
     #Track With Keen "refund requests"
     # let merchants handle refunds
     order = Order.find_by(uuid: params[:uuid])
-    if order.refunds.map(&:amount).sum + params[:amount].to_f <= order.total_price
-      order.refunds.create(amount: params[:amount], note: params[:note], refunded: false, uuid: SecureRandom.uuid, status: "Pending", merchant_id: order.merchant_id)
+
+    if order.refunds.map(&:amount).sum <= order.total_price
+      debugger
+      redirect_to orders_path
+      return
+      
+      @refund = order.refunds.create(amount: params[:amount].to_f, note: params[:note], refunded: false, uuid: SecureRandom.uuid, status: "Pending", merchant_id: order.merchant_id)
+      params[:order_item_uuids].each do |uuid|
+        @return_item = Product.find_by(uuid: uuid)
+        @refund.returned_products.create(title: @return_item.title, uuid: uuid, price: 1)
+        debugger
+      end
+
     else
       redirect_to orders_path
       flash[:error] = "Your Refund Request Amount Is Too Big"

@@ -1,6 +1,5 @@
 class Product < ActiveRecord::Base
 
-
   before_save :set_keywords
 
   default_scope {order ('updated_at DESC')}

@@ -12,7 +12,6 @@ class OrdersController < ApplicationController
 
   # POST /orders
   def create
-    sleep 5
     @product = Product.find_by(uuid: params[:uuid])
     @quantity = params[:quantity].to_i
     @current_orders = current_user.orders
@@ -164,7 +163,7 @@ class OrdersController < ApplicationController
   end
 
   def shipping_rates
-    sleep 10
+    sleep 1
     Shippo.api_token = ENV['SHIPPO_KEY']
     shipment_id = params[:shipment_id]
     shipment = Shippo::Shipment.get(shipment_id)
@@ -176,8 +175,6 @@ class OrdersController < ApplicationController
     if current_user.merchant_ready?  
       @order = Order.find_by(uuid: params[:order_uuid])
       
-      sleep 10 # seconds
-
       transaction = Shippo::Transaction.create(rate: params[:object_id] )
 
       # Wait for transaction to be proccessed

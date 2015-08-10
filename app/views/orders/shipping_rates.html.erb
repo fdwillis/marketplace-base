@@ -1,5 +1,5 @@
 <div class='container'>
-	<h1>Order Shipping Cost <%= number_to_currency(((Order.find_by(uuid: @order_uuid).shipping_price) * 0.60), precision: 2) %></h1>
+	<h1>Break Even Shipping Cost <%= number_to_currency(((Order.find_by(uuid: @order_uuid).shipping_price) * 0.60), precision: 2) %></h1>
 	<% @rates.each do |rate| %>
 		<div class='col-md-12'>	
 			<%= rate.provider %><br>	
