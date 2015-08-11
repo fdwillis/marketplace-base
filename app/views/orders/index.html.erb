@@ -432,7 +432,7 @@
               </div>
             <% else %>
               <div class="form-group col-md-12">
-                <%= link_to " Print Tracking Label", "https://shippo-delivery-east.s3.amazonaws.com/66fb836712ca4673b247b439b4248b3b.pdf?Signature=y1fLWC6J818NzdgjESKfUrvHmqI%3D&Expires=1470418723&AWSAccessKeyId=AKIAJTHP3LLFMYAWALIA", class: 'btn btn-info form-control form-group', 'target' => "_blank" %>
+                <%= link_to " Print Tracking Label", order.tracking_url, class: 'btn btn-info form-control form-group', 'target' => "_blank" %>
               </div>
               <div class="form-group col-md-12">
                 <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control form-group', 'data-toggle' => 'modal' %>

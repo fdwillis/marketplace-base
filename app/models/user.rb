@@ -96,8 +96,12 @@ class User < ActiveRecord::Base
         customer: @customer_account.customer_id ,
         description: 'MarketplaceBase',
         application_fee: @fee,
+        metadata: {'MarketPlace' => 'MarketplaceBase'},
       },
-      {stripe_account: merchant_account_id}
+      {
+        stripe_account: merchant_account_id,
+        metadata: {'MarketPlace' => 'MarketplaceBase'}
+      }
         )  
     else
       
@@ -116,8 +120,12 @@ class User < ActiveRecord::Base
           customer: @customer.id,
           description: 'MarketplaceBase',
           application_fee: @fee,
+          metadata: {'MarketPlace' => 'MarketplaceBase'},
         },
-        {stripe_account: merchant_account_id}
+        {
+          stripe_account: merchant_account_id,
+          metadata: {'MarketPlace' => 'MarketplaceBase'}
+        }
         )
       
     end
@@ -136,6 +144,7 @@ class User < ActiveRecord::Base
         currency: 'USD',
         customer: @customer_account.customer_id ,
         description: 'MarketplaceBase',
+        metadata: {'MarketPlace' => 'MarketplaceBase'},
       )  
     else
       @customer = Stripe::Customer.create(
@@ -151,12 +160,14 @@ class User < ActiveRecord::Base
         currency: 'USD',
         customer: @customer.id,
         description: 'MarketplaceBase',
+        metadata: {'MarketPlace' => 'MarketplaceBase'},
       )
     end
 
   end
 
   def self.new_token(current_user, card)
+
     Stripe::Token.create(
       card: {
         number: card,
@@ -168,6 +179,7 @@ class User < ActiveRecord::Base
         address_zip: current_user.address_zip,
         address_state: current_user.address_state,
         address_country: current_user.country_name,
+        "metadata": {'MarketPlace' => 'MarketplaceBase'}
       },
     )
   end

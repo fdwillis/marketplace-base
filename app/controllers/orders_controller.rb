@@ -180,10 +180,10 @@ class OrdersController < ApplicationController
 
       sleep 5
 
-      transaction = Shippo::Transaction.get(transaction["object_id"])
+      @transaction = Shippo::Transaction.get(transaction["object_id"])
 
       # label_url and tracking_number
-      if transaction.object_status == "SUCCESS"
+      if @transaction.object_status == "SUCCESS"
         begin
           @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
           @card = @crypt.decrypt_and_verify(current_user.card_number)
@@ -213,17 +213,16 @@ class OrdersController < ApplicationController
         end
 
         # @order.shipping_option needs to be the name of the selected label
-        @order.update_attributes(tracking_url: transaction.label_url, tracking_number: transaction.tracking_number, carrier: params[:carrier], shipping_option: params[:shipping_option] )
-        @tracking_number = AfterShip::V4::Tracking.create( transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
+        debugger
+        @order.update_attributes(tracking_url: @transaction.label_url, tracking_number: @transaction.tracking_number, carrier: params[:carrier], shipping_option: params[:shipping_option] )
+        @tracking_number = AfterShip::V4::Tracking.create( @transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
         redirect_to orders_path
-        flash[:notice] = "Label Sucessfully Generated"
-        puts "label_url: #{transaction.label_url}" 
-        puts "tracking_number: #{transaction.tracking_number}" 
+        flash[:notice] = "Label Sucessfully Generated \nlabel_url: #{@transaction.label_url} \ntracking_number: #{@transaction.tracking_number}" 
         return
       else
         redirect_to orders_path
         flash[:error] = "Error Generating Label"
-        puts transaction.messages
+        puts @transaction.messages
         return
       end
     else

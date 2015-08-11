@@ -56,12 +56,13 @@ class PurchasesController < ApplicationController
         end
       else
         begin
+          @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
+          debugger
           @order.order_items.each do |oi|
             @product = Product.find_by(uuid: oi.uuid)
             @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
           end
 
-          @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
 
           @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
                                    paid: true, application_fee: @charge.application_fee)
