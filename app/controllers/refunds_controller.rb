@@ -48,17 +48,25 @@ class RefundsController < ApplicationController
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       Stripe.api_key = @crypt.decrypt_and_verify((User.find(@order.merchant_id)).merchant_secret_key)
 
-      ch = Stripe::Charge.retrieve(params[:refund_id])
-      refund = ch.refunds.create(refund_application_fee: true, amount: @amount)
+      begin
+        ch = Stripe::Charge.retrieve(params[:refund_id])
+        refund = ch.refunds.create(refund_application_fee: true, amount: @amount)
+        
+      rescue => e
+        redirect_to refunds_path
+        @order.refunds.find_by(uuid: params[:refund_uuid]).update_attributes(status: 'Refunded', refunded: true)
+        flash[:error] = "Request Has Already Been Refunded"
+        return
+      end
 
       if @order.total_price == ((@amount.to_f) / 100)
         @order.update_attributes(status: "Refunded", refunded: true)
+      end
 
-        if @order.stripe_shipping_charge.present?
-          Stripe.api_key = Rails.configuration.stripe[:secret_key]
-          ch = Stripe::Charge.retrieve(@order.stripe_shipping_charge)
-          refund = ch.refunds.create(refund_application_fee: true, amount: ch.amount)
-        end
+      if @order.stripe_shipping_charge.present?
+        Stripe.api_key = Rails.configuration.stripe[:secret_key]
+        ch = Stripe::Charge.retrieve(@order.stripe_shipping_charge)
+        refund = ch.refunds.create(amount: ch.amount)
       end
     end
 
@@ -66,6 +74,9 @@ class RefundsController < ApplicationController
       @product = Product.find_by(uuid: oi.uuid)
       @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
     end
+
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+    sleep 1
 
     @order.refunds.find_by(uuid: params[:refund_uuid]).update_attributes(status: 'Refunded', refunded: true)
     redirect_to refunds_path
