@@ -96,17 +96,13 @@ class User < ActiveRecord::Base
         customer: @customer_account.customer_id ,
         description: 'MarketplaceBase',
         application_fee: @fee,
-        metadata: {'MarketPlace' => 'MarketplaceBase'},
       },
-      {
-        stripe_account: merchant_account_id,
-        metadata: {'MarketPlace' => 'MarketplaceBase'}
-      }
+      {stripe_account: merchant_account_id}
         )  
     else
       
       @customer = Stripe::Customer.create(
-        :description => "Customer for test@example.com",
+        :description => "Customer For MarketplaceBase",
         :source => @token
       )
     
@@ -120,12 +116,9 @@ class User < ActiveRecord::Base
           customer: @customer.id,
           description: 'MarketplaceBase',
           application_fee: @fee,
-          metadata: {'MarketPlace' => 'MarketplaceBase'},
+          
         },
-        {
-          stripe_account: merchant_account_id,
-          metadata: {'MarketPlace' => 'MarketplaceBase'}
-        }
+        {stripe_account: merchant_account_id}
         )
       
     end
@@ -144,11 +137,10 @@ class User < ActiveRecord::Base
         currency: 'USD',
         customer: @customer_account.customer_id ,
         description: 'MarketplaceBase',
-        metadata: {'MarketPlace' => 'MarketplaceBase'},
       )  
     else
       @customer = Stripe::Customer.create(
-        :description => "Customer for test@example.com",
+        :description => "Customer For MarketplaceBase",
         :source => token
       )
     
@@ -160,7 +152,6 @@ class User < ActiveRecord::Base
         currency: 'USD',
         customer: @customer.id,
         description: 'MarketplaceBase',
-        metadata: {'MarketPlace' => 'MarketplaceBase'},
       )
     end
 
@@ -179,7 +170,6 @@ class User < ActiveRecord::Base
         address_zip: current_user.address_zip,
         address_state: current_user.address_state,
         address_country: current_user.country_name,
-        "metadata": {'MarketPlace' => 'MarketplaceBase'}
       },
     )
   end
