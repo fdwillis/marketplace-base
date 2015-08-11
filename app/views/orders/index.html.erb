@@ -94,7 +94,7 @@
               </div>
             </div>
             <% if order.refunds.present? %>
-              <div class='col-md-6'>
+              <div class='col-md-12'>
                 <%= link_to "Refund Details", "##{order.uuid}_refund_details", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
                 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund_details">
                   <div class="modal-dialog modal-sm">
@@ -104,11 +104,11 @@
                       </div>
                       <div class="modal-body">
                         <div class="container-fluid text-center">
-                          <% order.refunds.each do |refund| %>
+                          <h4><u><strong>Status:</strong></u> <%= order.refunds.first.status %><br></h4>
+                          <% order.refunds.first.returned_products.each do |product| %>
                             <div class='col-md-6'>  
-                              <h4><u><strong>Reason:</strong></u> <%= refund.note.titleize %><br></h4>
-                              <h4><u><strong>Price:</strong></u> <%= number_to_currency(refund.amount, precision:2) %><br></h4>
-                              <h4><u><strong>Status:</strong></u> <%= refund.status %><br></h4>
+                              <h4><u><strong>Reason For Refund:</strong></u> <%= product.note.titleize %><br></h4>
+                              <h4><u><strong>Amount To Refund:</strong></u> <%= number_to_currency(product.price, precision:2) %><br></h4>
                             </div>
                           <% end %>
                         </div>
@@ -116,57 +116,6 @@
                           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class='col-md-6'>
-                <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                      </div>
-                      <%= form_tag refunds_path(uuid: order.uuid) do %>
-                        <div class="modal-body">
-                          <div class="container-fluid text-center">
-                              <div class='row form-group'>  
-                                <div class='row form-group'>  
-                                  <h3>Check Box For Full Refund</h3>
-                                  <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
-                                </div>
-                                <small>OR</small>
-                                <h3>Partial Refund</h3>
-                                <% order.order_items.each do |oi| %> 
-                                  <div class='row'>  
-                                    <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
-                                  </div>
-                                  <div class='row'>  
-                                    <div class='col-md-6'>  
-                                      <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
-                                    </div>
-                                    <div class='col-md-6'>  
-                                      <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
-                                    </div>
-                                  </div>
-                                <% end %>
-                              </div>
-                              <div class='row'>  
-                                <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
-                                <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
-                                <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
-                                <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
-                              </div>
-                          </div>
-                          <div class='modal-footer actions'>
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                            <%= submit_tag "Request Refund", class: 'btn btn-success' %>
-                          </div>
-                        </div>
-                      <% end %>
                     </div>
                   </div>
                 </div>
@@ -198,7 +147,7 @@
                                   <div class='row'>  
                                     <div class='col-md-6'>  
                                       <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", step: 'any', max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
                                     </div>
                                     <div class='col-md-6'>  
                                       <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
@@ -418,6 +367,10 @@
           </div>
           <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
           <!-- Large modal -->
+            <div class="form-group col-md-12">  
+              <%= link_to "Order Details", "##{order.uuid}merchant", class: 'btn btn-warning form-control form-group', 'data-toggle' => 'modal'  %>
+            </div>
+
             <% if order.tracking_number.nil? %>
               <div class="form-group col-md-12">  
                 <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
@@ -433,9 +386,6 @@
                 <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control form-group', 'data-toggle' => 'modal' %>
               </div>
             <% end %>
-            <div class="form-group col-md-12">  
-              <%= link_to "Order Details", "##{order.uuid}merchant", class: 'btn btn-warning form-control form-group', 'data-toggle' => 'modal'  %>
-            </div>
           <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>">
             <div class="modal-dialog modal-sm">
               <div class="modal-content">

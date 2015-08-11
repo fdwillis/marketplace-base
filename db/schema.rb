@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150810230254) do
+ActiveRecord::Schema.define(version: 20150811110157) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,6 +54,7 @@ ActiveRecord::Schema.define(version: 20150810230254) do
     t.boolean  "active"
     t.string   "tracking_url"
     t.string   "stripe_shipping_charge"
+    t.decimal  "refund_amount"
   end
 
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
@@ -129,6 +130,7 @@ ActiveRecord::Schema.define(version: 20150810230254) do
     t.integer  "refund_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string   "note"
   end
 
   add_index "returned_products", ["refund_id"], name: "index_returned_products_on_refund_id", using: :btree

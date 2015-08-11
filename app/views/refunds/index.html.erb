@@ -5,15 +5,11 @@
 			<div class='col-md-3'>	
 				<%= "Order Total Price: #{number_to_currency(refund.order.total_price, precision: 2)}" %><br>
 			  <%= "Refund Request: #{ number_to_currency((refund.amount), precision: 2)}" %><br>
-			  <%= "Reason: #{refund.note.titleize}" %><br>
 			  <%= "Status: #{refund.status}" %><br>
 			  <%= "Submitted: #{refund.created_at.to_date.strftime("%B #{refund.created_at.to_date.day.ordinalize}, %Y")}" %><br>
 		  	<div class="col-md-12">
 					<div class="form-group"> 
 					  <%= link_to "Refund Details", "##{refund.order.uuid}details", class: 'btn btn-info form-control', 'data-toggle' => 'modal'  %>
-					</div>
-					<div class="form-group"> 
-					  <%= link_to "Issue Refund", refund_path(id: refund.id, refund_uuid: refund.uuid, refund_id: refund.order.stripe_charge_id, price: refund.amount * 100), class: 'btn btn-danger form-control', method: :put, data: {confirm: "Are You Sure You Want To Issue A Refund?"} %>
 					</div>
 	        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= refund.order.uuid %>details">
 	          <div class="modal-dialog modal-sm">
@@ -22,28 +18,36 @@
 	                <h2>Refund Details For <br><u><em><strong><%= refund.order.uuid %></strong></em></u></h2>
 	              </div>
 	              <div class="modal-body">
-	                <div class="container-fluid text-center">
-	                  <% if refund.amount == Order.find_by(uuid: refund.order.uuid).total_price %>
-	                  	<h4>Requesting Full Refund For The Following Reason:</h4>
-		                  	<% if refund.note.empty? %>
-			                  	<h5>None</h5>
-			                  <% else %>
-			                  	<h5><%= refund.note %></h5>
+		              <%= form_tag refund_path(id: refund.id, refund_id: refund.order.stripe_charge_id), method: :put do %>
+		                <div class="container-fluid text-center">
+		                  <% if refund.amount == Order.find_by(uuid: refund.order.uuid).total_price %>
+		                  	<h4>Requesting Full Refund For The Following Reason:</h4>
+			                  	<% if refund.note.empty? %>
+				                  	<h5>None</h5>
+				                  <% else %>
+				                  	<h5><%= refund.note %></h5>
+				                  <% end %>
+		                  <% else %>
+			                  <% refund.returned_products.each do |product| %>
+			                    <div class='col-md-6 form-group'>  
+			                      <h4><u><strong>Item:</strong></u> <%= product.title %><br></h4>
+			                      <h4><u><strong>Reason For Refund:</strong></u> <%= product.note %><br></h4>
+			                      <h4><u><strong>Amount To Refund:</strong></u> <%= number_to_currency(product.price, precision:2) %><br></h4>
+			                    </div>
 			                  <% end %>
-	                  <% else %>
-		                  <% refund.returned_products.each do |product| %>
-		                    <div class='col-md-6'>  
-				                  <h3>Shipping: <%= refund.order.shipping_option %> (<%= number_to_currency(refund.order.shipping_price, precision: 2)%>)</h3>
-		                      <h4><u><strong>Item:</strong></u> <%= product.title %><br></h4>
-		                      <h4><u><strong>Price:</strong></u> <%= number_to_currency(product.price, precision:2) %><br></h4>
-		                      <h4><u><strong>Quantity:</strong></u> <%= product.quantity %><br></h4>
-		                    </div>
 		                  <% end %>
-	                  <% end %>
-	                </div>
-	                <div class='modal-footer actions'>
-	                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-	                </div>
+
+		                  <h3>Total Requested Refund Amount</h3>
+		                  <h3><%= number_to_currency((refund.amount), precision: 2) %></h3>
+		                  <hr>
+		                  <h3>Issue Refund Amount</h3>
+		                  <%= number_field_tag :refund_amount, nil, class: 'form-control text-center', step: 'any', placeholder: "Enter Refund Amount"  %>
+		                </div>
+		                <div class='modal-footer actions'>
+		                	<%= submit_tag "Issue Refund", class: 'btn btn-success' %>
+		                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+		                </div>
+		              <% end %>
 	              </div>
 	            </div>
 	          </div>
