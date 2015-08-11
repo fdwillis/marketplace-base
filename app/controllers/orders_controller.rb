@@ -7,7 +7,7 @@ class OrdersController < ApplicationController
     @pending = Order.all.where(user_id: current_user.id).where(paid: nil)
     @suspended = Order.all.where(user_id: current_user.id).where(active: false)
     @paid = Order.all.where(user_id: current_user.id).where(paid: true).order("updated_at DESC")
-    @orders = Order.all.where(merchant_id: current_user.id).order("updated_at DESC").where(paid: true)
+    @orders = Order.all.where(merchant_id: current_user.id).order("updated_at DESC").where(paid: true).where(refunded: (false || nil))
   end
 
   # POST /orders

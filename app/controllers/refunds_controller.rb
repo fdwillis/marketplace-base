@@ -10,8 +10,7 @@ class RefundsController < ApplicationController
     order = Order.find_by(uuid: params[:uuid])
 
     if params[:full_refund]
-      debugger
-      @refund = order.refunds.create_with(note: params[:full_refund_note].downcase, refunded: false, uuid: SecureRandom.uuid, status: "Pending").find_or_create_by(order_uuid: order.uuid, amount: order.total_price.to_f, merchant_id: order.merchant_id)
+      @refund = order.refunds.create_with(note: params[:full_refund_note].downcase, refunded: false, uuid: SecureRandom.uuid, status: "Pending").find_or_create_by(order_uuid: order.uuid, amount: order.total_price, merchant_id: order.merchant_id)
       @refund.save!
     else
       if order.refunds.map(&:amount).sum <= order.total_price
@@ -37,9 +36,6 @@ class RefundsController < ApplicationController
   end
   def update
     #Track With Keen "refunds fullfilled"
-    debugger
-    redirect_to refunds_path
-    return
 
     @amount = params[:price].to_i
 
@@ -55,7 +51,15 @@ class RefundsController < ApplicationController
       ch = Stripe::Charge.retrieve(params[:refund_id])
       refund = ch.refunds.create(refund_application_fee: true, amount: @amount)
 
-      Stripe.api_key = Rails.configuration.stripe[:secret_key]
+      if @order.total_price == ((@amount.to_f) / 100)
+        @order.update_attributes(status: "Refunded", refunded: true)
+
+        if @order.stripe_shipping_charge.present?
+          Stripe.api_key = Rails.configuration.stripe[:secret_key]
+          ch = Stripe::Charge.retrieve(@order.stripe_shipping_charge)
+          refund = ch.refunds.create(refund_application_fee: true, amount: ch.amount)
+        end
+      end
     end
 
     @order.order_items.each do |oi|
@@ -63,8 +67,9 @@ class RefundsController < ApplicationController
       @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
     end
 
-    order.update_attributes(status: "Refunded", refunded: true)
-    redirect_to refunds_path, notice: "Refund Fullfilled"
+    @order.refunds.find_by(uuid: params[:refund_uuid]).update_attributes(status: 'Refunded', refunded: true)
+    redirect_to refunds_path
+    flash[:notice] = "Refund Fullfilled"
   end
 end
 
