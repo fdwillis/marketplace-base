@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150811110157) do
+ActiveRecord::Schema.define(version: 20150811121859) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,8 +39,8 @@ ActiveRecord::Schema.define(version: 20150811110157) do
     t.string   "tracking_number"
     t.string   "shipping_option"
     t.decimal  "total_price",            precision: 12, scale: 2
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
+    t.datetime "created_at",                                                    null: false
+    t.datetime "updated_at",                                                    null: false
     t.integer  "user_id"
     t.boolean  "paid"
     t.decimal  "shipping_price",         precision: 12, scale: 2
@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(version: 20150811110157) do
     t.boolean  "active"
     t.string   "tracking_url"
     t.string   "stripe_shipping_charge"
-    t.decimal  "refund_amount"
+    t.decimal  "refund_amount",                                   default: 0.0
   end
 
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
@@ -112,13 +112,14 @@ ActiveRecord::Schema.define(version: 20150811110157) do
     t.integer  "order_id"
     t.decimal  "amount"
     t.string   "note"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.boolean  "refunded"
     t.string   "uuid"
     t.string   "status"
     t.integer  "merchant_id"
     t.string   "order_uuid"
+    t.decimal  "amount_issued", default: 0.0
   end
 
   add_index "refunds", ["order_id"], name: "index_refunds_on_order_id", using: :btree

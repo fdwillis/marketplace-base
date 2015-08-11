@@ -18,7 +18,7 @@
 	                <h2>Refund Details For <br><u><em><strong><%= refund.order.uuid %></strong></em></u></h2>
 	              </div>
 	              <div class="modal-body">
-		              <%= form_tag refund_path(id: refund.id, refund_id: refund.order.stripe_charge_id), method: :put do %>
+		              <%= form_tag refund_path(id: refund.id, refund_id: refund.order.stripe_charge_id, refund_uuid: refund.uuid), method: :put do %>
 		                <div class="container-fluid text-center">
 		                  <% if refund.amount == Order.find_by(uuid: refund.order.uuid).total_price %>
 		                  	<h4>Requesting Full Refund For The Following Reason:</h4>
@@ -29,16 +29,20 @@
 				                  <% end %>
 		                  <% else %>
 			                  <% refund.returned_products.each do |product| %>
-			                    <div class='col-md-6 form-group'>  
-			                      <h4><u><strong>Item:</strong></u> <%= product.title %><br></h4>
-			                      <h4><u><strong>Reason For Refund:</strong></u> <%= product.note %><br></h4>
-			                      <h4><u><strong>Amount To Refund:</strong></u> <%= number_to_currency(product.price, precision:2) %><br></h4>
+				                  <div class='row'>  
+				                    <div class='col-md-6 form-group'>  
+				                      <h4><u><strong>Item:</strong></u> <%= product.title %><br></h4>
+				                      <h4><u><strong>Reason For Refund:</strong></u> <%= product.note %><br></h4>
+				                      <h4><u><strong>Amount To Refund:</strong></u> <%= number_to_currency(product.price, precision:2) %><br></h4>
+				                    </div>
 			                    </div>
 			                  <% end %>
 		                  <% end %>
 
-		                  <h3>Total Requested Refund Amount</h3>
-		                  <h3><%= number_to_currency((refund.amount), precision: 2) %></h3>
+		                  <h3>Refund Request Amount</h3>
+		                  <h4><%= "#{ number_to_currency((refund.amount), precision: 2)}" %><h4><br>
+		                  <h3>Max Refund Amount</h3>
+		                  <h4><%= number_to_currency(refund.order.total_price - refund.order.refund_amount, precision: 2) %></h4>
 		                  <hr>
 		                  <h3>Issue Refund Amount</h3>
 		                  <%= number_field_tag :refund_amount, nil, class: 'form-control text-center', step: 'any', placeholder: "Enter Refund Amount"  %>

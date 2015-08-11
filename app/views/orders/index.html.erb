@@ -94,7 +94,59 @@
               </div>
             </div>
             <% if order.refunds.present? %>
-              <div class='col-md-12'>
+              <div class='col-md-6'>
+                <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
+                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
+                  <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                      <div class="modal-header text-center">
+                        <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                      </div>
+                      <%= form_tag refunds_path(uuid: order.uuid) do %>
+                        <div class="modal-body">
+                          <div class="container-fluid text-center">
+                              <div class='row form-group'>  
+                                <div class='row form-group'>  
+                                  <h3>Check Box For Full Refund</h3>
+                                  <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
+                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                </div>
+                                <small>OR</small>
+                                <h3>Partial Refund</h3>
+                                <% order.order_items.each do |oi| %> 
+                                  <div class='row'>  
+                                    <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
+                                  </div>
+                                  <div class='row'>  
+                                    <div class='col-md-6'>  
+                                      <%= hidden_field_tag("uuids[]", oi.uuid) %>
+                                      <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                    </div>
+                                    <div class='col-md-6'>  
+                                      <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
+                                    </div>
+                                  </div>
+                                <% end %>
+                              </div>
+                              <div class='row'>  
+                                <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
+                                <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
+                                <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
+                                <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
+                                <h4>Total Refunded: <%= number_to_currency(order.refund_amount, precision: 2)%></h4>
+                              </div>
+                          </div>
+                          <div class='modal-footer actions'>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                            <%= submit_tag "Request Refund", class: 'btn btn-success' %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class='col-md-6'>
                 <%= link_to "Refund Details", "##{order.uuid}_refund_details", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
                 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund_details">
                   <div class="modal-dialog modal-sm">
