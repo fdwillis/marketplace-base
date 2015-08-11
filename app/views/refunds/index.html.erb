@@ -13,7 +13,7 @@
 					  <%= link_to "Refund Details", "##{refund.order.uuid}details", class: 'btn btn-info form-control', 'data-toggle' => 'modal'  %>
 					</div>
 					<div class="form-group"> 
-					  <%= link_to "Issue Refund", refund_path(id: refund.id, refund_uuid: refund.uuid, refund_id: refund.order.stripe_charge_id, price: refund.amount * 100), class: 'btn btn-danger form-control', method: :put %>
+					  <%= link_to "Issue Refund", refund_path(id: refund.id, refund_uuid: refund.uuid, refund_id: refund.order.stripe_charge_id, price: refund.amount * 100), class: 'btn btn-danger form-control', method: :put, data: {confirm: "Are You Sure You Want To Issue A Refund?"} %>
 					</div>
 	        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= refund.order.uuid %>details">
 	          <div class="modal-dialog modal-sm">

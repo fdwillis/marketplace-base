@@ -200,7 +200,7 @@ class OrdersController < ApplicationController
 
         begin
           @shipping_cost = params[:price].to_i
-          @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 4) / 100).to_i ), @token.id)
+          @charge = User.charge_for_admin(current_user, (@shipping_cost + ((@shipping_cost * 5) / 100).to_i ), @token.id)
           @order.update_attributes(stripe_shipping_charge: @charge.id)
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
