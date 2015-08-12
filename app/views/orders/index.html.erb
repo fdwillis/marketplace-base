@@ -1,188 +1,314 @@
-<div class='row'>
-  <div class='container'>
-    <h1>Submitted Orders</h1>
-    <div class="tab-v2">
+<br>
+<br>
+<br>
+<div class="tab-v2">
+  <div class='row'>
+    <ul class="nav nav-pills col-md-4 col-md-offset-4">
+      <li class=""><a href="#submitted_orders" data-toggle="tab" aria-expanded="false">Submitted Orders <span class="badge"> <%= @paid.count %></span></a></li>
+      <li class=""><a href="#pending_orders" data-toggle="tab" aria-expanded="false">Pending Orders <span class="badge"> <%= @pending.count %></span></a></li>
+      <li class=""><a href="#saved_orders" data-toggle="tab" aria-expanded="false">Saved Orders <span class="badge"> <%= @suspended.count %></span></a></li>
+      <% if current_user.admin? || current_user.merchant? %> 
+        <li class=""><a href="#store_orders" data-toggle="tab" aria-expanded="false">Store Orders <span class="badge"> <%= @orders.count %></span></a></li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="tab-content">
+    <div class="tab-pane fade" id="submitted_orders">
       <div class='row'>
-        <ul class="nav nav-pills col-md-4 col-md-offset-4">
-          <li class=""><a href="#customer_pending" data-toggle="tab" aria-expanded="false">Pending Orders <span class="badge"> <%= @paid.where(tracking_number: nil).count %></span></a></li>
-          <li class=""><a href="#customer_pro" data-toggle="tab" aria-expanded="false">Processed Orders <span class="badge"> <%= @paid.where.not(tracking_number: nil).count %></span></a></li>
-        </ul>
-      </div>
-      <div class="tab-content">
-        <div class="tab-pane fade" id="customer_pending">
-          <div class='row'>
-            <h1 class='text-center'><%= @paid.where(tracking_number: nil).count %> Pending Orders</h1>
-            <hr>
-            <% @paid.where(tracking_number: nil).each do |order| %>
-              <div class="form-group col-md-4">
-                <div class="row form-group">
-                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                    <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                    Ship To: <small><%= order.ship_to %></small><br>
-                    <%= "Carrier: #{order.carrier}" %><br>
-                    <%= "Tracking Number: #{order.tracking_number}" %><br>
-                    <%= "Status: #{order.status}" %>
-                </div>
-                <div class="row form-group">
-                  <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
-                </div>
-                <div class="row form-group">
-                  <div class="col-md-12">
-                    <%= link_to "Order Details", "##{order.uuid}details", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
-                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details">
-                      <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                          <div class="modal-header text-center">
-                            <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                          </div>
-                          <div class="modal-body">
-                            <div class="container-fluid text-center">
-                              <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
-                              <% order.order_items.each do |oi| %>
-                                <div class='col-md-6'>  
-                                  <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
-                                  <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
-                                  <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+        <div class='container'>
+          <h1>Submitted Orders</h1>
+          <div class="tab-v2">
+            <div class='row'>
+              <ul class="nav nav-pills col-md-4 col-md-offset-4">
+                <li class=""><a href="#customer_pending" data-toggle="tab" aria-expanded="false">Waiting Orders <span class="badge"> <%= @paid.where(tracking_number: nil).count %></span></a></li>
+                <li class=""><a href="#customer_pro" data-toggle="tab" aria-expanded="false">Processed Orders <span class="badge"> <%= @paid.where.not(tracking_number: nil).count %></span></a></li>
+              </ul>
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane fade" id="customer_pending">
+                <div class='row'>
+                  <h1 class='text-center'><%= @paid.where(tracking_number: nil).count %> Pending Orders</h1>
+                  <hr>
+                  <% @paid.where(tracking_number: nil).each do |order| %>
+                    <div class="form-group col-md-4">
+                      <div class="row form-group">
+                        <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                          <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                          Ship To: <small><%= order.ship_to %></small><br>
+                          <%= "Carrier: #{order.carrier}" %><br>
+                          <%= "Tracking Number: #{order.tracking_number}" %><br>
+                          <%= "Status: #{order.status}" %>
+                      </div>
+                      <div class="row form-group">
+                        <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
+                      </div>
+                      <div class="row form-group">
+                        <div class="col-md-12">
+                          <%= link_to "Order Details", "##{order.uuid}details", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
+                          <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details">
+                            <div class="modal-dialog modal-sm">
+                              <div class="modal-content">
+                                <div class="modal-header text-center">
+                                  <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
                                 </div>
-                              <% end %>
-                            </div>
-                            <div class='modal-footer actions'>
-                              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row form-group">
-                  <% if !order.paid? %>
-                    <div class='col-md-6 form-group'>    
-                      <%= link_to "Order Now #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success form-control', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
-                    </div>
-                    <div class='col-md-6 form-group'>    
-                      <%= link_to "Cancel Order", order_path(order.id, uuid: order.uuid), method: :delete, data: {confirm: "Cancel this order?" }, class: 'btn btn-danger form-control' %>
-                    </div>
-                    <div class='col-md-12'>
-                      <%= link_to "Save Order", order_path(order.id), class: 'btn btn-info form-control', method: :delete %>
-                    </div>
-                  <% end %>
-                  <% if !order.refunded && order.status == "Paid" %>
-                    <div class='col-md-12 form-group'>  
-                      <% if order.tracking_number.nil? %> 
-                        <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
-                      <% else %>
-                        <%= link_to "Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
-                      <% end %>
-                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
-                        <div class="modal-dialog modal-sm">
-                          <div class="modal-content">
-                            <div class="modal-header text-center">
-                              <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                            </div>
-                            <div class="modal-body">
-                              <div class="container-fluid text-center">
-                                <% order.shipping_updates.each do |update| %>
-                                  <div class="row">  
-                                    <div class='form-group'>  
-                                      <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
-                                    </div>
-                                    <div class='form-group'>  
-                                      <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
-                                    </div>
-                                    <div class='form-group'>  
-                                      <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
-                                    </div>
-                                    <hr>
-                                  </div>
-                                <% end %>
-                              </div>
-                              <div class='modal-footer actions'>
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <% if order.refunds.present? %>
-                      <div class='col-md-6'>
-                        <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
-                        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
-                          <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                              <div class="modal-header text-center">
-                                <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                              </div>
-                              <%= form_tag refunds_path(uuid: order.uuid) do %>
                                 <div class="modal-body">
                                   <div class="container-fluid text-center">
-                                      <div class='row form-group'>  
-                                        <div class='row'>  
-                                          <h3>Check Box For Full Refund</h3>
-                                          <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                          <div class="col-md-12">  
-                                            <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
-                                          </div>
-                                        </div>
-                                        <small>OR</small>
-                                        <h3>Partial Refund</h3>
-                                        <% order.order_items.each do |oi| %> 
-                                          <div class='row'>  
-                                            <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
-                                          </div>
-                                          <div class='row'>  
-                                            <div class='col-md-6'>  
-                                              <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                              <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
-                                            </div>
-                                            <div class='col-md-6'>  
-                                              <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
-                                            </div>
-                                          </div>
-                                        <% end %>
-                                      </div>
-                                      <div class='row'>  
-                                        <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
-                                        <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
-                                        <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
-                                        <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
-                                        <h4>Total Refunded: <%= number_to_currency(order.refund_amount, precision: 2)%></h4>
-                                      </div>
-                                  </div>
-                                  <div class='modal-footer actions'>
-                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                    <%= submit_tag "Request Refund", class: 'btn btn-success' %>
-                                  </div>
-                                </div>
-                              <% end %>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class='col-md-6'>
-                        <%= link_to "Refund Details", "##{order.uuid}_refund_details", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
-                        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund_details">
-                          <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                              <div class="modal-header text-center">
-                                <h2>Refund Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                              </div>
-                              <div class="modal-body">
-                                <div class="container-fluid text-center">
-                                  <h3><u><strong>Total Order Amount:</strong></u><br><br> <%= number_to_currency(order.total_price, precision: 2) %><br></h3>
-                                  <div class='row form-group'> 
-                                    <% order.refunds.each_with_index do |refund, index| %>
-                                      <div class='col-md-6'> 
-                                        <h4 class='text-center'><strong>Request #<%= index + 1 %></strong></h4> 
-                                        <hr>
-                                        <h4>Refund Status: <%= refund.status %><br></h4>
-                                        <h4>Reason For Refund: <%= refund.note %><br></h4>
-                                        <h4>Amount Requested: <%= number_to_currency(refund.amount, precision:2) %><br></h4>
-                                        <h4>Amount Issued: <%= number_to_currency(refund.amount_issued, precision:2) %><br></h4>
+                                    <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
+                                    <% order.order_items.each do |oi| %>
+                                      <div class='col-md-6'>  
+                                        <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                                        <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                                        <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
                                       </div>
                                     <% end %>
                                   </div>
+                                  <div class='modal-footer actions'>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row form-group">
+                        <% if !order.paid? %>
+                          <div class='col-md-6 form-group'>    
+                            <%= link_to "Order Now #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success form-control', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
+                          </div>
+                          <div class='col-md-6 form-group'>    
+                            <%= link_to "Cancel Order", order_path(order.id, uuid: order.uuid), method: :delete, data: {confirm: "Cancel this order?" }, class: 'btn btn-danger form-control' %>
+                          </div>
+                          <div class='col-md-12'>
+                            <%= link_to "Save Order", order_path(order.id), class: 'btn btn-info form-control', method: :delete %>
+                          </div>
+                        <% end %>
+                        <% if !order.refunded && order.status == "Paid" %>
+                          <div class='col-md-12 form-group'>  
+                            <% if order.tracking_number.nil? %> 
+                              <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
+                            <% else %>
+                              <%= link_to "Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
+                            <% end %>
+                            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
+                              <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                  <div class="modal-header text-center">
+                                    <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div class="container-fluid text-center">
+                                      <% order.shipping_updates.each do |update| %>
+                                        <div class="row">  
+                                          <div class='form-group'>  
+                                            <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
+                                          </div>
+                                          <div class='form-group'>  
+                                            <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
+                                          </div>
+                                          <div class='form-group'>  
+                                            <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
+                                          </div>
+                                          <hr>
+                                        </div>
+                                      <% end %>
+                                    </div>
+                                    <div class='modal-footer actions'>
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <% if order.refunds.present? %>
+                            <div class='col-md-6'>
+                              <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
+                              <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
+                                <div class="modal-dialog modal-sm">
+                                  <div class="modal-content">
+                                    <div class="modal-header text-center">
+                                      <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                    </div>
+                                    <%= form_tag refunds_path(uuid: order.uuid) do %>
+                                      <div class="modal-body">
+                                        <div class="container-fluid text-center">
+                                            <div class='row form-group'>  
+                                              <div class='row'>  
+                                                <h3>Check Box For Full Refund</h3>
+                                                <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
+                                                <div class="col-md-12">  
+                                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                                </div>
+                                              </div>
+                                              <small>OR</small>
+                                              <h3>Partial Refund</h3>
+                                              <% order.order_items.each do |oi| %> 
+                                                <div class='row'>  
+                                                  <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
+                                                </div>
+                                                <div class='row'>  
+                                                  <div class='col-md-6'>  
+                                                    <%= hidden_field_tag("uuids[]", oi.uuid) %>
+                                                    <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                                  </div>
+                                                  <div class='col-md-6'>  
+                                                    <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
+                                                  </div>
+                                                </div>
+                                              <% end %>
+                                            </div>
+                                            <div class='row'>  
+                                              <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
+                                              <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
+                                              <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
+                                              <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
+                                              <h4>Total Refunded: <%= number_to_currency(order.refund_amount, precision: 2)%></h4>
+                                            </div>
+                                        </div>
+                                        <div class='modal-footer actions'>
+                                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                          <%= submit_tag "Request Refund", class: 'btn btn-success' %>
+                                        </div>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class='col-md-6'>
+                              <%= link_to "Refund Details", "##{order.uuid}_refund_details", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
+                              <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund_details">
+                                <div class="modal-dialog modal-sm">
+                                  <div class="modal-content">
+                                    <div class="modal-header text-center">
+                                      <h2>Refund Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                    </div>
+                                    <div class="modal-body">
+                                      <div class="container-fluid text-center">
+                                        <h3><u><strong>Total Order Amount:</strong></u><br><br> <%= number_to_currency(order.total_price, precision: 2) %><br></h3>
+                                        <div class='row form-group'> 
+                                          <% order.refunds.each_with_index do |refund, index| %>
+                                            <div class='col-md-6'> 
+                                              <h4 class='text-center'><strong>Request #<%= index + 1 %></strong></h4> 
+                                              <hr>
+                                              <h4>Refund Status: <%= refund.status %><br></h4>
+                                              <h4>Reason For Refund: <%= refund.note %><br></h4>
+                                              <h4>Amount Requested: <%= number_to_currency(refund.amount, precision:2) %><br></h4>
+                                              <h4>Amount Issued: <%= number_to_currency(refund.amount_issued, precision:2) %><br></h4>
+                                            </div>
+                                          <% end %>
+                                        </div>
+                                      </div>
+                                      <div class='modal-footer actions'>
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          <% else %>
+                            <div class='col-md-12'>    
+                              <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
+                              <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
+                                <div class="modal-dialog modal-sm">
+                                  <div class="modal-content">
+                                    <div class="modal-header text-center">
+                                      <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                    </div>
+                                    <%= form_tag refunds_path(uuid: order.uuid) do %>
+                                      <div class="modal-body">
+                                        <div class="container-fluid text-center">
+                                            <div class='row form-group'>  
+                                              <div class='row'>  
+                                                <h3>Check Box For Full Refund</h3>
+                                                <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
+                                                <div class="col-md-12">  
+                                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                                </div>
+                                              </div>
+                                              <small>OR</small>
+                                              <h3>Partial Refund</h3>
+                                              <% order.order_items.each do |oi| %> 
+                                                <div class='row'>  
+                                                  <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
+                                                </div>
+                                                <div class='row'>  
+                                                  <div class='col-md-6'>  
+                                                    <%= hidden_field_tag("uuids[]", oi.uuid) %>
+                                                    <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", step: 'any', max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                                  </div>
+                                                  <div class='col-md-6'>  
+                                                    <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
+                                                  </div>
+                                                </div>
+                                              <% end %>
+                                            </div>
+                                            <div class='row'>  
+                                              <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
+                                              <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
+                                              <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
+                                              <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
+                                            </div>
+                                        </div>
+                                        <div class='modal-footer actions'>
+                                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                          <%= submit_tag "Request Refund", class: 'btn btn-success' %>
+                                        </div>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          <% end %>
+                        <% elsif !order.refunded && order.status == "Pending Refund"  %>
+                          <h4>This Is A Pending Refund</h4>
+                        <% end %>
+                        <% if order.refunded %>
+                          <h4>Successfully Refunded</h4>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="customer_pro">
+                <h1 class='text-center'><%= @paid.where.not(tracking_number: nil).count %> Processed Orders</h1>
+                <hr>
+                <% @paid.where.not(tracking_number: nil).each do |order| %>
+                  <div class="form-group col-md-4">
+                    <div class="row form-group">
+                      <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                        <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                        Ship To: <small><%= order.ship_to %></small><br>
+                        <%= "Carrier: #{order.carrier}" %><br>
+                        <%= "Tracking Number: #{order.tracking_number}" %><br>
+                        <%= "Status: #{order.status}" %>
+                    </div>
+                    <div class="row form-group">
+                      <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
+                    </div>
+                    <div class="row form-group">
+                      <div class="col-md-12">
+                        <%= link_to "Order Details", "##{order.uuid}details", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
+                        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details">
+                          <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                              <div class="modal-header text-center">
+                                <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                              </div>
+                              <div class="modal-body">
+                                <div class="container-fluid text-center">
+                                  <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
+                                  <% order.order_items.each do |oi| %>
+                                    <div class='col-md-6'>  
+                                      <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                                      <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                                      <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+                                    </div>
+                                  <% end %>
                                 </div>
                                 <div class='modal-footer actions'>
                                   <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
@@ -192,84 +318,226 @@
                           </div>
                         </div>
                       </div>
-                    <% else %>
-                      <div class='col-md-12'>    
-                        <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
-                        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
-                          <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                              <div class="modal-header text-center">
-                                <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                              </div>
-                              <%= form_tag refunds_path(uuid: order.uuid) do %>
+                    </div>
+                    <div class="row form-group">
+                      <% if !order.paid? %>
+                        <div class='col-md-6 form-group'>    
+                          <%= link_to "Order Now #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success form-control', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
+                        </div>
+                        <div class='col-md-6 form-group'>    
+                          <%= link_to "Cancel Order", order_path(order.id, uuid: order.uuid), method: :delete, data: {confirm: "Cancel this order?" }, class: 'btn btn-danger form-control' %>
+                        </div>
+                        <div class='col-md-12'>
+                          <%= link_to "Save Order", order_path(order.id), class: 'btn btn-info form-control', method: :delete %>
+                        </div>
+                      <% end %>
+                      <% if !order.refunded && order.status == "Paid" %>
+                        <div class='col-md-12 form-group'>  
+                          <% if order.tracking_number.nil? %> 
+                            <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
+                          <% else %>
+                            <%= link_to "Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
+                          <% end %>
+                          <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
+                            <div class="modal-dialog modal-sm">
+                              <div class="modal-content">
+                                <div class="modal-header text-center">
+                                  <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                </div>
                                 <div class="modal-body">
                                   <div class="container-fluid text-center">
-                                      <div class='row form-group'>  
-                                        <div class='row'>  
-                                          <h3>Check Box For Full Refund</h3>
-                                          <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                          <div class="col-md-12">  
-                                            <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
-                                          </div>
+                                    <% order.shipping_updates.each do |update| %>
+                                      <div class="row">  
+                                        <div class='form-group'>  
+                                          <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
                                         </div>
-                                        <small>OR</small>
-                                        <h3>Partial Refund</h3>
-                                        <% order.order_items.each do |oi| %> 
-                                          <div class='row'>  
-                                            <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
-                                          </div>
-                                          <div class='row'>  
-                                            <div class='col-md-6'>  
-                                              <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                              <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", step: 'any', max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
-                                            </div>
-                                            <div class='col-md-6'>  
-                                              <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
-                                            </div>
-                                          </div>
-                                        <% end %>
+                                        <div class='form-group'>  
+                                          <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
+                                        </div>
+                                        <div class='form-group'>  
+                                          <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
+                                        </div>
+                                        <hr>
                                       </div>
-                                      <div class='row'>  
-                                        <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
-                                        <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
-                                        <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
-                                        <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
-                                      </div>
+                                    <% end %>
                                   </div>
                                   <div class='modal-footer actions'>
                                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                    <%= submit_tag "Request Refund", class: 'btn btn-success' %>
                                   </div>
                                 </div>
-                              <% end %>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    <% end %>
-                  <% elsif !order.refunded && order.status == "Pending Refund"  %>
-                    <h4>This Is A Pending Refund</h4>
-                  <% end %>
-                  <% if order.refunded %>
-                    <h4>Successfully Refunded</h4>
-                  <% end %>
-                </div>
+                        <% if order.refunds.present? %>
+                          <div class='col-md-6'>
+                            <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
+                            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
+                              <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                  <div class="modal-header text-center">
+                                    <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                  </div>
+                                  <%= form_tag refunds_path(uuid: order.uuid) do %>
+                                    <div class="modal-body">
+                                      <div class="container-fluid text-center">
+                                          <div class='row form-group'>  
+                                            <div class='row'>  
+                                              <h3>Check Box For Full Refund</h3>
+                                              <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
+                                              <div class="col-md-12">  
+                                                <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                              </div>
+                                            </div>
+                                            <small>OR</small>
+                                            <h3>Partial Refund</h3>
+                                            <% order.order_items.each do |oi| %> 
+                                              <div class='row'>  
+                                                <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
+                                              </div>
+                                              <div class='row'>  
+                                                <div class='col-md-6'>  
+                                                  <%= hidden_field_tag("uuids[]", oi.uuid) %>
+                                                  <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                                </div>
+                                                <div class='col-md-6'>  
+                                                  <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
+                                                </div>
+                                              </div>
+                                            <% end %>
+                                          </div>
+                                          <div class='row'>  
+                                            <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
+                                            <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
+                                            <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
+                                            <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
+                                            <h4>Total Refunded: <%= number_to_currency(order.refund_amount, precision: 2)%></h4>
+                                          </div>
+                                      </div>
+                                      <div class='modal-footer actions'>
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                        <%= submit_tag "Request Refund", class: 'btn btn-success' %>
+                                      </div>
+                                    </div>
+                                  <% end %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class='col-md-6'>
+                            <%= link_to "Refund Details", "##{order.uuid}_refund_details", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
+                            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund_details">
+                              <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                  <div class="modal-header text-center">
+                                    <h2>Refund Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div class="container-fluid text-center">
+                                      <h3><u><strong>Total Order Amount:</strong></u><br><br> <%= number_to_currency(order.total_price, precision: 2) %><br></h3>
+                                      <div class='row form-group'> 
+                                        <% order.refunds.each_with_index do |refund, index| %>
+                                          <div class='col-md-6'> 
+                                            <h4 class='text-center'><strong>Request #<%= index + 1 %></strong></h4> 
+                                            <hr>
+                                            <h4>Refund Status: <%= refund.status %><br></h4>
+                                            <h4>Reason For Refund: <%= refund.note %><br></h4>
+                                            <h4>Amount Requested: <%= number_to_currency(refund.amount, precision:2) %><br></h4>
+                                            <h4>Amount Issued: <%= number_to_currency(refund.amount_issued, precision:2) %><br></h4>
+                                          </div>
+                                        <% end %>
+                                      </div>
+                                    </div>
+                                    <div class='modal-footer actions'>
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <% else %>
+                          <div class='col-md-12'>    
+                            <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
+                            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
+                              <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                  <div class="modal-header text-center">
+                                    <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                  </div>
+                                  <%= form_tag refunds_path(uuid: order.uuid) do %>
+                                    <div class="modal-body">
+                                      <div class="container-fluid text-center">
+                                          <div class='row form-group'>  
+                                            <div class='row'>  
+                                              <h3>Check Box For Full Refund</h3>
+                                              <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
+                                              <div class="col-md-12">  
+                                                <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                              </div>
+                                            </div>
+                                            <small>OR</small>
+                                            <h3>Partial Refund</h3>
+                                            <% order.order_items.each do |oi| %> 
+                                              <div class='row'>  
+                                                <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
+                                              </div>
+                                              <div class='row'>  
+                                                <div class='col-md-6'>  
+                                                  <%= hidden_field_tag("uuids[]", oi.uuid) %>
+                                                  <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", step: 'any', max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                                </div>
+                                                <div class='col-md-6'>  
+                                                  <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
+                                                </div>
+                                              </div>
+                                            <% end %>
+                                          </div>
+                                          <div class='row'>  
+                                            <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
+                                            <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
+                                            <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
+                                            <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
+                                          </div>
+                                      </div>
+                                      <div class='modal-footer actions'>
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                        <%= submit_tag "Request Refund", class: 'btn btn-success' %>
+                                      </div>
+                                    </div>
+                                  <% end %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <% end %>
+                      <% elsif !order.refunded && order.status == "Pending Refund"  %>
+                        <h4>This Is A Pending Refund</h4>
+                      <% end %>
+                      <% if order.refunded %>
+                        <h4>Successfully Refunded</h4>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
               </div>
-            <% end %>
+            </div>
           </div>
         </div>
-        <div class="tab-pane fade" id="customer_pro">
-          <h1 class='text-center'><%= @paid.where.not(tracking_number: nil).count %> Processed Orders</h1>
-          <hr>
-          <% @paid.where.not(tracking_number: nil).each do |order| %>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="pending_orders">
+      <div class="row">  
+        <div class='container'>  
+          <h1>Pending Orders</h1>
+          <% @pending.each do |order| %>
             <div class="form-group col-md-4">
               <div class="row form-group">
                 <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                  Ship To: <small><%= order.ship_to %></small><br>
-                  <%= "Carrier: #{order.carrier}" %><br>
-                  <%= "Tracking Number: #{order.tracking_number}" %><br>
-                  <%= "Status: #{order.status}" %>
+                <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                Ship To: <small><%= order.ship_to %></small><br>
+                <%= "Carrier: #{order.carrier}" %><br>
+                <%= "Tracking Number: #{order.tracking_number}" %><br>
               </div>
               <div class="row form-group">
                 <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
@@ -320,7 +588,7 @@
                     <% if order.tracking_number.nil? %> 
                       <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
                     <% else %>
-                      <%= link_to "Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
+                      <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
                     <% end %>
                     <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
                       <div class="modal-dialog modal-sm">
@@ -353,148 +621,9 @@
                       </div>
                     </div>
                   </div>
-                  <% if order.refunds.present? %>
-                    <div class='col-md-6'>
-                      <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
-                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
-                        <div class="modal-dialog modal-sm">
-                          <div class="modal-content">
-                            <div class="modal-header text-center">
-                              <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                            </div>
-                            <%= form_tag refunds_path(uuid: order.uuid) do %>
-                              <div class="modal-body">
-                                <div class="container-fluid text-center">
-                                    <div class='row form-group'>  
-                                      <div class='row'>  
-                                        <h3>Check Box For Full Refund</h3>
-                                        <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                        <div class="col-md-12">  
-                                          <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
-                                        </div>
-                                      </div>
-                                      <small>OR</small>
-                                      <h3>Partial Refund</h3>
-                                      <% order.order_items.each do |oi| %> 
-                                        <div class='row'>  
-                                          <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
-                                        </div>
-                                        <div class='row'>  
-                                          <div class='col-md-6'>  
-                                            <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                            <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
-                                          </div>
-                                          <div class='col-md-6'>  
-                                            <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
-                                          </div>
-                                        </div>
-                                      <% end %>
-                                    </div>
-                                    <div class='row'>  
-                                      <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
-                                      <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
-                                      <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
-                                      <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
-                                      <h4>Total Refunded: <%= number_to_currency(order.refund_amount, precision: 2)%></h4>
-                                    </div>
-                                </div>
-                                <div class='modal-footer actions'>
-                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                  <%= submit_tag "Request Refund", class: 'btn btn-success' %>
-                                </div>
-                              </div>
-                            <% end %>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class='col-md-6'>
-                      <%= link_to "Refund Details", "##{order.uuid}_refund_details", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
-                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund_details">
-                        <div class="modal-dialog modal-sm">
-                          <div class="modal-content">
-                            <div class="modal-header text-center">
-                              <h2>Refund Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                            </div>
-                            <div class="modal-body">
-                              <div class="container-fluid text-center">
-                                <h3><u><strong>Total Order Amount:</strong></u><br><br> <%= number_to_currency(order.total_price, precision: 2) %><br></h3>
-                                <div class='row form-group'> 
-                                  <% order.refunds.each_with_index do |refund, index| %>
-                                    <div class='col-md-6'> 
-                                      <h4 class='text-center'><strong>Request #<%= index + 1 %></strong></h4> 
-                                      <hr>
-                                      <h4>Refund Status: <%= refund.status %><br></h4>
-                                      <h4>Reason For Refund: <%= refund.note %><br></h4>
-                                      <h4>Amount Requested: <%= number_to_currency(refund.amount, precision:2) %><br></h4>
-                                      <h4>Amount Issued: <%= number_to_currency(refund.amount_issued, precision:2) %><br></h4>
-                                    </div>
-                                  <% end %>
-                                </div>
-                              </div>
-                              <div class='modal-footer actions'>
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <% else %>
-                    <div class='col-md-12'>    
-                      <%= link_to "Refund", "##{order.uuid}_refund", class: 'btn btn-danger form-control', 'data-toggle' => 'modal' %> 
-                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_refund">
-                        <div class="modal-dialog modal-sm">
-                          <div class="modal-content">
-                            <div class="modal-header text-center">
-                              <h2>Refund Request For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                            </div>
-                            <%= form_tag refunds_path(uuid: order.uuid) do %>
-                              <div class="modal-body">
-                                <div class="container-fluid text-center">
-                                    <div class='row form-group'>  
-                                      <div class='row'>  
-                                        <h3>Check Box For Full Refund</h3>
-                                        <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                        <div class="col-md-12">  
-                                          <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
-                                        </div>
-                                      </div>
-                                      <small>OR</small>
-                                      <h3>Partial Refund</h3>
-                                      <% order.order_items.each do |oi| %> 
-                                        <div class='row'>  
-                                          <h4><%= oi.title %> (<%= oi.quantity %>)</h4>
-                                        </div>
-                                        <div class='row'>  
-                                          <div class='col-md-6'>  
-                                            <%= hidden_field_tag("uuids[]", oi.uuid) %>
-                                            <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", step: 'any', max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
-                                          </div>
-                                          <div class='col-md-6'>  
-                                            <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
-                                          </div>
-                                        </div>
-                                      <% end %>
-                                    </div>
-                                    <div class='row'>  
-                                      <h4>Product Total: <%= number_to_currency(order.order_items.map(&:total_price).sum, precision: 2) %></h4>
-                                      <h4>Shipping: <%= number_to_currency(order.shipping_price, precision: 2)%></h4>
-                                      <h4>Tax: <%= number_to_currency((order.total_price - order.order_items.map(&:total_price).sum - order.shipping_price), precision: 2) %> </h4>
-                                      <h4>Total Price: <%= number_to_currency(order.total_price, precision: 2)%></h4>
-                                    </div>
-                                </div>
-                                <div class='modal-footer actions'>
-                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                  <%= submit_tag "Request Refund", class: 'btn btn-success' %>
-                                </div>
-                              </div>
-                            <% end %>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
+                  <div class='col-md-12'>    
+                    <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
+                  </div>
                 <% elsif !order.refunded && order.status == "Pending Refund"  %>
                   <h4>This Is A Pending Refund</h4>
                 <% end %>
@@ -507,516 +636,409 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
-
-<div class="row">  
-  <div class='container'>  
-    <h1>Pending Orders</h1>
-    <% @pending.each do |order| %>
-      <div class="form-group col-md-4">
-        <div class="row form-group">
-          <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-          <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-          Ship To: <small><%= order.ship_to %></small><br>
-          <%= "Carrier: #{order.carrier}" %><br>
-          <%= "Tracking Number: #{order.tracking_number}" %><br>
-        </div>
-        <div class="row form-group">
-          <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>) </h4>
-        </div>
-        <div class="row form-group">
-          <div class="col-md-12">
-            <%= link_to "Order Details", "##{order.uuid}details", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
-            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details">
-              <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                  <div class="modal-header text-center">
-                    <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                  </div>
-                  <div class="modal-body">
-                    <div class="container-fluid text-center">
-                      <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
-                      <% order.order_items.each do |oi| %>
-                        <div class='col-md-6'>  
-                          <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
-                          <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
-                          <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
-                        </div>
-                      <% end %>
-                    </div>
-                    <div class='modal-footer actions'>
-                      <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row form-group">
-          <% if !order.paid? %>
-            <div class='col-md-6 form-group'>    
-              <%= link_to "Order Now #{number_to_currency(order.total_price, precision: 2)}", purchases_path(merchant_id: order.merchant_id, order: order), class: 'btn btn-success form-control', method: :post, data: {confirm: "You Agree to the merchant #{User.find(order.merchant_id).username}'s Return Policy?"} %><br>
-            </div>
-            <div class='col-md-6 form-group'>    
-              <%= link_to "Cancel Order", order_path(order.id, uuid: order.uuid), method: :delete, data: {confirm: "Cancel this order?" }, class: 'btn btn-danger form-control' %>
-            </div>
-            <div class='col-md-12'>
-              <%= link_to "Save Order", order_path(order.id), class: 'btn btn-info form-control', method: :delete %>
-            </div>
-          <% end %>
-          <% if !order.refunded && order.status == "Paid" %>
-            <div class='col-md-12 form-group'>  
-              <% if order.tracking_number.nil? %> 
-                <%= link_to "No Tracking Number", "#", class: 'btn btn-default disabled form-control' %>
-              <% else %>
-                <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control', 'data-toggle' => 'modal' %> 
-              <% end %>
-              <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
-                <div class="modal-dialog modal-sm">
-                  <div class="modal-content">
-                    <div class="modal-header text-center">
-                      <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                    </div>
-                    <div class="modal-body">
-                      <div class="container-fluid text-center">
-                        <% order.shipping_updates.each do |update| %>
-                          <div class="row">  
-                            <div class='form-group'>  
-                              <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
-                            </div>
-                            <div class='form-group'>  
-                              <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
-                            </div>
-                            <div class='form-group'>  
-                              <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
-                            </div>
-                            <hr>
-                          </div>
-                        <% end %>
-                      </div>
-                      <div class='modal-footer actions'>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class='col-md-12'>    
-              <%= link_to "Refund", refunds_path(purchase_id: order.purchase_id, price: order.total_price, application_fee: order.application_fee, refund_id: order.stripe_charge_id), method: :post, data: { confirm: "Refund now for #{number_to_currency(order.total_price.to_f, precision: 2)}?" }, class: 'btn btn-danger form-control' %><br>
-            </div>
-          <% elsif !order.refunded && order.status == "Pending Refund"  %>
-            <h4>This Is A Pending Refund</h4>
-          <% end %>
-          <% if order.refunded %>
-            <h4>Successfully Refunded</h4>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</div>
-
-<div class='row'>
-  <div class='container'>
-    <h1>Saved Orders</h1>
-    <% @suspended.each do |order| %>
-      <div class="form-group col-md-4">
-        <div class="row form-group">
-          <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-          <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-          <%= "Ship To: #{order.ship_to}" %><br>
-          <% if order.tracking_number %>
-            <%= "Carrier: #{order.carrier}" %><br>
-            <%= "Tracking Number: #{order.tracking_number}" %><br>
-          <% end %>
-        </div>
-        <div class="row form-group">
-          <h4>Total Products (<%= order.order_items.count %>) </h4>
-        </div>
-        <div class="row form-group">
-          <div class="col-md-12">
-            <%= link_to "Order Details", "##{order.uuid}details_saved", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
-            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details_saved">
-              <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                  <div class="modal-header text-center">
-                    <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                  </div>
-                  <div class="modal-body">
-                    <div class="container-fluid text-center">
-                      <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
-                      <% order.order_items.each do |oi| %>
-                        <div class='col-md-6'>  
-                          <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
-                          <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
-                          <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
-                        </div>
-                      <% end %>
-                    </div>
-                    <div class='modal-footer actions'>
-                      <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row form-group">
-          <div class="col-md-12">
-            <%= link_to "Restart Order", active_order_path(id: order.id), class: 'btn btn-success form-control', method: :put %>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</div>
-
-<% if current_user.admin? || current_user.merchant? %>
-  <div class="row">
-    <div class='container'>  
-      <h1>Store Orders</h1> 
-      <div class="tab-v2">
-        <div class='row'>
-          <ul class="nav nav-pills col-md-4 col-md-offset-4">
-            <li class=""><a href="#merch_pending" data-toggle="tab" aria-expanded="false">Pending Orders <span class="badge"> <%= @orders.where(tracking_number: nil).count %></span></a></li>
-            <li class=""><a href="#merch_pro" data-toggle="tab" aria-expanded="false">Processed Orders <span class="badge"> <%= @orders.where.not(tracking_number: nil).count %></span></a></li>
-          </ul>                
-        </div>
-        <div class="tab-content">
-          <div class="tab-pane fade" id="merch_pending">
-            <h1 class='text-center'><%= @orders.where(tracking_number: nil).count %> Pending Orders</h1>
-            <hr>
-            <% @orders.where(tracking_number: nil).each do |order| %>
-              <div class="form-group col-md-4">
-                <div class="row form-group">
-                  <%= "Tracking Number: #{order.tracking_number}" %><br>
-                  Address: <small><%= order.ship_to %></small><br>
-                  <%= "Customer Contact: #{order.customer_name}" %><br>
-                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+    <div class="tab-pane fade" id="saved_orders">
+      <div class='row'>
+        <div class='container'>
+          <h1>Saved Orders</h1>
+          <% @suspended.each do |order| %>
+            <div class="form-group col-md-4">
+              <div class="row form-group">
+                <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                <%= "Ship To: #{order.ship_to}" %><br>
+                <% if order.tracking_number %>
                   <%= "Carrier: #{order.carrier}" %><br>
                   <%= "Tracking Number: #{order.tracking_number}" %><br>
-                </div>
-                <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
-                <!-- Large modal -->
-                  <div class="form-group col-md-12">  
-                    <%= link_to "Order Details", "##{order.uuid}merchant", class: 'btn btn-warning form-control form-group', 'data-toggle' => 'modal'  %>
-                  </div>
-
-                  <% if order.tracking_number.nil? %>
-                    <div class="form-group col-md-12">  
-                      <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
-                    </div>
-                    <div class="form-group col-md-12">  
-                      <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
-                    </div>
-                  <% else %>
-                    <div class="form-group col-md-12">
-                      <%= link_to " Print Tracking Label", order.tracking_url, class: 'btn btn-info form-control form-group', 'target' => "_blank" %>
-                    </div>
-                    <div class="form-group col-md-12">
-                      <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control form-group', 'data-toggle' => 'modal' %>
-                    </div>
-                  <% end %>
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Tracking Number For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
-                      </div>
-                      <%= form_tag order_path(id: order.id), method: :put do %>
+                <% end %>
+              </div>
+              <div class="row form-group">
+                <h4>Total Products (<%= order.order_items.count %>) </h4>
+              </div>
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <%= link_to "Order Details", "##{order.uuid}details_saved", class: 'btn btn-warning form-control', 'data-toggle' => 'modal'  %>
+                  <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>details_saved">
+                    <div class="modal-dialog modal-sm">
+                      <div class="modal-content">
+                        <div class="modal-header text-center">
+                          <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                        </div>
                         <div class="modal-body">
                           <div class="container-fluid text-center">
-                            <h1>Order Details</h1>
-                            <%= "Shipping To: #{order.ship_to}" %><br>
-                            <%= "Customer Contact: #{order.customer_name}" %><br>
-                            <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                            <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                            <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
+                            <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
+                            <% order.order_items.each do |oi| %>
+                              <div class='col-md-6'>  
+                                <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                                <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                                <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+                              </div>
+                            <% end %>
                           </div>
-                        </div>
-                        <div class="modal-footer actions">
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                          <%= submit_tag "Add Tracking Number", class: 'btn btn-success' %>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_ship_label">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Shipping Label For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
-                      </div>
-                      <%= form_tag order_path(id: order.id), method: :put do %>
-                        <div class="modal-body">
-                          <div class="container-fluid text-center">
-                            <h1>Order Details</h1>
-                            <div class='row form-group'>
-                              <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
-                              <div class='col-md-3'>
-                                <h5>Box Length (inches)</h5>
-                                <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
-                              </div>
-                              <div class='col-md-3'>
-                                <h5>Box Width (inches)</h5>
-                                <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
-                              </div>
-                              <div class='col-md-3'>
-                                <h5>Box Height (inches)</h5>
-                                <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
-                              </div>
-                              <div class='col-md-3'>
-                                <h5>Weight (With Products)</h5>
-                                <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
-                              </div>
-                            </div>
-                            <%= "Shipping To: #{order.ship_to}" %><br>
-                            <%= "Customer Contact: #{order.customer_name}" %><br>
-                            <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                            <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                          <div class='modal-footer actions'>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                           </div>
-                        </div>
-                        <div class="modal-footer actions">
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                          <%= submit_tag "Create Shipping Label", class: 'btn btn-success' %>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-                <div class="row form-group">
-                  <div class="col-md-12">
-                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>merchant">
-                      <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                          <div class="modal-header text-center">
-                            <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                          </div>
-                          <div class="modal-body">
-                            <div class="container-fluid text-center">
-                              <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
-                              <% order.order_items.each do |oi| %>
-                                <div class='col-md-6'>  
-                                  <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
-                                  <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
-                                  <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
-                                </div>
-                              <% end %>
-                            </div>
-                            <div class='modal-footer actions'>
-                              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                      </div>
-                      <div class="modal-body">
-                        <div class="container-fluid text-center">
-                          <% order.shipping_updates.each do |update| %>
-                            <div class="row">  
-                              <div class='form-group'>  
-                                <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
-                              </div>
-                              <div class='form-group'>  
-                                <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
-                              </div>
-                              <div class='form-group'>  
-                                <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
-                              </div>
-                              <hr>
-                            </div>
-                          <% end %>
-                        </div>
-                        <div class='modal-footer actions'>
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            <% end %>            
-          </div>
-          <div class="tab-pane fade" id="merch_pro">
-            <h1 class='text-center'><%= @orders.where.not(tracking_number: nil).count %> Processed Orders</h1>
-            <hr>
-            <% @orders.where.not(tracking_number: nil).each do |order| %>
-              <div class="form-group col-md-4">
-                <div class="row form-group">
-                  <%= "Tracking Number: #{order.tracking_number}" %><br>
-                  Address: <small><%= order.ship_to %></small><br>
-                  <%= "Customer Contact: #{order.customer_name}" %><br>
-                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                  <%= "Carrier: #{order.carrier}" %><br>
-                  <%= "Tracking Number: #{order.tracking_number}" %><br>
-                </div>
-                <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
-                <!-- Large modal -->
-                  <div class="form-group col-md-12">  
-                    <%= link_to "Order Details", "##{order.uuid}merchant", class: 'btn btn-warning form-control form-group', 'data-toggle' => 'modal'  %>
-                  </div>
-
-                  <% if order.tracking_number.nil? %>
-                    <div class="form-group col-md-12">  
-                      <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
-                    </div>
-                    <div class="form-group col-md-12">  
-                      <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
-                    </div>
-                  <% else %>
-                    <div class="form-group col-md-12">
-                      <%= link_to " Print Tracking Label", order.tracking_url, class: 'btn btn-info form-control form-group', 'target' => "_blank" %>
-                    </div>
-                    <div class="form-group col-md-12">
-                      <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control form-group', 'data-toggle' => 'modal' %>
-                    </div>
-                  <% end %>
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Tracking Number For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
-                      </div>
-                      <%= form_tag order_path(id: order.id), method: :put do %>
-                        <div class="modal-body">
-                          <div class="container-fluid text-center">
-                            <h1>Order Details</h1>
-                            <%= "Shipping To: #{order.ship_to}" %><br>
-                            <%= "Customer Contact: #{order.customer_name}" %><br>
-                            <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                            <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                            <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
-                          </div>
-                        </div>
-                        <div class="modal-footer actions">
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                          <%= submit_tag "Add Tracking Number", class: 'btn btn-success' %>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_ship_label">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Shipping Label For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
-                      </div>
-                      <%= form_tag order_path(id: order.id), method: :put do %>
-                        <div class="modal-body">
-                          <div class="container-fluid text-center">
-                            <h1>Order Details</h1>
-                            <div class='row form-group'>
-                              <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
-                              <div class='col-md-3'>
-                                <h5>Box Length (inches)</h5>
-                                <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
-                              </div>
-                              <div class='col-md-3'>
-                                <h5>Box Width (inches)</h5>
-                                <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
-                              </div>
-                              <div class='col-md-3'>
-                                <h5>Box Height (inches)</h5>
-                                <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
-                              </div>
-                              <div class='col-md-3'>
-                                <h5>Weight (With Products)</h5>
-                                <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
-                              </div>
-                            </div>
-                            <%= "Shipping To: #{order.ship_to}" %><br>
-                            <%= "Customer Contact: #{order.customer_name}" %><br>
-                            <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
-                            <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
-                          </div>
-                        </div>
-                        <div class="modal-footer actions">
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                          <%= submit_tag "Create Shipping Label", class: 'btn btn-success' %>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-                <div class="row form-group">
-                  <div class="col-md-12">
-                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>merchant">
-                      <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                          <div class="modal-header text-center">
-                            <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                          </div>
-                          <div class="modal-body">
-                            <div class="container-fluid text-center">
-                              <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
-                              <% order.order_items.each do |oi| %>
-                                <div class='col-md-6'>  
-                                  <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
-                                  <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
-                                  <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
-                                </div>
-                              <% end %>
-                            </div>
-                            <div class='modal-footer actions'>
-                              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
-                  <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                      <div class="modal-header text-center">
-                        <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
-                      </div>
-                      <div class="modal-body">
-                        <div class="container-fluid text-center">
-                          <% order.shipping_updates.each do |update| %>
-                            <div class="row">  
-                              <div class='form-group'>  
-                                <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
-                              </div>
-                              <div class='form-group'>  
-                                <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
-                              </div>
-                              <div class='form-group'>  
-                                <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
-                              </div>
-                              <hr>
-                            </div>
-                          <% end %>
-                        </div>
-                        <div class='modal-footer actions'>
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <%= link_to "Restart Order", active_order_path(id: order.id), class: 'btn btn-success form-control', method: :put %>
                 </div>
               </div>
-            <% end %>            
-          </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
+    <div class="tab-pane fade" id="store_orders">
+      <% if current_user.admin? || current_user.merchant? %>
+        <div class="row">
+          <div class='container'>  
+            <h1>Store Orders</h1> 
+            <div class="tab-v2">
+              <div class='row'>
+                <ul class="nav nav-pills col-md-4 col-md-offset-4">
+                  <li class=""><a href="#merch_pending" data-toggle="tab" aria-expanded="false">Pending Orders <span class="badge"> <%= @orders.where(tracking_number: nil).count %></span></a></li>
+                  <li class=""><a href="#merch_pro" data-toggle="tab" aria-expanded="false">Processed Orders <span class="badge"> <%= @orders.where.not(tracking_number: nil).count %></span></a></li>
+                </ul>                
+              </div>
+              <div class="tab-content">
+                <div class="tab-pane fade" id="merch_pending">
+                  <h1 class='text-center'><%= @orders.where(tracking_number: nil).count %> Pending Orders</h1>
+                  <hr>
+                  <% @orders.where(tracking_number: nil).each do |order| %>
+                    <div class="form-group col-md-4">
+                      <div class="row form-group">
+                        <%= "Tracking Number: #{order.tracking_number}" %><br>
+                        Address: <small><%= order.ship_to %></small><br>
+                        <%= "Customer Contact: #{order.customer_name}" %><br>
+                        <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                        <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                        <%= "Carrier: #{order.carrier}" %><br>
+                        <%= "Tracking Number: #{order.tracking_number}" %><br>
+                      </div>
+                      <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
+                      <!-- Large modal -->
+                        <div class="form-group col-md-12">  
+                          <%= link_to "Order Details", "##{order.uuid}merchant", class: 'btn btn-warning form-control form-group', 'data-toggle' => 'modal'  %>
+                        </div>
+
+                        <% if order.tracking_number.nil? %>
+                          <div class="form-group col-md-12">  
+                            <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
+                          </div>
+                          <div class="form-group col-md-12">  
+                            <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
+                          </div>
+                        <% else %>
+                          <div class="form-group col-md-12">
+                            <%= link_to " Print Tracking Label", order.tracking_url, class: 'btn btn-info form-control form-group', 'target' => "_blank" %>
+                          </div>
+                          <div class="form-group col-md-12">
+                            <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control form-group', 'data-toggle' => 'modal' %>
+                          </div>
+                        <% end %>
+                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h2>Tracking Number For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
+                            </div>
+                            <%= form_tag order_path(id: order.id), method: :put do %>
+                              <div class="modal-body">
+                                <div class="container-fluid text-center">
+                                  <h1>Order Details</h1>
+                                  <%= "Shipping To: #{order.ship_to}" %><br>
+                                  <%= "Customer Contact: #{order.customer_name}" %><br>
+                                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                                  <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
+                                </div>
+                              </div>
+                              <div class="modal-footer actions">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                <%= submit_tag "Add Tracking Number", class: 'btn btn-success' %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_ship_label">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h2>Shipping Label For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
+                            </div>
+                            <%= form_tag order_path(id: order.id), method: :put do %>
+                              <div class="modal-body">
+                                <div class="container-fluid text-center">
+                                  <h1>Order Details</h1>
+                                  <div class='row form-group'>
+                                    <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
+                                    <div class='col-md-3'>
+                                      <h5>Box Length (inches)</h5>
+                                      <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
+                                    </div>
+                                    <div class='col-md-3'>
+                                      <h5>Box Width (inches)</h5>
+                                      <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
+                                    </div>
+                                    <div class='col-md-3'>
+                                      <h5>Box Height (inches)</h5>
+                                      <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
+                                    </div>
+                                    <div class='col-md-3'>
+                                      <h5>Weight (With Products)</h5>
+                                      <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
+                                    </div>
+                                  </div>
+                                  <%= "Shipping To: #{order.ship_to}" %><br>
+                                  <%= "Customer Contact: #{order.customer_name}" %><br>
+                                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                                </div>
+                              </div>
+                              <div class="modal-footer actions">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                <%= submit_tag "Create Shipping Label", class: 'btn btn-success' %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row form-group">
+                        <div class="col-md-12">
+                          <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>merchant">
+                            <div class="modal-dialog modal-sm">
+                              <div class="modal-content">
+                                <div class="modal-header text-center">
+                                  <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="container-fluid text-center">
+                                    <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
+                                    <% order.order_items.each do |oi| %>
+                                      <div class='col-md-6'>  
+                                        <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                                        <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                                        <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                  <div class='modal-footer actions'>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                            </div>
+                            <div class="modal-body">
+                              <div class="container-fluid text-center">
+                                <% order.shipping_updates.each do |update| %>
+                                  <div class="row">  
+                                    <div class='form-group'>  
+                                      <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
+                                    </div>
+                                    <div class='form-group'>  
+                                      <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
+                                    </div>
+                                    <div class='form-group'>  
+                                      <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
+                                    </div>
+                                    <hr>
+                                  </div>
+                                <% end %>
+                              </div>
+                              <div class='modal-footer actions'>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>            
+                </div>
+                <div class="tab-pane fade" id="merch_pro">
+                  <h1 class='text-center'><%= @orders.where.not(tracking_number: nil).count %> Processed Orders</h1>
+                  <hr>
+                  <% @orders.where.not(tracking_number: nil).each do |order| %>
+                    <div class="form-group col-md-4">
+                      <div class="row form-group">
+                        <%= "Tracking Number: #{order.tracking_number}" %><br>
+                        Address: <small><%= order.ship_to %></small><br>
+                        <%= "Customer Contact: #{order.customer_name}" %><br>
+                        <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                        <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                        <%= "Carrier: #{order.carrier}" %><br>
+                        <%= "Tracking Number: #{order.tracking_number}" %><br>
+                      </div>
+                      <h4>Total Products (<%= order.order_items.map(&:quantity).sum %>)</h4>
+                      <!-- Large modal -->
+                        <div class="form-group col-md-12">  
+                          <%= link_to "Order Details", "##{order.uuid}merchant", class: 'btn btn-warning form-control form-group', 'data-toggle' => 'modal'  %>
+                        </div>
+
+                        <% if order.tracking_number.nil? %>
+                          <div class="form-group col-md-12">  
+                            <%= link_to "Create Shipping Label", "##{order.uuid}_ship_label", class: 'btn btn-info form-control', 'data-toggle' => 'modal' %>
+                          </div>
+                          <div class="form-group col-md-12">  
+                            <%= link_to "Add Tracking Number", "##{order.uuid}", class: 'btn btn-primary form-control', 'data-toggle' => 'modal' %>
+                          </div>
+                        <% else %>
+                          <div class="form-group col-md-12">
+                            <%= link_to " Print Tracking Label", order.tracking_url, class: 'btn btn-info form-control form-group', 'target' => "_blank" %>
+                          </div>
+                          <div class="form-group col-md-12">
+                            <%= link_to " Tracking Updates", "##{order.tracking_number}", class: 'btn btn-success form-control form-group', 'data-toggle' => 'modal' %>
+                          </div>
+                        <% end %>
+                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h2>Tracking Number For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
+                            </div>
+                            <%= form_tag order_path(id: order.id), method: :put do %>
+                              <div class="modal-body">
+                                <div class="container-fluid text-center">
+                                  <h1>Order Details</h1>
+                                  <%= "Shipping To: #{order.ship_to}" %><br>
+                                  <%= "Customer Contact: #{order.customer_name}" %><br>
+                                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                                  <%= text_field_tag :tracking_number, nil, class: 'form-control', placeholder: '1234567ABCDEFG' %>
+                                </div>
+                              </div>
+                              <div class="modal-footer actions">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                <%= submit_tag "Add Tracking Number", class: 'btn btn-success' %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>_ship_label">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h2>Shipping Label For <br><u><strong><em><%= order.uuid %></em></strong></u></h2>
+                            </div>
+                            <%= form_tag order_path(id: order.id), method: :put do %>
+                              <div class="modal-body">
+                                <div class="container-fluid text-center">
+                                  <h1>Order Details</h1>
+                                  <div class='row form-group'>
+                                    <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
+                                    <div class='col-md-3'>
+                                      <h5>Box Length (inches)</h5>
+                                      <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
+                                    </div>
+                                    <div class='col-md-3'>
+                                      <h5>Box Width (inches)</h5>
+                                      <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
+                                    </div>
+                                    <div class='col-md-3'>
+                                      <h5>Box Height (inches)</h5>
+                                      <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
+                                    </div>
+                                    <div class='col-md-3'>
+                                      <h5>Weight (With Products)</h5>
+                                      <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
+                                    </div>
+                                  </div>
+                                  <%= "Shipping To: #{order.ship_to}" %><br>
+                                  <%= "Customer Contact: #{order.customer_name}" %><br>
+                                  <%= "Shipping Price: #{number_to_currency(order.shipping_price, precision: 2)}" %><br>
+                                  <%= "Total Price: #{number_to_currency(order.total_price, precision: 2)}" %><br>
+                                </div>
+                              </div>
+                              <div class="modal-footer actions">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                <%= submit_tag "Create Shipping Label", class: 'btn btn-success' %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row form-group">
+                        <div class="col-md-12">
+                          <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.uuid %>merchant">
+                            <div class="modal-dialog modal-sm">
+                              <div class="modal-content">
+                                <div class="modal-header text-center">
+                                  <h2>Order Details For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="container-fluid text-center">
+                                    <h3>Shipping: <%= order.shipping_option %> (<%= number_to_currency(order.shipping_price, precision: 2)%>)</h3>
+                                    <% order.order_items.each do |oi| %>
+                                      <div class='col-md-6'>  
+                                        <h4><u><strong>Item:</strong></u> <%= oi.title %><br></h4>
+                                        <h4><u><strong>Price:</strong></u> <%= number_to_currency(oi.price, precision:2) %><br></h4>
+                                        <h4><u><strong>Quantity:</strong></u> <%= oi.quantity %><br></h4>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                  <div class='modal-footer actions'>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="<%= order.tracking_number %>">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header text-center">
+                              <h2>Tracking Updates For <br><u><em><strong><%= order.uuid %></strong></em></u></h2>
+                            </div>
+                            <div class="modal-body">
+                              <div class="container-fluid text-center">
+                                <% order.shipping_updates.each do |update| %>
+                                  <div class="row">  
+                                    <div class='form-group'>  
+                                      <h3><u><strong>Message:</strong></u> <%= update.message.titleize %></h3>
+                                    </div>
+                                    <div class='form-group'>  
+                                      <h3><u><strong>Tag:</strong></u> <%= update.tag.titleize %></h3>
+                                    </div>
+                                    <div class='form-group'>  
+                                      <h3><u><strong>Date:</strong></u> <%= Date.parse(update.checkpoint_time).strftime("%B %d, %Y") %></h3>
+                                    </div>
+                                    <hr>
+                                  </div>
+                                <% end %>
+                              </div>
+                              <div class='modal-footer actions'>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>            
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
-<% end %>
+</div>
