@@ -106,10 +106,12 @@
                         <div class="modal-body">
                           <div class="container-fluid text-center">
                               <div class='row form-group'>  
-                                <div class='row form-group'>  
+                                <div class='row'>  
                                   <h3>Check Box For Full Refund</h3>
                                   <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                  <div class="col-md-12">  
+                                    <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                  </div>
                                 </div>
                                 <small>OR</small>
                                 <h3>Partial Refund</h3>
@@ -191,10 +193,12 @@
                         <div class="modal-body">
                           <div class="container-fluid text-center">
                               <div class='row form-group'>  
-                                <div class='row form-group'>  
+                                <div class='row'>  
                                   <h3>Check Box For Full Refund</h3>
                                   <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
-                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                  <div class="col-md-12">  
+                                    <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                  </div>
                                 </div>
                                 <small>OR</small>
                                 <h3>Partial Refund</h3>
