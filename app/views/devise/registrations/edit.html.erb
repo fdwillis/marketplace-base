@@ -90,6 +90,11 @@
           <%= f.label :currency, 'Currency Code (3 Letter ISO Code)' %>
           <%= f.text_field :currency, class: 'form-control', placeholder: "USD", minlength: 3, maxlength: 3%>
         </div>
+        <div class="actions">
+          <%= f.submit "Update", class: 'btn btn-success' %>
+        </div>
+      <% end %>
+      <%= form_for(current_user) do |f| %>  
         <h3>Shipping Addresses</h3>
         <%= f.simple_fields_for :shipping_addresses do |address| %>
           <%= render 'shipping_address_fields', f: address %>

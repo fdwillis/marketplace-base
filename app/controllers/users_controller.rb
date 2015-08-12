@@ -20,6 +20,7 @@ class UsersController < ApplicationController
       end
 
       if !params[:user][:card_number].nil?
+        
         begin
           card_number = @crypt.encrypt_and_sign(params[:user][:card_number])
           current_user.update_attributes(card_number: card_number)
@@ -42,6 +43,9 @@ class UsersController < ApplicationController
           
           ch = Stripe::Charge.retrieve(@charge.id)
           refund = ch.refunds.create
+          flash[:notice] = "User Information Updated"
+          redirect_to edit_user_registration_path
+          return
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
           flash[:error] = "#{e}"
@@ -51,10 +55,6 @@ class UsersController < ApplicationController
           flash[:error] = "#{e}"
           return
         end
-
-      else 
-        redirect_to edit_user_registration_path
-        flash[:error] = "Your Card Could Not Be Confirmed"
       end
       
       if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?        
@@ -122,6 +122,8 @@ class UsersController < ApplicationController
 
           current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
           flash[:notice] = "User Information Updated"
+          redirect_to edit_user_registration_path
+          return
         rescue Stripe::CardError => e
           flash[:error] = "#{e}"
           redirect_to edit_user_registration_path
