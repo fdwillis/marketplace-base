@@ -156,13 +156,19 @@
                       </div>
                       <div class="modal-body">
                         <div class="container-fluid text-center">
-                          <h4><u><strong>Status:</strong></u> <%= order.refunds.first.status %><br></h4>
-                          <% order.refunds.first.returned_products.each do |product| %>
-                            <div class='col-md-6'>  
-                              <h4><u><strong>Reason For Refund:</strong></u> <%= product.note.titleize %><br></h4>
-                              <h4><u><strong>Amount To Refund:</strong></u> <%= number_to_currency(product.price, precision:2) %><br></h4>
-                            </div>
-                          <% end %>
+                          <h3><u><strong>Total Order Amount:</strong></u><br><br> <%= number_to_currency(order.total_price, precision: 2) %><br></h3>
+                          <div class='row form-group'> 
+                            <% order.refunds.each_with_index do |refund, index| %>
+                              <div class='col-md-6'> 
+                                <h4 class='text-center'><strong>Request #<%= index + 1 %></strong></h4> 
+                                <hr>
+                                <h4>Refund Status: <%= refund.status %><br></h4>
+                                <h4>Reason For Refund: <%= refund.note %><br></h4>
+                                <h4>Amount Requested: <%= number_to_currency(refund.amount, precision:2) %><br></h4>
+                                <h4>Amount Issued: <%= number_to_currency(refund.amount_issued, precision:2) %><br></h4>
+                              </div>
+                            <% end %>
+                          </div>
                         </div>
                         <div class='modal-footer actions'>
                           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
