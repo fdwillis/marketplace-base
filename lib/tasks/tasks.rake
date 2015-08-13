@@ -33,8 +33,8 @@ namespace :keen do
 				#minute
 				merchant_id: @order.merchant_id,
 				customer_id: @order.user_id,
-				total_price: ((@order.total_price) * 100).to_i,
-				shipping_price: ((@order.shipping_price) * 100).to_i,
+				total_price: ((@order.total_price) * 100).to_f,
+				shipping_price: ((@order.shipping_price) * 100).to_f,
 				customer_sign_in_count: @order.user.sign_in_count,
 				order_uuid: @order.uuid,
 				submit_timestamp: @order.updated_at
@@ -43,14 +43,29 @@ namespace :keen do
 			Keen.publish("Order Items", {
 				marketplace_name: "MarketplaceBase",
 				product_tags: oi.product_tags,
-				price: ((oi.price) * 100).to_i,
+				price: ((oi.price) * 100).to_f,
 				quantity: oi.quantity,
-				total_price: ((oi.total_price) * 100).to_i,
+				total_price: ((oi.total_price) * 100).to_f,
 				product_uuid: oi.product_uuid,
 				order_uuid: oi.order.uuid,
-				shipping_price: ((oi.shipping_price) * 100).to_i,
+				shipping_price: ((oi.shipping_price) * 100).to_f,
 				merchant_id: @order.merchant_id,
+				order_item_id: oi.id,
+				order_total_price: oi.total_price,
 				})
+		end
+		@order.order_items.each do |oi|
+			Product.find_by(uuid: oi.product_uuid).tags.each do |tag|
+				Keen.publish("Tags On Ordered Items", {
+					marketplace_name: "MarketplaceBase",
+					tag: tag.name, 
+					order_uuid: oi.order.uuid, 
+					order_item_id: oi.id,
+					order_item_product_uuid: oi.product_uuid,
+					order_total_price: ((oi.order.total_price) * 100).to_f,
+					order_item_total_price: ((oi.total_price) * 100).to_f, 
+					})
+			end
 		end
 	end
 	puts "sent to keen"

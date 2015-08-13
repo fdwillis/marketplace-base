@@ -56,7 +56,7 @@ class OrdersController < ApplicationController
             @order = @add_order
             @order.update_attributes(total_price: Order.total_price(@order), shipping_price: Order.shipping_price(@order))
           else
-            @order.order_items.create(product_tags:@product.tag_list.join(", ") , title: @product.title, price: @product.price, 
+            @order.order_items.create(product_tags: @product.tag_list, title: @product.title, price: @product.price, 
                                       user_id: @product.user_id, product_uuid: @product.uuid,
                                       quantity: @quantity, shipping_price: @product.shipping_price, total_price: @quantity * @product.price )
 
@@ -74,7 +74,7 @@ class OrdersController < ApplicationController
         if @order.save
           if @ship_to
 
-            @order.order_items.create(product_tags:@product.tag_list.join(", ") , title: "#{@product.title}", price:@product.price, 
+            @order.order_items.create(product_tags: @product.tag_list, title: "#{@product.title}", price:@product.price, 
                                       user_id: @product.user_id, product_uuid: @product.uuid, quantity: @quantity, shipping_price: @product.shipping_price, 
                                       total_price: @product.price * @quantity)
 
