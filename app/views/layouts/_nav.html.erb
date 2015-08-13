@@ -2,18 +2,19 @@
   <li><%= link_to "Marketplace-Base", root_path %></li>
   <div class="pull-right user-info">
     <% if current_user %>
-      <%= link_to "Plans", plans_path %> |
+      <% if current_user.merchant_approved || current_user.admin? %>
+        <%= link_to "Plans", plans_path %> |
+      <% end %>
       <%= link_to "Orders", orders_path %> <% if current_user.merchant? || current_user.admin? %> <%= "(#{Order.all.where(merchant_id: current_user.id).where(paid: true, tracking_number: nil, refunded: (false || nil)).count})"  %> <% else %> (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>) <% end %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
       <% if current_user.merchant? || current_user.admin? %>
         <%= link_to "Reports", reports_path %> | 
         <%= link_to "Profile", merchant_path(current_user.username) %> | 
-        Pending: <%= number_to_currency(current_user.pending_payment.to_f / 100, precision: 2) %> | 
-        Available: <%= number_to_currency(current_user.available_balance.to_f / 100, precision: 2) %> | 
         <%= link_to "Refunds (#{Refund.all.where(merchant_id: current_user.id).where(status: "Pending").count})", refunds_path %> | 
       <% end %>
       <% if current_user.admin? %>
         <%= link_to "Pending Products", pending_products_path %> | 
+        <%= link_to "Pending Merchants", merchants_path %> | 
       <% end %>
       <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
     <% else %>

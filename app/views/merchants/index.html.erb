@@ -1,3 +1,16 @@
+<h1>Merchants</h1>
 <% @merchants.each do |mer| %>
   <%= link_to mer.username.capitalize, merchant_path(mer.username) %>
+<% end %>
+
+<% if current_user.admin? %>
+	<h1>Pending Merchants</h1>
+	<% @pending.each do |mer| %>
+		<div class='row'>  
+			<div class='col-md-3'>
+			  <%= mer.username.capitalize %>
+			  <%= link_to "Approve Merchant", approve_merchant_path(username: mer.username), class: 'btn btn-success', method: :put %>
+			</div>
+		</div>
+	<% end %>
 <% end %>

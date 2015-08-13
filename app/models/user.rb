@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
   has_many :shipping_addresses
   has_many :stripe_customer_ids
 
-  validates_uniqueness_of :business_name
+  validates_uniqueness_of :business_name, :username
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable
@@ -61,8 +61,16 @@ class User < ActiveRecord::Base
     shipping_addresses.map{|f| [f.street.upcase, f.city.upcase, f.state.upcase, f.region.upcase, f.zip].join(", ")}
   end
 
+  def basic_biz_info?
+    tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && address_country.present? && statement_descriptor.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present? && dob_month.present? && dob_year.present?
+  end
+
+  def merchant_bank_account?
+    bank_currency.present? && routing_number.present? && account_number.present? && stripe_account_type.present?
+  end
+
   def merchant_ready?
-    card?.present? && tax_rate.present? && return_policy.present? && address_city.present? && address_state.present? && address_zip.present? && address.present? && bank_currency.present? && address_country.present? && statement_descriptor.present? && routing_number.present? && account_number.present? && business_name.present? && business_url.present? && support_email.present? && support_phone.present? && support_url.present? && first_name.present? && last_name.present? && dob_day.present?&& dob_month.present? && dob_year.present? && stripe_account_type.present?
+    card?.present? && merchant_bank_account?.present?
   end
 
   def merchant_changed
