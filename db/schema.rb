@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150811121859) do
+ActiveRecord::Schema.define(version: 20150813085427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,15 +19,16 @@ ActiveRecord::Schema.define(version: 20150811121859) do
   create_table "order_items", force: :cascade do |t|
     t.string   "title"
     t.decimal  "price",          precision: 12, scale: 2
-    t.string   "user_id"
-    t.string   "uuid"
+    t.integer  "user_id"
+    t.string   "product_uuid"
     t.integer  "quantity"
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.integer  "order_id"
     t.string   "description"
-    t.decimal  "shipping_price"
-    t.decimal  "total_price"
+    t.decimal  "shipping_price", precision: 12, scale: 2
+    t.decimal  "total_price",    precision: 12, scale: 2
+    t.string   "product_tags"
   end
 
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
@@ -77,6 +78,7 @@ ActiveRecord::Schema.define(version: 20150811121859) do
     t.string   "shipping_title"
     t.decimal  "shipping_price", precision: 12, scale: 2
     t.text     "keywords"
+    t.text     "product_tags"
   end
 
   add_index "products", ["order_id"], name: "index_products_on_order_id", using: :btree

@@ -3,21 +3,27 @@
   <h1 class='text-center'>Editing <i><%= (current_user.username.capitalize || current_user.email) %></i> Account</h1>
   <div class="tab-v2">
     <div class='row'>
-      <ul class="nav nav-pills col-md-8 col-md-offset-3">
-        <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Basic Information </a></li>
-        <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment &amp; Credit Card</a></li>
-        <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
-        <% if current_user.admin? || current_user.merchant? %> 
+      <% if current_user.admin? || current_user.merchant? %> 
+        <ul class="nav nav-pills col-md-8 col-md-offset-3">
+          <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Basic Information </a></li>
+          <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
+          <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
           <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
-        <% end %>
-      </ul>
+        </ul>
+      <% else %>
+        <ul class="nav nav-pills col-md-6 col-md-offset-4">
+          <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
+          <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
+          <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
+        </ul>
+      <% end %>
     </div>
     <div class="tab-content">
       <div class="tab-pane fade" id="basic_info">
         <div class='row'>
           <div class='container'>
-            <h3 class='text-center'>Basic Information For <%= (current_user.username.capitalize || current_user.email) %></h3>
-            <div class="col-md-4 col-md-offset-4">
+            <h2 class='text-center'>Basic Information For <%= (current_user.username.capitalize || current_user.email) %></h2>
+            <div class="col-md-8 col-md-offset-2">
               <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :patch }) do |f| %>
                 <%= devise_error_messages! %>
                 <div class="form-group text-center">
@@ -54,7 +60,7 @@
       <div class="tab-pane fade" id="payment_info">
         <div class='row'>
           <div class='container'>
-            <h1 class='text-center'>Payment &amp; Credit Card Information</h1>
+            <h2 class='text-center'>Payment &amp; Credit Card Information</h2>
             <br>
             <div class='row'>
               <%= form_for(current_user) do |f| %>
@@ -144,31 +150,33 @@
       <div class="tab-pane fade" id="shipping">
         <div class='row'>  
           <%= form_for(current_user) do |f| %>  
-            <h3>Shipping Addresses</h3>
+            <h2 class='text-center'>Shipping Addresses</h2>
             <div class='form-group'>  
               <%= f.simple_fields_for :shipping_addresses do |address| %>
-                  <%= render 'shipping_address_fields', f: address %>
+                <%= render 'shipping_address_fields', f: address %>
               <% end %>
             </div>
-            <div class="links">
-              <%= link_to_add_association 'Add Shipping Option', f, :shipping_addresses, class: 'btn btn-info col-md-6 col-md-offset-3' %>
+            <div class="links form-group">
+              <div class='row form-group'>    
+                <%= link_to_add_association 'Add Shipping Option', f, :shipping_addresses, class: 'btn btn-info col-md-6 col-md-offset-3' %>
+              </div>
             </div>
-            <div class="actions">
-              <%= f.submit "Update", class: 'btn btn-success col-md-6 col-md-offset-3' %>
+            <div class="actions form-group">
+              <div class='row form-group'>    
+                <%= f.submit "Update", class: 'btn btn-success col-md-6 col-md-offset-3' %>
+              </div>
             </div>
           <% end %>
         </div>
       </div>
       <div class="tab-pane fade" id="merchant">
-        <br>
-        <br>
-        <br>
+        <h2 class='text-center'>Business Information</h2>
         <div class="tab-v2">
           <div class='row'>
             <ul class="nav nav-pills col-md-6 col-md-offset-4">
-              <li class=""><a href="#business_info" data-toggle="tab" aria-expanded="false">Business Information </a></li>
-              <li class=""><a href="#bank_account" data-toggle="tab" aria-expanded="false">Bank Account Information</a></li>
-              <li class=""><a href="#seller_plan" data-toggle="tab" aria-expanded="false">Seller Plan</a></li>
+              <li class=""><a href="#business_info" data-toggle="tab" aria-expanded="false">Basic Information </a></li>
+              <li class=""><a href="#bank_account" data-toggle="tab" aria-expanded="false">Bank Account</a></li>
+              <li class=""><a href="#seller_plan" data-toggle="tab" aria-expanded="false">Current Plan</a></li>
             </ul>
           </div>
         </div>
@@ -255,7 +263,7 @@
           </div>
           <div class="tab-pane fade" id="bank_account">
             <%= form_for(current_user) do |f| %>
-              <h3>Bank Account Info</h3>
+              <h3 class='text-center'>Bank Account Info</h3>
               <div class="form-group text-center">
                 <%= f.select :stripe_account_type, ['individual', 'company']%>
               </div>
@@ -283,7 +291,7 @@
           <div class="tab-pane fade" id="seller_plan">
             <div class="row">
               <div class="col-md-4">
-                <h3>Cancel Merchant Plan</h3>
+                <h3 class='text-center'>Cancel Merchant Plan</h3>
                 <div class="form-group text-center">
                     <p><%= button_to "Cancel", subscribe_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: 'btn btn-danger' %></p>
                 </div>

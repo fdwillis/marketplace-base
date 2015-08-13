@@ -6,6 +6,7 @@ class ProductsController < ApplicationController
 #Track For Admin & Merchant on Show page for 'Product Views'
 
   def index
+    #Track Search Params with if params[:q] >> Keen tracking event
     @search = Product.search(params[:q])
     @products = @search.result.where(active: true).page(params[:page]).per_page(5)
     @tags = @search.result.where(active: true).page(params[:page]).per_page(5).map(&:tag_list)
@@ -78,6 +79,8 @@ class ProductsController < ApplicationController
     end
 
     def product_params
-      params.require(:product).permit(:shipping_price, :quantity, :tag_list, :description, :active, :product_image, :title, :price, :uuid, shipping_options_attributes: [:id, :title, :uuid, :price, :_destroy])
+      params.require(:product).permit(:shipping_price, :quantity, :tag_list, 
+                                      :description, :active, :product_image, 
+                                      :title, :price, :uuid, shipping_options_attributes: [:id, :title, :uuid, :price, :_destroy])
     end
 end

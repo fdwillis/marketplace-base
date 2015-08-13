@@ -1,29 +1,29 @@
-<div class='col-md-4 form-group'> 
+<div class='col-md-3 form-group'> 
   <div class="nested-fields text-center">
     <div class='row'>
       <div class='col-md-12'>  
         <%= f.label :street, "Street Address" %><br>
-        <%= f.text_field :street, class: 'form-control'  %><br>
+        <%= f.text_field :street, class: 'form-control text-center'  %><br>
       </div>
     </div>
     <div class='row'>
       <div class='col-md-6'>
         <%= f.label :city, "City" %><br>
-        <%= f.text_field :city, class: 'form-control'  %><br>
+        <%= f.text_field :city, class: 'form-control text-center'  %><br>
       </div>
       <div class='col-md-6'>
       <%= f.label :state, "State" %><br>
-      <%= f.text_field :state, class: 'form-control', minlength: 2  %><br>
+      <%= f.text_field :state, class: 'form-control text-center', maxlength: 2  %><br>
       </div>
     </div>
     <div class='row'>
       <div class='col-md-6'>
         <%= f.label :zip, "Zip Code" %><br>
-        <%= f.text_field :zip, class: 'form-control'  %><br>
+        <%= f.text_field :zip, class: 'form-control text-center'  %><br>
       </div>
       <div class='col-md-6'>
         <%= f.label :region, "Country Code" %><br>
-        <%= f.text_field :region, maxlength: 2, class: 'form-control'  %><br>
+        <%= f.text_field :region, maxlength: 2, class: 'form-control text-center'  %><br>
       </div>
     </div>
     <%= link_to_remove_association "Remove", f, class: 'btn btn-sm btn-danger' %><br>

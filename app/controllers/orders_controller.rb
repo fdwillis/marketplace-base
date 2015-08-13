@@ -56,8 +56,8 @@ class OrdersController < ApplicationController
             @order = @add_order
             @order.update_attributes(total_price: Order.total_price(@order), shipping_price: Order.shipping_price(@order))
           else
-            @order.order_items.create(title: @product.title, price: @product.price, 
-                                      user_id: @product.user_id, uuid: @product.uuid,
+            @order.order_items.create(product_tags:@product.tag_list.join(", ") , title: @product.title, price: @product.price, 
+                                      user_id: @product.user_id, product_uuid: @product.uuid,
                                       quantity: @quantity, shipping_price: @product.shipping_price, total_price: @quantity * @product.price )
 
             @order.update_attributes(total_price: Order.total_price(@order), shipping_price: Order.shipping_price(@order))
@@ -74,8 +74,9 @@ class OrdersController < ApplicationController
         if @order.save
           if @ship_to
 
-            @order.order_items.create!(title: "#{@product.title}", price:@product.price, user_id: @product.user_id, uuid: @product.uuid,
-                                 quantity: @quantity, shipping_price: @product.shipping_price, total_price: @product.price * @quantity)
+            @order.order_items.create(product_tags:@product.tag_list.join(", ") , title: "#{@product.title}", price:@product.price, 
+                                      user_id: @product.user_id, product_uuid: @product.uuid, quantity: @quantity, shipping_price: @product.shipping_price, 
+                                      total_price: @product.price * @quantity)
 
             Order.shipping_price(@order)
 
@@ -86,7 +87,7 @@ class OrdersController < ApplicationController
           @order.update_attributes(total_price: Order.total_price(@order))
           @order.save
           redirect_to root_path
-          flash[:notice] = 'Order Was Successfully Saved.'
+          flash[:notice] = 'Order Was Successfully Started.'
           return
           else
             redirect_to @product
@@ -214,7 +215,8 @@ class OrdersController < ApplicationController
 
         # @order.shipping_option needs to be the name of the selected label
         
-        @order.update_attributes(tracking_url: @transaction.label_url, tracking_number: @transaction.tracking_number, carrier: params[:carrier], shipping_option: params[:shipping_option] )
+        @order.update_attributes(tracking_url: @transaction.label_url, tracking_number: @transaction.tracking_number, 
+                                 carrier: params[:carrier], shipping_option: params[:shipping_option] )
         @tracking_number = AfterShip::V4::Tracking.create( @transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
         redirect_to orders_path
         flash[:notice] = "Label Sucessfully Generated \nlabel_url: #{@transaction.label_url} \ntracking_number: #{@transaction.tracking_number}" 
@@ -256,10 +258,9 @@ class OrdersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_params
-      params.require(:order).permit(:active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
-                                    :carrier, :refunded, :tracking_url, :stripe_shipping_charge,
-                                    :merchant_id, :paid, :shipping_price, :status, :ship_to, 
-                                    :customer_name, :tracking_number, :shipping_option, 
+      params.require(:order).permit(:product_tags, :active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
+                                    :carrier, :refunded, :tracking_url, :stripe_shipping_charge, :merchant_id, :paid, 
+                                    :shipping_price, :status, :ship_to, :customer_name, :tracking_number, :shipping_option, 
                                     :total_price, :user_id, order_items_attributes: [:id, :title, :price, :total_price, :user_id, :uuid, :description, :quantity, :_destroy],
                                     shipping_updates_attributes: [:id, :message, :checkpoint_time, :tag, :order_id, :_destroy])
     end

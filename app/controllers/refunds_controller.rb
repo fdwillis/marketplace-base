@@ -75,7 +75,7 @@ class RefundsController < ApplicationController
         end
 
         # @order.order_items.each do |oi|
-        #   @product = Product.find_by(uuid: oi.uuid)
+        #   @product = Product.find_by(uuid: oi.product_uuid)
         #   @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
         # end
 
@@ -115,7 +115,7 @@ class RefundsController < ApplicationController
         end
 
         # @order.order_items.each do |oi|
-        #   @product = Product.find_by(uuid: oi.uuid)
+        #   @product = Product.find_by(uuid: oi.product_uuid)
         #   @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
         # end
 
