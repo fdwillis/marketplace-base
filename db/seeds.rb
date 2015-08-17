@@ -132,6 +132,14 @@ stripe.each do |user|
           country: user.address_country,
         },
       },
+      decline_charge_on: {
+        cvc_failure: true,
+      },
+      transfer_schedule:{
+        delay_days: 7,
+        interval: 'weekly',
+        weekly_anchor: 'friday',
+      },
   )
   @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
   @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
