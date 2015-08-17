@@ -136,9 +136,7 @@ stripe.each do |user|
         cvc_failure: true,
       },
       transfer_schedule:{
-        delay_days: 7,
-        interval: 'weekly',
-        weekly_anchor: 'friday',
+        interval: 'manual',
       },
   )
   @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
