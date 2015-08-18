@@ -8,7 +8,7 @@
             <h1> Review Donation Of <strong><em><u><%= frg.title %></u></em></strong></h1>
             <h3>By: <%= link_to frg.user.username.titleize, merchant_path(frg.user.username) %></h3>
           </div>
-          <%= form_for purchases_path(merchant_id: frg.user.id, uuid: frg.uuid), method: :post do |f| %>
+          <%= form_tag purchases_path(merchant_id: frg.user.id, uuid: frg.uuid), method: :post do |f| %>
             <div class="modal-body">
               <div class="container-fluid">  
                 <div class="col-md-9">
@@ -17,22 +17,26 @@
                 <div class="col-md-3 text-center">
                   <h4>One Time Donation</h4>
                   <div class='form-group'>  
-                    <%= f.radio_button(:donation_type, "One Time")%>   One Time Donation<br>
+                    <%= radio_button_tag(:donation_type, "One Time")%>   One Time Donation<br>
                   </div>
                   <div class='form-group'>  
-                    <%= f.number_field :donation, min: 0, class: 'form-control text-center', placeholder: "Enter Donation Amount" %>
+                    <%= number_field_tag :donation, min: 0, class: 'form-control text-center', placeholder: "Enter Donation Amount" %>
                   </div>
                   <h1>Or</h1>
                   <h4>Monthly Donation</h4>
 	                <div class='form-group'>	
-		              	<%= f.radio_button(:donation_type, "Subscribe")%>  Monthly Donation
+  		              <% frg.user.donation_plans.each do |plan| %>
+                      <div class='row'>
+                      	<%= radio_button_tag(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
+                      </div>
+                    <% end %>
                   </div>
 	              </div>
               </div>
             </div>
             <div class="modal-footer actions">
               <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-              <%= f.submit "Donate Now", class: 'btn btn-primary' %>
+              <%= submit_tag "Donate Now", class: 'btn btn-primary' %>
             </div>
           <% end %>
         </div>

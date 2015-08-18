@@ -8,12 +8,10 @@ class UsersController < ApplicationController
       if params[:user][:donation_plans_attributes]
 
         donation_plans = params[:user][:donation_plans_attributes]
-        debugger
         donation_plans.each do |plan|
           @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
           Stripe.api_key = @crypt.decrypt_and_verify(current_user.merchant_secret_key)
 
-          debugger
           Stripe::Plan.create(
             :amount => ((plan[1]['amount'].to_f) * 100).to_i,
             :interval => 'month',
@@ -24,7 +22,6 @@ class UsersController < ApplicationController
         end
 
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
-        debugger
       end
 
 

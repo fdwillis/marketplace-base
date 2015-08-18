@@ -109,9 +109,10 @@ class PurchasesController < ApplicationController
         return
       end
 
-      if params[:donation].to_i > 0
-        if params[:donation_type] 
-          if params[:donation_type] == "One Time"
+    
+      if params[:donation_type] 
+        if params[:donation_type] == "One Time"
+          if params[:donation].to_i > 0
             if @merchant.role == 'admin'
               begin
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
@@ -148,36 +149,55 @@ class PurchasesController < ApplicationController
               end
             end
           else
-            if @merchant.role == 'admin'
-              begin
-                @charge = User.subscribe_to_admin
-                @fund.increment!(:backers, by = 1)
-
-                redirect_to fundraising_goals_path
-                flash[:notice] = "Thanks for the donation!"
-                return
-              rescue Stripe::CardError => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              rescue => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              end
-
-              redirect_to fundraising_goals_path
-              return
-            else
-            end
+            redirect_to fundraising_goal_path(id: @fund.slug)
+            flash[:error] = "Please Specify A Valid Donation Amount"
           end
         else
-          redirect_to fundraising_goal_path(id: @fund.slug)
-          flash[:error] = "Please Specify A Donation Type"
+          if @merchant.role == 'admin'
+            begin
+              @charge = User.subscribe_to_admin
+              @fund.increment!(:backers, by = 1)
+
+              redirect_to fundraising_goals_path
+              flash[:notice] = "Thanks for the donation!"
+              return
+            rescue Stripe::CardError => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            rescue => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            end
+
+            redirect_to fundraising_goals_path
+            return
+          else
+
+            @donation_plan = DonationPlan.find_by(uuid: params[:donation_type])
+
+            begin
+              @charge = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token, @merchant_account_id, @donation_plan)
+              @fund.increment!(:backers, by = 1)
+
+              redirect_to fundraising_goals_path
+              flash[:notice] = "Thanks for the donation!"
+              return
+            rescue Stripe::CardError => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            rescue => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            end
+          end
         end
       else
         redirect_to fundraising_goal_path(id: @fund.slug)
-        flash[:error] = "Please Specify A Valid Donation Amount"
+        flash[:error] = "Please Specify A Donation Type"
       end
     end
   end
