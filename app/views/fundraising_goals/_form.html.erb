@@ -1,5 +1,15 @@
 <%= simple_form_for(@fundraising_goal) do |f| %>
-  <%= f.error_notification %>
+  <% if @fundraising_goal.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@fundraising_goal.errors.count, "error") %> prohibited this goal from being saved:</h2>
+
+      <ul>
+        <% @fundraising_goal.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
   <div class="row">
     <div class="col-md-8">
@@ -14,6 +24,7 @@
       <div class="form-group">
       	<%= f.label :description, "Description" %>
         <%= f.text_area :description, class: 'form-control', placeholder: "Enter Title", label: false, size: '50x5' %>
+        <%= f.hidden_field :uuid, value: (@fundraising_goal.uuid || SecureRandom.uuid) %>
       </div>
 	  </div>
   </div>

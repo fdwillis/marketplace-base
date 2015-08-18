@@ -88,6 +88,8 @@ class User < ActiveRecord::Base
   end
 
   def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
+    debugger
+
     @token = token.id
     @price = price
     @merchant60 = ((@price) * 60) /100
@@ -134,7 +136,7 @@ class User < ActiveRecord::Base
         },
         {stripe_account: merchant_account_id}
         )
-      
+      debugger
     end
   end
 
@@ -168,11 +170,9 @@ class User < ActiveRecord::Base
         description: 'MarketplaceBase',
       )
     end
-
   end
 
   def self.new_token(current_user, card)
-
     Stripe::Token.create(
       card: {
         number: card,

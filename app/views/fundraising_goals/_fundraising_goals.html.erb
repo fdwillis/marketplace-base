@@ -1,10 +1,44 @@
 <% @fundraising_goals.each do |frg| %>
 	<div class='row'>  
+    <%= link_to "Donate Now", "##{frg.uuid}", class: 'btn btn-info', 'data-toggle' => 'modal' %>
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModal" id="<%= frg.uuid %>">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h1> Review Purchase Of <strong><em><u><%= frg.title %></u></em></strong></h1>
+            <h3>Sold By: <%= link_to frg.user.username.titleize, merchant_path(frg.user.username) %></h3>
+          </div>
+          <%= form_tag purchases_path(merchant_id: frg.user.id, title: frg.title), method: :post do %>
+            <div class="modal-body">
+              <div class="container-fluid">  
+                <div class="col-md-9">
+                	<h1>HI</h1>
+                </div>
+                <div class="col-md-3">
+	                <div class='form-group'>	
+	                	<%= number_field_tag :donation, min: 0 %>
+		              </div>
+	                <div class='form-group'>	
+		              	<%= radio_button_tag(:one_time, "One Time")%>   One Time Donation
+		              </div>
+	              </div>
+              </div>
+            </div>
+            <div class="modal-footer actions">
+              <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+              <%= submit_tag "Donate Now", class: 'btn btn-primary' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
 	  <%= frg.title %>
 	  <%= number_to_currency(frg.goal_amount, precision: 2) %>
 	  <%= frg.description %>
-	  <%= link_to 'Show', frg %>
-	  <%= link_to 'Edit', edit_fundraising_goal_path(frg) %>
-	  <%= link_to 'Destroy', frg, method: :delete, data: { confirm: 'Are you sure?' } %>
+		<% if policy(frg).edit? %>  
+		  <%= link_to 'Show', frg %>
+		  <%= link_to 'Edit', edit_fundraising_goal_path(frg) %>
+		  <%= link_to 'Destroy', frg, method: :delete, data: { confirm: 'Are you sure?' } %>
+		<% end %>
 	</div>
 <% end %>
