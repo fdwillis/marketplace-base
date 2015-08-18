@@ -22,15 +22,17 @@
                   <div class='form-group'>  
                     <%= number_field_tag :donation, min: 0, class: 'form-control text-center', placeholder: "Enter Donation Amount" %>
                   </div>
-                  <h1>Or</h1>
-                  <h4>Monthly Donation</h4>
-	                <div class='form-group'>	
-  		              <% frg.user.donation_plans.each do |plan| %>
-                      <div class='row'>
-                      	<%= radio_button_tag(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
-                      </div>
-                    <% end %>
-                  </div>
+                  <% if frg.user.donation_plans.present? %>
+                    <h1>Or</h1>
+                    <h4>Monthly Donation</h4>
+  	                <div class='form-group'>	
+    		              <% frg.user.donation_plans.each do |plan| %>
+                        <div class='row'>
+                        	<%= radio_button_tag(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
 	              </div>
               </div>
             </div>

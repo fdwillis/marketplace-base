@@ -90,9 +90,8 @@ class User < ActiveRecord::Base
   end
 
   def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
-    debugger
 
-    @token = token.id
+    @token = token
     @price = price
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
@@ -138,13 +137,11 @@ class User < ActiveRecord::Base
         },
         {stripe_account: merchant_account_id}
         )
-      debugger
     end
   end
   def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
 
-    @token = token.id
-    debugger
+    @token = token
     @price = ((donation_plan.amount.to_f) * 100).to_i
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
@@ -159,13 +156,10 @@ class User < ActiveRecord::Base
   
     if !@customer_account.nil? && @customer_account.present?
       customer_card = @customer_account.customer_card
-      debugger
       customer = Stripe::Customer.retrieve(@customer_account.customer_id)
       plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
-      debugger
 
     else
-      debugger
       @customer = Stripe::Customer.create(
         :description => "Customer For MarketplaceBase",
         :source => @token
@@ -175,11 +169,12 @@ class User < ActiveRecord::Base
                                       customer_card: @customer.default_source, customer_id: @customer.id)
       
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
-      debugger
     end
   end
 
   def self.charge_for_admin(user, price, token)
+    debugger
+
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
@@ -211,7 +206,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.subscribe_to_admin
+  def self.subscribe_to_admin(user, token, donation_plan)
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
@@ -219,12 +214,9 @@ class User < ActiveRecord::Base
     if !@customer_account.nil? && @customer_account.present?
       
       customer_card = @customer_account.customer_card
-      charge = Stripe::Charge.create(
-        amount: price,
-        currency: 'USD',
-        customer: @customer_account.customer_id ,
-        description: 'MarketplaceBase',
-      )  
+      customer = Stripe::Customer.retrieve(@customer_account.customer_id)
+      plan = customer.subscriptions.create(:plan => donation_plan.uuid)
+
     else
       @customer = Stripe::Customer.create(
         :description => "Customer For MarketplaceBase",
@@ -234,12 +226,8 @@ class User < ActiveRecord::Base
       user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
                                       customer_card: @customer.default_source, customer_id: @customer.id)
 
-      charge = Stripe::Charge.create(
-        amount: price,
-        currency: 'USD',
-        customer: @customer.id,
-        description: 'MarketplaceBase',
-      )
+      plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
+
     end
   end
 

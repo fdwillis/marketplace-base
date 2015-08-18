@@ -153,9 +153,11 @@ class PurchasesController < ApplicationController
             flash[:error] = "Please Specify A Valid Donation Amount"
           end
         else
+          @donation_plan = DonationPlan.find_by(uuid: params[:donation_type])
+
           if @merchant.role == 'admin'
             begin
-              @charge = User.subscribe_to_admin
+              @charge = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
               @fund.increment!(:backers, by = 1)
 
               redirect_to fundraising_goals_path
@@ -175,10 +177,9 @@ class PurchasesController < ApplicationController
             return
           else
 
-            @donation_plan = DonationPlan.find_by(uuid: params[:donation_type])
 
             begin
-              @charge = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token, @merchant_account_id, @donation_plan)
+              @charge = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
               @fund.increment!(:backers, by = 1)
 
               redirect_to fundraising_goals_path
