@@ -93,31 +93,46 @@ class PurchasesController < ApplicationController
         return
       end
     else
-      if @merchant.role == 'admin'
+      debugger
+      @fund = FundraisingGoal.find_by(uuid: params[:uuid])
+      @price = params[:donation].to_i * 100
+      @card = @crypt.decrypt_and_verify(current_user.card_number)
 
-      else
-
-        @price = params[:donation].to_i * 100
-
-        @card = @crypt.decrypt_and_verify(current_user.card_number)
-        
-        begin
-          @token = User.new_token(current_user, @card)
-        rescue Stripe::CardError => e
-          redirect_to edit_user_registration_path
-          flash[:error] = "#{e}"
-          return
-        rescue => e
-          redirect_to edit_user_registration_path
-          flash[:error] = "#{e}"
-          return
-        end
-
-        @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
-
-        redirect_to fundraising_goals_path
-        flash[:notice] = "Thanks For The Donation"
+      if params[:donation].to_i > 0
         debugger
+        if params[:donation_type] == "One Time"
+          debugger
+          redirect_to fundraising_goals_path
+          return
+
+          if @merchant.role == 'admin'
+
+          else
+            
+            begin
+              @token = User.new_token(current_user, @card)
+            rescue Stripe::CardError => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            rescue => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            end
+
+            @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
+
+            redirect_to fundraising_goals_path
+            flash[:notice] = "Thanks For The Donation"
+            debugger
+          end
+        else
+          #Subscribe donation
+        end
+      else
+        redirect_to fundraising_goal_path(id: @fund.slug)
+        flash[:error] = "Please Specify A Valid Donation Amount"
       end
     end
   end
