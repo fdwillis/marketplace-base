@@ -1,0 +1,10 @@
+<% @fundraising_goals.each do |frg| %>
+	<div class='row'>  
+	  <%= frg.title %>
+	  <%= number_to_currency(frg.goal_amount, precision: 2) %>
+	  <%= frg.description %>
+	  <%= link_to 'Show', frg %>
+	  <%= link_to 'Edit', edit_fundraising_goal_path(frg) %>
+	  <%= link_to 'Destroy', frg, method: :delete, data: { confirm: 'Are you sure?' } %>
+	</div>
+<% end %>

@@ -1,7 +1,21 @@
 <%= simple_form_for(@fundraising_goal) do |f| %>
   <%= f.error_notification %>
 
-  <div class="form-inputs">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="form-group">
+      	<%= f.label :title, "Title" %>
+        <%= f.text_field :title, class: 'form-control', placeholder: "Enter Title", label: false %>
+      </div>
+      <div class="form-group" id='ProjectListButton'>
+        <%= f.label :goal_amount, "Goal Amount", step: 'any' %>
+        <%= f.number_field :goal_amount, class: 'form-control pricing', placeholder: "Enter Goal Amount", label: false, step: 'any' %>
+      </div>
+      <div class="form-group">
+      	<%= f.label :description, "Description" %>
+        <%= f.text_area :description, class: 'form-control', placeholder: "Enter Title", label: false, size: '50x5' %>
+      </div>
+	  </div>
   </div>
 
   <div class="form-actions">
