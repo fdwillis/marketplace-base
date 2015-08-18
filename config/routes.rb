@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   resources :orders
+  resources :fundraising_goals
+
   resources :charges, only: [:create]
   resources :notifications, only: [:create, :update]
 
@@ -23,6 +25,7 @@ Rails.application.routes.draw do
   put 'approve_merchant' => 'merchants#approve_merchant'
   put 'active_order' => 'orders#active_order'
   post 'notifications' => 'notifications#create'
+
   root to: 'products#index'
   resources :products
 end

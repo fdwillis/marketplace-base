@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Fundraising Goals</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @fundraising_goals.each do |fundraising_goal| %>
+      <tr>
+        <td><%= link_to 'Show', fundraising_goal %></td>
+        <td><%= link_to 'Edit', edit_fundraising_goal_path(fundraising_goal) %></td>
+        <td><%= link_to 'Destroy', fundraising_goal, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<% if policy(FundraisingGoal.new).new? %>
+  <%= link_to 'New Fundraising goal', new_fundraising_goal_path %> <<< Change Policy to be only fundraiser?..users need many roles and check to see if role includes 'role'
+<% end %>

@@ -1,0 +1,2 @@
+module FundraisingGoalsHelper
+end

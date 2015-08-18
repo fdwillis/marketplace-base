@@ -11,10 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150813163856) do
+ActiveRecord::Schema.define(version: 20150818010623) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "fundraising_goals", force: :cascade do |t|
+    t.string   "title"
+    t.text     "description"
+    t.integer  "user_id"
+    t.decimal  "goal_amount"
+    t.integer  "backers"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "fundraising_goals", ["user_id"], name: "index_fundraising_goals_on_user_id", using: :btree
 
   create_table "order_items", force: :cascade do |t|
     t.string   "title"
@@ -137,6 +149,15 @@ ActiveRecord::Schema.define(version: 20150813163856) do
   end
 
   add_index "returned_products", ["refund_id"], name: "index_returned_products_on_refund_id", using: :btree
+
+  create_table "roles", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "roles", ["user_id"], name: "index_roles_on_user_id", using: :btree
 
   create_table "shipping_addresses", force: :cascade do |t|
     t.string   "street"
@@ -290,6 +311,7 @@ ActiveRecord::Schema.define(version: 20150813163856) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["slug"], name: "index_users_on_slug", unique: true, using: :btree
 
+  add_foreign_key "fundraising_goals", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "users"
   add_foreign_key "products", "orders"
@@ -298,6 +320,7 @@ ActiveRecord::Schema.define(version: 20150813163856) do
   add_foreign_key "purchases", "users"
   add_foreign_key "refunds", "orders"
   add_foreign_key "returned_products", "refunds"
+  add_foreign_key "roles", "users"
   add_foreign_key "shipping_addresses", "users"
   add_foreign_key "shipping_options", "products"
   add_foreign_key "shipping_updates", "orders"

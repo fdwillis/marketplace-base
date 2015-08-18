@@ -10,9 +10,11 @@ class User < ActiveRecord::Base
   has_many :products
   
   has_many :purchases
+  has_many :roles
   has_many :transfers
   has_many :shipping_addresses
   has_many :stripe_customer_ids
+  has_many :fundraising_goals
 
   validates_uniqueness_of :business_name, :username
 
@@ -32,6 +34,10 @@ class User < ActiveRecord::Base
 
   def merchant?
     role == 'merchant'
+  end
+
+  def fundraiser?
+    role == 'fundraiser'
   end
 
   def phone_number
