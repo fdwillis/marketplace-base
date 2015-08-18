@@ -90,6 +90,7 @@ class User < ActiveRecord::Base
   end
 
   def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
     @token = token
     @price = price
@@ -138,8 +139,11 @@ class User < ActiveRecord::Base
         {stripe_account: merchant_account_id}
         )
     end
+
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
   def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
     @token = token
     @price = ((donation_plan.amount.to_f) * 100).to_i
@@ -158,7 +162,6 @@ class User < ActiveRecord::Base
       customer_card = @customer_account.customer_card
       customer = Stripe::Customer.retrieve(@customer_account.customer_id)
       plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
-
     else
       @customer = Stripe::Customer.create(
         :description => "Customer For MarketplaceBase",
@@ -170,10 +173,12 @@ class User < ActiveRecord::Base
       
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
     end
+
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
   def self.charge_for_admin(user, price, token)
-    debugger
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
@@ -204,9 +209,13 @@ class User < ActiveRecord::Base
         description: 'MarketplaceBase',
       )
     end
+
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
   def self.subscribe_to_admin(user, token, donation_plan)
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
@@ -216,7 +225,6 @@ class User < ActiveRecord::Base
       customer_card = @customer_account.customer_card
       customer = Stripe::Customer.retrieve(@customer_account.customer_id)
       plan = customer.subscriptions.create(:plan => donation_plan.uuid)
-
     else
       @customer = Stripe::Customer.create(
         :description => "Customer For MarketplaceBase",
@@ -227,8 +235,8 @@ class User < ActiveRecord::Base
                                       customer_card: @customer.default_source, customer_id: @customer.id)
 
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
-
     end
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
   def self.new_token(current_user, card)

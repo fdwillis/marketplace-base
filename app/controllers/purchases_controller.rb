@@ -41,10 +41,13 @@ class PurchasesController < ApplicationController
 
         if @merchant.role == 'admin'
           begin
+            Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
             @charge = User.charge_for_admin(current_user, @price, @token.id)
             @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
                                      paid: true, application_fee: @charge.application_fee, status: "Paid")
                                 
+            Stripe.api_key = Rails.configuration.stripe[:secret_key]
             redirect_to orders_path
             flash[:notice] = "Thanks for the purchase!"
             return
@@ -59,6 +62,8 @@ class PurchasesController < ApplicationController
           end
         else
           begin
+            Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
             @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
             
             @order.order_items.each do |oi|
@@ -115,7 +120,11 @@ class PurchasesController < ApplicationController
           if params[:donation].to_i > 0
             if @merchant.role == 'admin'
               begin
+                Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
+
+                Stripe.api_key = Rails.configuration.stripe[:secret_key]
                 @fund.increment!(:backers, by = 1)
 
                 redirect_to fundraising_goals_path
@@ -132,10 +141,15 @@ class PurchasesController < ApplicationController
               end
             else
               begin
+                Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
+                
+                Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
                 @fund.increment!(:backers, by = 1)
 
-                redirect_to orders_path
+                redirect_to fundraising_goals_path
                 flash[:notice] = "Thanks for the donation!"
                 return
               rescue Stripe::CardError => e
@@ -157,7 +171,12 @@ class PurchasesController < ApplicationController
 
           if @merchant.role == 'admin'
             begin
+              Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
               @charge = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
+              
+              Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
               @fund.increment!(:backers, by = 1)
 
               redirect_to fundraising_goals_path
@@ -179,7 +198,12 @@ class PurchasesController < ApplicationController
 
 
             begin
+              Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
               @charge = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
+              
+              Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
               @fund.increment!(:backers, by = 1)
 
               redirect_to fundraising_goals_path
