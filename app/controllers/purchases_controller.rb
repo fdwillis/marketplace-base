@@ -112,11 +112,12 @@ class PurchasesController < ApplicationController
       if params[:donation].to_i > 0
         if params[:donation_type] 
           if params[:donation_type] == "One Time"
-
             if @merchant.role == 'admin'
               begin
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
-                redirect_to orders_path
+                @fund.increment!(:backers, by = 1)
+
+                redirect_to fundraising_goals_path
                 flash[:notice] = "Thanks for the donation!"
                 return
               rescue Stripe::CardError => e
@@ -131,6 +132,8 @@ class PurchasesController < ApplicationController
             else
               begin
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
+                @fund.increment!(:backers, by = 1)
+
                 redirect_to orders_path
                 flash[:notice] = "Thanks for the donation!"
                 return
@@ -145,7 +148,28 @@ class PurchasesController < ApplicationController
               end
             end
           else
-            #Subscribe donation
+            if @merchant.role == 'admin'
+              begin
+                @charge = User.subscribe_to_admin
+                @fund.increment!(:backers, by = 1)
+
+                redirect_to fundraising_goals_path
+                flash[:notice] = "Thanks for the donation!"
+                return
+              rescue Stripe::CardError => e
+                redirect_to edit_user_registration_path
+                flash[:error] = "#{e}"
+                return
+              rescue => e
+                redirect_to edit_user_registration_path
+                flash[:error] = "#{e}"
+                return
+              end
+
+              redirect_to fundraising_goals_path
+              return
+            else
+            end
           end
         else
           redirect_to fundraising_goal_path(id: @fund.slug)

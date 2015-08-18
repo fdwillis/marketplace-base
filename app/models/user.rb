@@ -172,6 +172,38 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.subscribe_to_admin
+    @customers = Stripe::Customer.all.data
+    @customer_ids = @customers.map(&:id)
+    @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
+
+    if !@customer_account.nil? && @customer_account.present?
+      
+      customer_card = @customer_account.customer_card
+      charge = Stripe::Charge.create(
+        amount: price,
+        currency: 'USD',
+        customer: @customer_account.customer_id ,
+        description: 'MarketplaceBase',
+      )  
+    else
+      @customer = Stripe::Customer.create(
+        :description => "Customer For MarketplaceBase",
+        :source => token
+      )
+    
+      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
+                                      customer_card: @customer.default_source, customer_id: @customer.id)
+
+      charge = Stripe::Charge.create(
+        amount: price,
+        currency: 'USD',
+        customer: @customer.id,
+        description: 'MarketplaceBase',
+      )
+    end
+  end
+
   def self.new_token(current_user, card)
     Stripe::Token.create(
       card: {

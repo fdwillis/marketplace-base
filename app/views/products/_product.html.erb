@@ -17,17 +17,17 @@
                       <h1> Review Purchase Of <strong><em><u><%= product.title %></u></em></strong></h1>
                       <h3>Sold By: <%= link_to product.user.username.titleize, merchant_path(product.user.username) %></h3>
                     </div>
-                    <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
+                    <%= form_for orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do |f| %>
                       <div class="modal-body">
                         <div class="container-fluid">  
                             <div class="col-md-9">
                             </div>
                             <div class="col-md-3">  
                               <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
-                              <%= number_field_tag :quantity, class: 'form-control' %>
+                              <%= f.number_field :quantity, class: 'form-control' %>
                               <h3>Shipping Destination</h3>
                               <% current_user.shipping_to.each do |s| %>
-                                <p> <%= radio_button_tag(:ship_to, "#{s}_new")%>   <%= s %></p>
+                                <p> <%= f.radio_button(:ship_to, "#{s}_new")%>   <%= s %></p>
                               <% end %>
                             </div>
                         </div>
@@ -35,7 +35,7 @@
                       <div class="modal-footer actions">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                         <% if !current_user.shipping_addresses.empty? %>
-                          <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                          <%= f.submit "Submit Order", class: 'btn btn-success' %>
                         <% else %>
                           <%= link_to "Add Shipping Address", edit_user_registration_path, class: 'btn btn-warning' %>
                         <% end %>
@@ -54,7 +54,7 @@
                       <div class="modal-header text-center">
                         <h1>Adding <u><strong><em><%= product.title %></em></strong></u> To</h1>
                       </div>
-                      <%= form_tag orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do %>
+                      <%= form_for orders_path(uuid: product.uuid, price: ((product.price * 100) + (product.price * product.user.tax_rate))), method: :post do |f| %>
                         <% if @current_orders.present? %>
                           <div class="modal-body">
                             <div class="container-fluid">  
@@ -62,7 +62,7 @@
                                 <h3>Pending Orders</h3>
                                 <% @current_orders.each do |s| %>
                                   <div class='col-md-6'>
-                                    <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
+                                    <%= f.radio_button(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
                                     <h5>Item Total: <%= number_to_currency(s.order_items.map(&:total_price).sum, precision: 2 ) %></h5>
                                     <h5>Shipping: <%= "#{s.shipping_option} #{number_to_currency(s.shipping_price, precision: 2)}" %></h5>
                                     <h5>Tax: <%= "#{number_with_precision(product.user.tax_rate, precision: 2)}%" %></h5>
@@ -78,13 +78,13 @@
                               </div>
                               <div class="col-md-3">  
                                 <h3>Quantity <small><%=product.quantity%> Remaining</small></h3>
-                                <%= number_field_tag :quantity, class: 'form-control' %>
+                                <%= f.number_field :quantity, class: 'form-control' %>
                               </div>
                             </div>
                           </div>
                           <div class="modal-footer actions">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                            <%= submit_tag "Submit Order", class: 'btn btn-success' %>
+                            <%= f.submit "Submit Order", class: 'btn btn-success' %>
                           </div>
                         <% else %>
                           <h1>You Have No Pending Orders</h1>
