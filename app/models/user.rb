@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   has_many :products
   
   has_many :purchases
+  has_many :donation_plans
   has_many :roles
   has_many :transfers
   has_many :shipping_addresses
@@ -24,6 +25,7 @@ class User < ActiveRecord::Base
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
 
+  accepts_nested_attributes_for :donation_plans, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :shipping_addresses, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :stripe_customer_ids, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :orders, reject_if: :all_blank, allow_destroy: true

@@ -11,10 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150818045951) do
+ActiveRecord::Schema.define(version: 20150818094438) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "donation_plans", force: :cascade do |t|
+    t.decimal  "amount"
+    t.string   "interval"
+    t.string   "name"
+    t.string   "currency"
+    t.string   "uuid"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "donation_plans", ["user_id"], name: "index_donation_plans_on_user_id", using: :btree
 
   create_table "fundraising_goals", force: :cascade do |t|
     t.string   "title"
@@ -314,6 +327,7 @@ ActiveRecord::Schema.define(version: 20150818045951) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["slug"], name: "index_users_on_slug", unique: true, using: :btree
 
+  add_foreign_key "donation_plans", "users"
   add_foreign_key "fundraising_goals", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "users"

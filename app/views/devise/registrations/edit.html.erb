@@ -9,6 +9,7 @@
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
           <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
+          <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
         </ul>
       <% else %>
         <ul class="nav nav-pills col-md-6 col-md-offset-4">
@@ -159,6 +160,28 @@
             <div class="links form-group">
               <div class='row form-group'>    
                 <%= link_to_add_association 'Add Shipping Option', f, :shipping_addresses, class: 'btn btn-info col-md-6 col-md-offset-3' %>
+              </div>
+            </div>
+            <div class="actions form-group">
+              <div class='row form-group'>    
+                <%= f.submit "Update", class: 'btn btn-success col-md-6 col-md-offset-3' %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="donation_plans">
+        <div class='row'>  
+          <%= form_for(current_user) do |f| %>  
+            <h2 class='text-center'>Shipping Addresses</h2>
+            <div class='form-group'>  
+              <%= f.simple_fields_for :donation_plans do |plan| %>
+                <%= render 'donation_plan_fields', f: plan %>
+              <% end %>
+            </div>
+            <div class="links form-group">
+              <div class='row form-group'>    
+                <%= link_to_add_association 'Add Donation Plan', f, :donation_plans, class: 'btn btn-info col-md-6 col-md-offset-3' %>
               </div>
             </div>
             <div class="actions form-group">

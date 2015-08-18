@@ -1,0 +1,18 @@
+<div class='col-md-3 form-group'> 
+  <div class="nested-fields text-center">
+    <div class='row'>
+      <div class='col-md-12'>  
+        <%= f.label :name, "Plan Name" %><br>
+        <%= f.text_field :name, class: 'form-control text-center'  %><br>
+      </div>
+    </div>
+    <div class='row'>
+      <div class='col-md-12'>
+        <%= f.label :amount, "Amount" %><br>
+        <%= f.number_field :amount, class: 'form-control text-center', step: 'any'  %><br>
+      </div>
+        <%= f.text_field :uuid, value: SecureRandom.uuid.truncate(20, omission: ''), class: 'form-control text-center'  %><br>
+    </div>
+    <%= link_to_remove_association "Remove", f, class: 'btn btn-sm btn-danger' %><br>
+  </div>
+</div>
