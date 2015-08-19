@@ -75,8 +75,8 @@ class OrdersController < ApplicationController
           if @ship_to
 
             @order.order_items.create(product_tags: @product.tag_list, title: "#{@product.title}", price:@product.price, 
-                                      user_id: @product.user_id, product_uuid: @product.uuid, quantity: @quantity, shipping_price: @product.shipping_price, 
-                                      total_price: @product.price * @quantity)
+                                      user_id: @product.user_id, product_uuid: @product.uuid, quantity: @quantity, 
+                                      shipping_price: @product.shipping_price, total_price: @product.price * @quantity)
 
             Order.shipping_price(@order)
 
@@ -183,7 +183,6 @@ class OrdersController < ApplicationController
 
       @transaction = Shippo::Transaction.get(transaction["object_id"])
 
-      # label_url and tracking_number
       if @transaction.object_status == "SUCCESS"
         begin
           @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
@@ -219,7 +218,7 @@ class OrdersController < ApplicationController
                                  carrier: params[:carrier], shipping_option: params[:shipping_option] )
         @tracking_number = AfterShip::V4::Tracking.create( @transaction.tracking_number , {:emails => ["#{@order.customer_name}"]})
         redirect_to orders_path
-        flash[:notice] = "Label Sucessfully Generated \nlabel_url: #{@transaction.label_url} \ntracking_number: #{@transaction.tracking_number}" 
+        flash[:notice] = "Label Sucessfully Generated \ntracking_number: #{@transaction.tracking_number}" 
         return
       else
         redirect_to orders_path
@@ -261,7 +260,8 @@ class OrdersController < ApplicationController
       params.require(:order).permit(:product_tags, :active, :uuid, :application_fee, :stripe_charge_id, :purchase_id,
                                     :carrier, :refunded, :tracking_url, :stripe_shipping_charge, :merchant_id, :paid, 
                                     :shipping_price, :status, :ship_to, :customer_name, :tracking_number, :shipping_option, 
-                                    :total_price, :user_id, order_items_attributes: [:id, :title, :price, :total_price, :user_id, :uuid, :description, :quantity, :_destroy],
+                                    :total_price, :user_id, 
+                                    order_items_attributes: [:id, :title, :price, :total_price, :user_id, :uuid, :description, :quantity, :_destroy],
                                     shipping_updates_attributes: [:id, :message, :checkpoint_time, :tag, :order_id, :_destroy])
     end
 end

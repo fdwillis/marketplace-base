@@ -1,7 +1,7 @@
 class CreateDonationPlans < ActiveRecord::Migration
   def change
     create_table :donation_plans do |t|
-      t.decimal :amount
+      t.decimal :amount, precision: 12, scale: 2
       t.string :interval
       t.string :name
       t.string :currency, default: 'usd'

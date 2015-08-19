@@ -11,32 +11,44 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150818094438) do
+ActiveRecord::Schema.define(version: 20150819035236) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "donation_plans", force: :cascade do |t|
-    t.decimal  "amount"
+    t.decimal  "amount",     precision: 12, scale: 2
     t.string   "interval"
     t.string   "name"
-    t.string   "currency"
+    t.string   "currency",                            default: "usd"
     t.string   "uuid"
     t.integer  "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
   end
 
   add_index "donation_plans", ["user_id"], name: "index_donation_plans_on_user_id", using: :btree
+
+  create_table "donations", force: :cascade do |t|
+    t.string   "organization"
+    t.decimal  "amount",           precision: 12, scale: 2
+    t.string   "uuid"
+    t.string   "fundraising_goal"
+    t.integer  "user_id"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+  end
+
+  add_index "donations", ["user_id"], name: "index_donations_on_user_id", using: :btree
 
   create_table "fundraising_goals", force: :cascade do |t|
     t.string   "title"
     t.text     "description"
     t.integer  "user_id"
-    t.decimal  "goal_amount"
+    t.decimal  "goal_amount", precision: 12, scale: 2
     t.integer  "backers"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
     t.string   "uuid"
     t.string   "slug"
   end
@@ -83,7 +95,7 @@ ActiveRecord::Schema.define(version: 20150818094438) do
     t.boolean  "active"
     t.string   "tracking_url"
     t.string   "stripe_shipping_charge"
-    t.decimal  "refund_amount",                                   default: 0.0
+    t.decimal  "refund_amount",          precision: 12, scale: 2, default: 0.0
   end
 
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
@@ -142,14 +154,14 @@ ActiveRecord::Schema.define(version: 20150818094438) do
     t.integer  "order_id"
     t.decimal  "amount"
     t.string   "note"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
     t.boolean  "refunded"
     t.string   "uuid"
     t.string   "status"
     t.integer  "merchant_id"
     t.string   "order_uuid"
-    t.decimal  "amount_issued", default: 0.0
+    t.decimal  "amount_issued", precision: 12, scale: 2, default: 0.0
   end
 
   add_index "refunds", ["order_id"], name: "index_refunds_on_order_id", using: :btree
@@ -328,6 +340,7 @@ ActiveRecord::Schema.define(version: 20150818094438) do
   add_index "users", ["slug"], name: "index_users_on_slug", unique: true, using: :btree
 
   add_foreign_key "donation_plans", "users"
+  add_foreign_key "donations", "users"
   add_foreign_key "fundraising_goals", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "users"

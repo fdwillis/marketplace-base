@@ -4,7 +4,7 @@ class CreateFundraisingGoals < ActiveRecord::Migration
       t.string :title
       t.text :description
       t.belongs_to :user, index: true
-      t.decimal :goal_amount
+      t.decimal :goal_amount, precision: 12, scale: 2
       t.integer :backers
 
       t.timestamps null: false
