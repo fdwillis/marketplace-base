@@ -117,7 +117,7 @@ class PurchasesController < ApplicationController
 
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
 
-                @donation = current_user.donations.create(organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
+                @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
                 @fund.increment!(:backers, by = 1)
 
@@ -138,7 +138,7 @@ class PurchasesController < ApplicationController
 
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
                 
-                @donation = current_user.donations.create(organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
+                @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
                 Stripe.api_key = ENV['SECRET_KEY_TEST']
 
@@ -166,10 +166,11 @@ class PurchasesController < ApplicationController
 
           if @merchant.role == 'admin'
             begin
+              @stripe_account_id = Stripe::Account.retrieve().id
 
-              @charge = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
+              @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
 
-              @donation = current_user.donations.create(organization: @fund.user.username, amount: @charge.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
+              @donation = current_user.donations.create(donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               
               @fund.increment!(:backers, by = 1)
 
@@ -193,9 +194,12 @@ class PurchasesController < ApplicationController
 
             begin
 
-              @charge = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
+              @merchant_secret = @crypt.decrypt_and_verify(@merchant.merchant_secret_key)
+              Stripe.api_key = @merchant_secret
 
-              @donation = current_user.donations.create(organization: @fund.user.username, amount: @charge.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
+              @subscription = User.subscribe_to_fundraiser(current_user, @token.id, @merchant_account_id, @donation_plan)
+
+              @donation = current_user.donations.create(donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
               
               Stripe.api_key = ENV['SECRET_KEY_TEST']
 

@@ -138,15 +138,11 @@ class User < ActiveRecord::Base
         )
     end
   end
-  def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
+  def self.subscribe_to_fundraiser(user, token, merchant_account_id, donation_plan)
     @token = token
     @price = ((donation_plan.amount.to_f) * 100).to_i
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
-
-    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    @merchant_secret = @crypt.decrypt_and_verify(secret_key)
-    Stripe.api_key = @merchant_secret
 
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
@@ -224,6 +220,7 @@ class User < ActiveRecord::Base
 
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
     end
+
   end
 
   def self.new_token(current_user, card)    
