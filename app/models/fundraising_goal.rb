@@ -1,4 +1,6 @@
 class FundraisingGoal < ActiveRecord::Base
+	has_many :donations
+
 	extend FriendlyId
   friendly_id :title, use: [:slugged, :finders]
 

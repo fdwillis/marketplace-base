@@ -92,7 +92,6 @@ class User < ActiveRecord::Base
 
   def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
     @token = token
-    debugger
     @price = price
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
@@ -204,7 +203,6 @@ class User < ActiveRecord::Base
   end
 
   def self.subscribe_to_admin(user, token, donation_plan)
-    Stripe.api_key = ENV['SECRET_KEY_TEST']
 
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
@@ -226,7 +224,6 @@ class User < ActiveRecord::Base
 
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
     end
-    Stripe.api_key = ENV['SECRET_KEY_TEST']
   end
 
   def self.new_token(current_user, card)    

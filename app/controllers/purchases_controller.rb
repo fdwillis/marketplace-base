@@ -117,7 +117,7 @@ class PurchasesController < ApplicationController
 
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
 
-                current_user.donations.create(organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal: @fund.title)
+                @donation = current_user.donations.create(organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
                 @fund.increment!(:backers, by = 1)
 
@@ -138,7 +138,7 @@ class PurchasesController < ApplicationController
 
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
                 
-                current_user.donations.create(organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal: @fund.title)
+                @donation = current_user.donations.create(organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
                 Stripe.api_key = ENV['SECRET_KEY_TEST']
 
@@ -168,6 +168,8 @@ class PurchasesController < ApplicationController
             begin
 
               @charge = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
+
+              @donation = current_user.donations.create(organization: @fund.user.username, amount: @charge.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               
               @fund.increment!(:backers, by = 1)
 
@@ -192,6 +194,8 @@ class PurchasesController < ApplicationController
             begin
 
               @charge = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
+
+              @donation = current_user.donations.create(organization: @fund.user.username, amount: @charge.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               
               Stripe.api_key = ENV['SECRET_KEY_TEST']
 

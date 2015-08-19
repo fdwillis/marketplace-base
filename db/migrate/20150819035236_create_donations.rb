@@ -4,7 +4,6 @@ class CreateDonations < ActiveRecord::Migration
       t.string :organization
       t.decimal :amount, precision: 12, scale: 2
       t.string :uuid
-      t.string :fundraising_goal
       t.belongs_to :user, index: true
 
       t.timestamps null: false

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150819035236) do
+ActiveRecord::Schema.define(version: 20150819135757) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,14 +31,15 @@ ActiveRecord::Schema.define(version: 20150819035236) do
 
   create_table "donations", force: :cascade do |t|
     t.string   "organization"
-    t.decimal  "amount",           precision: 12, scale: 2
+    t.decimal  "amount",              precision: 12, scale: 2
     t.string   "uuid"
-    t.string   "fundraising_goal"
     t.integer  "user_id"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
+    t.integer  "fundraising_goal_id"
   end
 
+  add_index "donations", ["fundraising_goal_id"], name: "index_donations_on_fundraising_goal_id", using: :btree
   add_index "donations", ["user_id"], name: "index_donations_on_user_id", using: :btree
 
   create_table "fundraising_goals", force: :cascade do |t|
@@ -340,6 +341,7 @@ ActiveRecord::Schema.define(version: 20150819035236) do
   add_index "users", ["slug"], name: "index_users_on_slug", unique: true, using: :btree
 
   add_foreign_key "donation_plans", "users"
+  add_foreign_key "donations", "fundraising_goals"
   add_foreign_key "donations", "users"
   add_foreign_key "fundraising_goals", "users"
   add_foreign_key "order_items", "orders"
