@@ -91,9 +91,8 @@ class User < ActiveRecord::Base
   end
 
   def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
     @token = token
+    debugger
     @price = price
     @merchant60 = ((@price) * 60) /100
     @fee = (@price - @merchant60)
@@ -101,7 +100,6 @@ class User < ActiveRecord::Base
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     @merchant_secret = @crypt.decrypt_and_verify(secret_key)
     Stripe.api_key = @merchant_secret
-
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
@@ -140,12 +138,8 @@ class User < ActiveRecord::Base
         {stripe_account: merchant_account_id}
         )
     end
-
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
   def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
     @token = token
     @price = ((donation_plan.amount.to_f) * 100).to_i
     @merchant60 = ((@price) * 60) /100
@@ -174,12 +168,9 @@ class User < ActiveRecord::Base
       
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
     end
-
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
   def self.charge_for_admin(user, price, token)
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
@@ -210,12 +201,10 @@ class User < ActiveRecord::Base
         description: 'MarketplaceBase',
       )
     end
-
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
   def self.subscribe_to_admin(user, token, donation_plan)
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+    Stripe.api_key = ENV['SECRET_KEY_TEST']
 
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
@@ -237,10 +226,10 @@ class User < ActiveRecord::Base
 
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
     end
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+    Stripe.api_key = ENV['SECRET_KEY_TEST']
   end
 
-  def self.new_token(current_user, card)
+  def self.new_token(current_user, card)    
     Stripe::Token.create(
       card: {
         number: card,
