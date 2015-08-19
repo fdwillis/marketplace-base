@@ -39,7 +39,6 @@ ActiveRecord::Schema.define(version: 20150819145340) do
     t.integer  "fundraising_goal_id"
     t.string   "fundraiser_stripe_account_id"
     t.string   "subscription_id"
-    t.string   "type"
     t.string   "donation_type"
   end
 

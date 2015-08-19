@@ -16,6 +16,7 @@
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
+          <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">Donations</a></li>
         </ul>
       <% end %>
     </div>
@@ -144,6 +145,36 @@
                   </div>
                 </div>
               <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="donations">
+        <div class='row'>
+          <div class='container'>
+            <h1>Donations</h1>
+            <br>
+            <div class='row'>
+              <div class="tab-v2">
+                <div class='row'>
+                  <ul class="nav nav-pills col-md-6 col-md-offset-4">
+                    <li class=""><a href="#one_time" data-toggle="tab" aria-expanded="false">One Time Donations </a></li>
+                    <li class=""><a href="#subscription" data-toggle="tab" aria-expanded="false">Monthly Donations</a></li>
+                  </ul>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="one_time">
+                      <%= form_for(current_user) do |f| %>
+                        <h1>One Time Donations</h1>
+                      <% end %>
+                    </div>
+                    <div class="tab-pane fade" id="subscription">
+                      <%= form_for(current_user) do |f| %>
+                        <h1>Monthly Donations</h1>
+                      <% end %>
+                    </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
