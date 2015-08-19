@@ -15,7 +15,7 @@ class NotificationsController < ApplicationController
     render nothing: true, status: :ok, content_type: "application/xml"
     if params[:Body]
       client = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
-      message = client.messages.create from: '+1(414)422-8186', to: params[:From], body: "Thanks for wanting to donate. #{link_to 'Click Here', 'https://www.google.com/'}"
+      message = client.messages.create from: '+1(414)422-8186', to: params[:From], body: "Thanks for wanting to donate. https://www.google.com/ "
       render plain: message.status
     end
   end
