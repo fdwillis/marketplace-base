@@ -66,8 +66,26 @@ class FundraisingGoalsController < ApplicationController
     authorize @fundraising_goal
   end
 
-  def donation_plan
-    
+  def cancel_donation_plan
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
+    donation = Donation.find_by(uuid: params[:uuid])
+
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+    stripe_account_secret = @crypt.decrypt_and_verify(params[:fundraiser_stripe_account_id])
+
+    Stripe.api_key = stripe_account_secret
+    customer_account = current_user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first.customer_id
+
+    customer = Stripe::Customer.retrieve(customer_account)
+    customer.subscriptions.retrieve(params[:subscription_id]).delete
+
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+
+    donation.update_attributes(active: false)
+
+    redirect_to edit_user_registration_path
+    flash[:notice] = "You have suspended your mmonthly donation to #{donation.fundraising_goal.title}"
   end
 
   private

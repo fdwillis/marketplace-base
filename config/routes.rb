@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   put 'approve_product' => 'pending_products#approve_product'
   put 'approve_merchant' => 'merchants#approve_merchant'
   put 'active_order' => 'orders#active_order'
+  put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'
   post 'notifications' => 'notifications#create'
 
   root to: 'products#index'

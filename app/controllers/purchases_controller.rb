@@ -70,7 +70,7 @@ class PurchasesController < ApplicationController
             @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
                                      paid: true, application_fee: @charge.application_fee)
 
-            Stripe.api_key = ENV['SECRET_KEY_TEST']
+            Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
             @order.update_attributes(paid: true, status: "Paid")
 
@@ -140,7 +140,7 @@ class PurchasesController < ApplicationController
                 
                 @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
-                Stripe.api_key = ENV['SECRET_KEY_TEST']
+                Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
                 @fund.increment!(:backers, by = 1)
 
@@ -170,7 +170,7 @@ class PurchasesController < ApplicationController
 
               @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
 
-              @donation = current_user.donations.create(donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
+              @donation = current_user.donations.create(active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               
               @fund.increment!(:backers, by = 1)
 
@@ -199,9 +199,9 @@ class PurchasesController < ApplicationController
 
               @subscription = User.subscribe_to_fundraiser(current_user, @token.id, @merchant_account_id, @donation_plan)
 
-              @donation = current_user.donations.create(donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
+              @donation = current_user.donations.create(active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
               
-              Stripe.api_key = ENV['SECRET_KEY_TEST']
+              Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
               @fund.increment!(:backers, by = 1)
 
