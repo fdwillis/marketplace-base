@@ -54,6 +54,7 @@ source 'https://rubygems.org'
 
 #Monitization
   gem 'stripe'
+  gem 'twilio-ruby'
 
 group :development, :test do
   gem 'better_errors'

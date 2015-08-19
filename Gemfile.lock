@@ -342,6 +342,10 @@ GEM
     tilt (1.4.1)
     turbolinks (2.5.3)
       coffee-rails
+    twilio-ruby (4.3.0)
+      builder (>= 2.1.2)
+      jwt (~> 1.0)
+      multi_json (>= 1.3.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     uglifier (2.7.1)
@@ -403,6 +407,10 @@ DEPENDENCIES
   spring
   stripe
   turbolinks
+  twilio-ruby
   uglifier (>= 1.3.0)
   web-console (~> 2.0)
   will_paginate
+
+BUNDLED WITH
+   1.10.6
