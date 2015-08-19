@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'
   post 'notifications' => 'notifications#create'
   post 'twilio/voice' => 'twilio#voice'
+  post 'notifications/twilio' => 'notifications#twilio'
 
   root to: 'products#index'
   resources :products
