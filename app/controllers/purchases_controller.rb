@@ -38,54 +38,36 @@ class PurchasesController < ApplicationController
           return
         end
 
-        if @merchant.role == 'admin'
-          begin
+        begin
+          if @merchant.role == 'admin'
 
             @charge = User.charge_for_admin(current_user, @price, @token.id)
-            @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
-                                     paid: true, application_fee: @charge.application_fee, status: "Paid")
                                 
-            redirect_to orders_path
-            flash[:notice] = "Thanks for the purchase!"
-            return
-          rescue Stripe::CardError => e
-            redirect_to edit_user_registration_path
-            flash[:error] = "#{e}"
-            return
-          rescue => e
-            redirect_to edit_user_registration_path
-            flash[:error] = "#{e}"
-            return
-          end
-        else
-          begin
+          else
             @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id, @currency)
-            
-            @order.order_items.each do |oi|
-              @product = Product.find_by(uuid: oi.product_uuid)
-              @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
-            end
-
-
-            @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
-                                     paid: true, application_fee: @charge.application_fee)
 
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
-            @order.update_attributes(paid: true, status: "Paid")
-
-            redirect_to orders_path
-            flash[:notice] = "Thanks for the purchase!"
-            return
-          rescue Stripe::CardError => e
-            redirect_to edit_user_registration_path
-            flash[:error] = "#{e}"
-            return
-          rescue => e
-            redirect_to edit_user_registration_path
-            flash[:error] = "#{e}"
-            return
           end
+          
+          @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
+                                   paid: true, application_fee: @charge.application_fee, status: "Paid")
+
+          @order.order_items.each do |oi|
+            @product = Product.find_by(uuid: oi.product_uuid)
+            @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
+          end
+
+          redirect_to orders_path
+          flash[:notice] = "Thanks for the purchase!"
+          return
+        rescue Stripe::CardError => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
+        rescue => e
+          redirect_to edit_user_registration_path
+          flash[:error] = "#{e}"
+          return
         end
       else
         redirect_to edit_user_registration_path
@@ -127,7 +109,7 @@ class PurchasesController < ApplicationController
 
                 Stripe.api_key = Rails.configuration.stripe[:secret_key]
               end
-              
+
               @fund.increment!(:backers, by = 1)
 
               redirect_to fundraising_goals_path
