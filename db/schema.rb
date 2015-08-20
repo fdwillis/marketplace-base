@@ -34,6 +34,7 @@ ActiveRecord::Schema.define(version: 20150820072314) do
     t.string   "organization"
     t.decimal  "amount",                       precision: 12, scale: 2
     t.string   "uuid"
+    t.string   "fundraising_goal"
     t.integer  "user_id"
     t.datetime "created_at",                                            null: false
     t.datetime "updated_at",                                            null: false

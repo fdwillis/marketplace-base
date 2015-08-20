@@ -41,12 +41,9 @@ class PurchasesController < ApplicationController
         begin
 
           if @merchant.role == 'admin'
-
             @charge = User.charge_for_admin(current_user, @price, @token.id)
-                                
           else
             @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id, @currency)
-
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
           end
           
@@ -99,20 +96,13 @@ class PurchasesController < ApplicationController
           if params[:donation].to_i > 0
             begin
               if @merchant.role == 'admin'
-
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
-
-                @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
-
               else
-
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
-                
-                @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
-
                 Stripe.api_key = Rails.configuration.stripe[:secret_key]
               end
 
+              @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               @fund.increment!(:backers, by = 1)
 
               redirect_to fundraising_goals_path
@@ -136,24 +126,12 @@ class PurchasesController < ApplicationController
 
           begin
             if @merchant.role == 'admin'
-              @stripe_account_id = Stripe::Account.retrieve().id
-
               @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
-
-              @donation = current_user.donations.create(stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
-            
             else
-
-              @merchant_secret = @crypt.decrypt_and_verify(@merchant.merchant_secret_key)
-              Stripe.api_key = @merchant_secret
-
-              @subscription = User.subscribe_to_fundraiser(current_user, @token.id, @merchant_account_id, @donation_plan)
-
-              @donation = current_user.donations.create(stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
-              
+              @subscription = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
             end
+            @donation = current_user.donations.create(stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
             
             @fund.increment!(:backers, by = 1)
             redirect_to fundraising_goals_path
