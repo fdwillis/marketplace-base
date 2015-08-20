@@ -55,83 +55,52 @@ class RefundsController < ApplicationController
 
     @order = Order.find_by(stripe_charge_id: params[:refund_id])
     
-    if User.find(@order.merchant_id).role == 'admin'
-      ch = Stripe::Charge.retrieve(params[:refund_id])
+    begin
+      if User.find(@order.merchant_id).role == 'admin'
+      
+        ch = Stripe::Charge.retrieve(params[:refund_id])
 
-      begin
         refund = ch.refunds.create(amount: @stripe_amount)
 
-        @order.update_attributes(refund_amount: (@amount + @order.refund_amount))
-
-        if @order.total_price == @amount
-          @order.update_attributes(status: "Refunded", refunded: true)
-        end
-
-        if @order.stripe_shipping_charge.present?
-          Stripe.api_key = Rails.configuration.stripe[:secret_key]
-          
-          ch = Stripe::Charge.retrieve(@order.stripe_shipping_charge)
-          refund = ch.refunds.create(amount: ch.amount)
-        end
-
-        # @order.order_items.each do |oi|
-        #   @product = Product.find_by(uuid: oi.product_uuid)
-        #   @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
-        # end
-
-        Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
-        @order.refunds.first.update_attributes(status: 'Refunded', refunded: true)
-        redirect_to refunds_path
-        flash[:notice] = "Refund Fullfilled"
-        return
-
-        rescue => e
-          redirect_to refunds_path
-          flash[:error] = "#{e}"
-          return
-        end
-
-    else
+      else
       
-      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      Stripe.api_key = @crypt.decrypt_and_verify((User.find(@order.merchant_id)).merchant_secret_key)
+        @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+        Stripe.api_key = @crypt.decrypt_and_verify((User.find(@order.merchant_id)).merchant_secret_key)
 
-      ch = Stripe::Charge.retrieve(params[:refund_id])
+        ch = Stripe::Charge.retrieve(params[:refund_id])
       
-      begin
         refund = ch.refunds.create(refund_application_fee: true, amount: @stripe_amount)
-        @order.update_attributes(refund_amount: (@amount + @order.refund_amount))
+      end
 
-        if @order.total_price == @amount
-          @order.update_attributes(status: "Refunded", refunded: true)
-        end
+      @order.update_attributes(refund_amount: (@amount + @order.refund_amount))
 
-        if @order.stripe_shipping_charge.present?
-          Stripe.api_key = Rails.configuration.stripe[:secret_key]
-          
-          ch = Stripe::Charge.retrieve(@order.stripe_shipping_charge)
-          refund = ch.refunds.create(amount: ch.amount)
-        end
+      if @order.total_price == @amount
+        @order.update_attributes(status: "Refunded", refunded: true)
+      end
 
-        # @order.order_items.each do |oi|
-        #   @product = Product.find_by(uuid: oi.product_uuid)
-        #   @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
-        # end
-
+      if @order.stripe_shipping_charge.present?
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
         
-        @order.refunds.find_by(uuid: params[:refund_uuid] ).update_attributes(status: 'Refunded', refunded: true, amount_issued: @amount)
-        redirect_to refunds_path
-        flash[:notice] = "Refund Fullfilled"
-        return
-
-      rescue => e
-        
-        redirect_to refunds_path
-        flash[:error] = "#{e}"
-        return
+        ch = Stripe::Charge.retrieve(@order.stripe_shipping_charge)
+        refund = ch.refunds.create(amount: ch.amount)
       end
+
+      # @order.order_items.each do |oi|
+      #   @product = Product.find_by(uuid: oi.product_uuid)
+      #   @product.update_attributes(quantity: @product.quantity + oi.quantity.to_i)
+      # end
+
+      Stripe.api_key = Rails.configuration.stripe[:secret_key]
+      
+      @order.refunds.find_by(uuid: params[:refund_uuid] ).update_attributes(status: 'Refunded', refunded: true, amount_issued: @amount)
+      redirect_to refunds_path
+      flash[:notice] = "Refund Fullfilled"
+      return
+
+    rescue => e
+      redirect_to refunds_path
+      flash[:error] = "#{e}"
+      return
     end
   end
 end

@@ -104,17 +104,3 @@ before_filter :authenticate_user!
     flash[:error] = "You No Longer Are A Merchant"
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
