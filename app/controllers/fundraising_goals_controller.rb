@@ -96,6 +96,6 @@ class FundraisingGoalsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def fundraising_goal_params
-      params.require(:fundraising_goal).permit(:title, :description, :goal_amount, :backers, :uuid)
+      params.require(:fundraising_goal).permit(:title, :description, :goal_amount, :backers, :uuid, :tag_list)
     end
 end

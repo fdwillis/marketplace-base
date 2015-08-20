@@ -21,6 +21,10 @@
         <%= f.label :goal_amount, "Goal Amount", step: 'any' %>
         <%= f.number_field :goal_amount, class: 'form-control pricing', placeholder: "Enter Goal Amount", label: false, step: 'any' %>
       </div>
+      <div class="form-group" id='ProjectListButton'>
+        <%= f.label :tag_list, "Tags (Seperate By Comma)" %>
+        <%= f.text_field :tag_list, class: 'form-control pricing', placeholder: "Blue, Box, Paint", label: "Tags (Seperated By Commas)" %>
+      </div>
       <div class="form-group">
       	<%= f.label :description, "Description" %>
         <%= f.text_area :description, class: 'form-control', placeholder: "Enter Title", label: false, size: '50x5' %>
