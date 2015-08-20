@@ -164,35 +164,15 @@ class PurchasesController < ApplicationController
         else
           @donation_plan = DonationPlan.find_by(uuid: params[:donation_type])
 
-          if @merchant.role == 'admin'
-            begin
+          begin
+            if @merchant.role == 'admin'
               @stripe_account_id = Stripe::Account.retrieve().id
 
               @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
 
               @donation = current_user.donations.create(stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
-              
-              @fund.increment!(:backers, by = 1)
-
-              redirect_to fundraising_goals_path
-              flash[:notice] = "Thanks for the donation!"
-              return
-            rescue Stripe::CardError => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
-            rescue => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
-            end
-
-            redirect_to fundraising_goals_path
-            return
-          else
-
-
-            begin
+            
+            else
 
               @merchant_secret = @crypt.decrypt_and_verify(@merchant.merchant_secret_key)
               Stripe.api_key = @merchant_secret
@@ -204,19 +184,19 @@ class PurchasesController < ApplicationController
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
               @fund.increment!(:backers, by = 1)
-
-              redirect_to fundraising_goals_path
-              flash[:notice] = "Thanks for the donation!"
-              return
-            rescue Stripe::CardError => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
-            rescue => e
-              redirect_to edit_user_registration_path
-              flash[:error] = "#{e}"
-              return
             end
+            
+            redirect_to fundraising_goals_path
+            flash[:notice] = "Thanks for the donation!"
+            return
+          rescue Stripe::CardError => e
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          rescue => e
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
           end
         end
       else
