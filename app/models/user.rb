@@ -90,6 +90,32 @@ class User < ActiveRecord::Base
     stripe_account_id.present?
   end
 
+  def self.new_token(current_user, card)    
+    Stripe::Token.create(
+      card: {
+        number: card,
+        exp_month: current_user.exp_month,
+        exp_year: current_user.exp_year,
+        cvc: current_user.cvc_number,
+        name: current_user.legal_name,
+        address_city: current_user.address_city,
+        address_zip: current_user.address_zip,
+        address_state: current_user.address_state,
+        address_country: current_user.country_name,
+      },
+    )
+  end
+
+  def self.new_customer(token)
+    customer = Stripe::Customer.create(
+        :description => "Customer For MarketplaceBase",
+        :source => token
+      )
+    
+    user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
+                                    customer_card: customer.default_source, customer_id: customer.id)
+  end
+
   def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
     @token = token
     @price = price
@@ -99,6 +125,7 @@ class User < ActiveRecord::Base
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     @merchant_secret = @crypt.decrypt_and_verify(secret_key)
     Stripe.api_key = @merchant_secret
+    
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
@@ -117,13 +144,7 @@ class User < ActiveRecord::Base
         )  
     else
       
-      @customer = Stripe::Customer.create(
-        :description => "Customer For MarketplaceBase",
-        :source => @token
-      )
-    
-      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
-                                      customer_card: @customer.default_source, customer_id: @customer.id)
+      User.new_customer(@token)
       
       charge = Stripe::Charge.create(
         {
@@ -138,6 +159,33 @@ class User < ActiveRecord::Base
         )
     end
   end
+
+  def self.charge_for_admin(user, price, token)
+
+    @customers = Stripe::Customer.all.data
+    @customer_ids = @customers.map(&:id)
+    @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
+
+    if !@customer_account.nil? && @customer_account.present?
+      customer_card = @customer_account.customer_card
+      charge = Stripe::Charge.create(
+        amount: price,
+        currency: 'USD',
+        customer: @customer_account.customer_id ,
+        description: 'MarketplaceBase',
+      )  
+    else
+      User.new_customer(@token)
+
+      charge = Stripe::Charge.create(
+        amount: price,
+        currency: 'USD',
+        customer: @customer.id,
+        description: 'MarketplaceBase',
+      )
+    end
+  end
+
   def self.subscribe_to_fundraiser(user, token, merchant_account_id, donation_plan)
     @token = token
     @price = ((donation_plan.amount.to_f) * 100).to_i
@@ -153,90 +201,26 @@ class User < ActiveRecord::Base
       customer = Stripe::Customer.retrieve(@customer_account.customer_id)
       plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
     else
-      @customer = Stripe::Customer.create(
-        :description => "Customer For MarketplaceBase",
-        :source => @token
-      )
-    
-      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
-                                      customer_card: @customer.default_source, customer_id: @customer.id)
+      User.new_customer(@token)
       
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
     end
   end
 
-  def self.charge_for_admin(user, price, token)
-
-    @customers = Stripe::Customer.all.data
-    @customer_ids = @customers.map(&:id)
-    @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
-
-    if !@customer_account.nil? && @customer_account.present?
-      
-      customer_card = @customer_account.customer_card
-      charge = Stripe::Charge.create(
-        amount: price,
-        currency: 'USD',
-        customer: @customer_account.customer_id ,
-        description: 'MarketplaceBase',
-      )  
-    else
-      @customer = Stripe::Customer.create(
-        :description => "Customer For MarketplaceBase",
-        :source => token
-      )
-    
-      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
-                                      customer_card: @customer.default_source, customer_id: @customer.id)
-
-      charge = Stripe::Charge.create(
-        amount: price,
-        currency: 'USD',
-        customer: @customer.id,
-        description: 'MarketplaceBase',
-      )
-    end
-  end
-
   def self.subscribe_to_admin(user, token, donation_plan)
-
     @customers = Stripe::Customer.all.data
     @customer_ids = @customers.map(&:id)
     @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
 
     if !@customer_account.nil? && @customer_account.present?
-      
       customer_card = @customer_account.customer_card
       customer = Stripe::Customer.retrieve(@customer_account.customer_id)
       plan = customer.subscriptions.create(:plan => donation_plan.uuid)
     else
-      @customer = Stripe::Customer.create(
-        :description => "Customer For MarketplaceBase",
-        :source => token
-      )
-    
-      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
-                                      customer_card: @customer.default_source, customer_id: @customer.id)
+      User.new_customer(@token)
 
       plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
     end
-
-  end
-
-  def self.new_token(current_user, card)    
-    Stripe::Token.create(
-      card: {
-        number: card,
-        exp_month: current_user.exp_month,
-        exp_year: current_user.exp_year,
-        cvc: current_user.cvc_number,
-        name: current_user.legal_name,
-        address_city: current_user.address_city,
-        address_zip: current_user.address_zip,
-        address_state: current_user.address_state,
-        address_country: current_user.country_name,
-      },
-    )
   end
 end
 
