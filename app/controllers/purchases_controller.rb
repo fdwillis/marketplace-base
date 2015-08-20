@@ -112,50 +112,35 @@ class PurchasesController < ApplicationController
       if params[:donation_type] 
         if params[:donation_type] == "One Time"
           if params[:donation].to_i > 0
-            if @merchant.role == 'admin'
-              begin
+            begin
+              if @merchant.role == 'admin'
 
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
 
                 @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
-                @fund.increment!(:backers, by = 1)
-
-                redirect_to fundraising_goals_path
-                flash[:notice] = "Thanks for the donation!"
-                return
-              rescue Stripe::CardError => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              rescue => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              end
-            else
-              begin
+              else
 
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token, @merchant_account_id, @currency)
                 
                 @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
 
                 Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
-                @fund.increment!(:backers, by = 1)
-
-                redirect_to fundraising_goals_path
-                flash[:notice] = "Thanks for the donation!"
-                return
-              rescue Stripe::CardError => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
-              rescue => e
-                redirect_to edit_user_registration_path
-                flash[:error] = "#{e}"
-                return
               end
+              
+              @fund.increment!(:backers, by = 1)
+
+              redirect_to fundraising_goals_path
+              flash[:notice] = "Thanks for the donation!"
+              return
+            rescue Stripe::CardError => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
+            rescue => e
+              redirect_to edit_user_registration_path
+              flash[:error] = "#{e}"
+              return
             end
           else
             redirect_to fundraising_goal_path(id: @fund.slug)
@@ -183,9 +168,9 @@ class PurchasesController < ApplicationController
               
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
-              @fund.increment!(:backers, by = 1)
             end
             
+            @fund.increment!(:backers, by = 1)
             redirect_to fundraising_goals_path
             flash[:notice] = "Thanks for the donation!"
             return
