@@ -11,20 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150820011802) do
+ActiveRecord::Schema.define(version: 20150820072314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "donation_plans", force: :cascade do |t|
-    t.decimal  "amount",     precision: 12, scale: 2
+    t.decimal  "amount",                 precision: 12, scale: 2
     t.string   "interval"
     t.string   "name"
-    t.string   "currency",                            default: "usd"
+    t.string   "currency",                                        default: "usd"
     t.string   "uuid"
     t.integer  "user_id"
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",                                                      null: false
+    t.datetime "updated_at",                                                      null: false
+    t.string   "stripe_subscription_id"
   end
 
   add_index "donation_plans", ["user_id"], name: "index_donation_plans_on_user_id", using: :btree
@@ -41,6 +42,7 @@ ActiveRecord::Schema.define(version: 20150820011802) do
     t.string   "subscription_id"
     t.string   "donation_type"
     t.boolean  "active"
+    t.string   "stripe_subscription_id"
   end
 
   add_index "donations", ["fundraising_goal_id"], name: "index_donations_on_fundraising_goal_id", using: :btree
