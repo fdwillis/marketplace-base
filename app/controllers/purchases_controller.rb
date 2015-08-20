@@ -39,6 +39,7 @@ class PurchasesController < ApplicationController
         end
 
         begin
+
           if @merchant.role == 'admin'
 
             @charge = User.charge_for_admin(current_user, @price, @token.id)
@@ -57,6 +58,8 @@ class PurchasesController < ApplicationController
             @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
           end
 
+          Order.send_to_keen(@order, request.remote_ip, request.location.data)
+          
           redirect_to orders_path
           flash[:notice] = "Thanks for the purchase!"
           return

@@ -8,7 +8,7 @@ class MerchantsController < ApplicationController
   def show
     #Track for Merchant and Admin
     @name = User.friendly.find(params[:id]).name
-    if User.friendly.find(params[:id]).merchant?
+    if User.friendly.find(params[:id]).merchant? || User.friendly.find(params[:id]).admin?
       @merchant = User.friendly.find(params[:id])
       @products = @merchant.products.where(active:true)
     else
