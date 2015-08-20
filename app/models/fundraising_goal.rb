@@ -1,4 +1,7 @@
 class FundraisingGoal < ActiveRecord::Base
+
+  before_save :set_keywords
+
 	has_many :donations
 
 	extend FriendlyId
@@ -13,5 +16,9 @@ class FundraisingGoal < ActiveRecord::Base
 
   def tag_list
     tags.map(&:name).join(", ")
+  end
+protected
+  def set_keywords
+    self.keywords = [description, title, user.username, "#{ActionController::Base.helpers.number_to_currency(goal_amount, precision: 2)}"].join(", ")
   end
 end

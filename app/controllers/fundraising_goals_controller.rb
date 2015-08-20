@@ -4,7 +4,8 @@ class FundraisingGoalsController < ApplicationController
   # GET /fundraising_goals
   # GET /fundraising_goals.json
   def index
-    @fundraising_goals = FundraisingGoal.all
+    @search = FundraisingGoal.search(params[:q])
+    @fundraising_goals = @search.result
   end
 
   # GET /fundraising_goals/1

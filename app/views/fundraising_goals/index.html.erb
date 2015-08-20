@@ -1,10 +1,27 @@
 <h1>Listing Fundraising Goals</h1>
 
 <div class='container'>
-  <%= render 'fundraising_goals' %>
+	<% if policy(FundraisingGoal.new).new? %>
+	  <%= link_to 'New Fundraising goal', new_fundraising_goal_path %> <<< Change Policy to be only fundraiser?..users need many roles and check to see if role includes 'role'
+	<% end %>
+	<div class='row'>	
+		<%= search_form_for @search do |f| %>
+	    <div class='row'>  
+	      <div class='col-md-4 form-group'>
+	        <%= f.text_field :title_cont, class: 'form-control text-center', placeholder: 'Title' %>
+	      </div>
+	      <div class='col-md-4 form-group'>
+	        <%= f.text_field :keywords_cont, class: 'form-control text-center', placeholder: 'Keywords' %>
+	      </div>
+	    </div>
+	    <div class='actions'>
+	      <%= f.submit "Search", class: 'btn btn-success' %>
+	    </div>
+	  <% end %>
+  </div>
+  <div class='row'>
+	  <%= render 'fundraising_goals' %>
+	</div>
 </div>
 <br>
 
-<% if policy(FundraisingGoal.new).new? %>
-  <%= link_to 'New Fundraising goal', new_fundraising_goal_path %> <<< Change Policy to be only fundraiser?..users need many roles and check to see if role includes 'role'
-<% end %>
