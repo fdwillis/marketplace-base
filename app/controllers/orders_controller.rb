@@ -108,7 +108,7 @@ class OrdersController < ApplicationController
   # PATCH/PUT /orders/1
   def update
     @user_order = @order.user
-    @shipping_street = @order.ship_to.gsub(/\s+/, "").split(',')[0]
+    @shipping_street = @order.ship_to.gsub(/\s+/, " ").split(',')[0]
     @shipping = @order.ship_to.gsub(/\s+/, "").split(',')
     @tracking_number = params[:tracking_number]
     if @tracking_number  

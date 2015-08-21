@@ -26,21 +26,28 @@ class Order < ActiveRecord::Base
   end
 
   def self.send_to_keen(order, ip_address, location)
+    shipping_to = order.ship_to.gsub(/\s+/, "").split(',')
+    shipping_street = order.ship_to.gsub(/\s+/, " ").split(',')[0]
     Keen.publish("Orders", {
       marketplace_name: "MarketplaceBase",
       platform_for: 'apparel',
       ip_address: ip_address,
-      customer_zipcode: location["zipcode"],
-      customer_city: location["city"] ,
-      customer_state: location["region_name"],
-      customer_country: location["country_name"],
+      customer_current_zipcode: location["zipcode"],
+      customer_current_city: location["city"] ,
+      customer_current_state: location["region_name"],
+      customer_current_country: location["country_name"],
+      customer_shipping_street: shipping_street,
+      customer_shipping_city: shipping_to[1] ,
+      customer_shipping_state: shipping_to[2] ,
+      customer_shipping_country: shipping_to[3] ,
+      customer_shipping_zip: shipping_to[4] ,
       order_year: Time.now.strftime("%Y").to_i,
       order_month: Time.now.strftime("%B").to_i,
       order_day: Time.now.strftime("%d").to_i,
       order_hour: Time.now.strftime("%H").to_i,
       order_minute: Time.now.strftime("%M").to_i,
-      merchant_username: User.find(order.merchant_id).username,
-      customer_name: order.user.legal_name,
+      merchant_id: order.merchant_id.to_i,
+      customer_id: order.user.id,
       total_price: order.total_price.to_f,
       shipping_price: order.shipping_price.to_f,
       customer_sign_in_count: order.user.sign_in_count,
@@ -68,10 +75,11 @@ class Order < ActiveRecord::Base
       product_uuid: oi.product_uuid,
       order_uuid: oi.order.uuid,
       shipping_price: oi.shipping_price.to_f,
-      merchant_username: User.find(order.merchant_id).username,
-      customer_name: order.user.legal_name,
+      merchant_id: order.merchant_id.to_i,
+      customer_id: order.user.id,
       order_item_id: oi.id,
       order_total_price: oi.total_price,
+      customer_sign_in_count: order.user.sign_in_count,
       })
     end
     order.order_items.each do |oi|
