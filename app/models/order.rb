@@ -28,6 +28,7 @@ class Order < ActiveRecord::Base
   def self.send_to_keen(order, ip_address, location)
     shipping_to = order.ship_to.gsub(/\s+/, "").split(',')
     shipping_street = order.ship_to.gsub(/\s+/, " ").split(',')[0]
+
     Keen.publish("Orders", {
       marketplace_name: "MarketplaceBase",
       platform_for: 'apparel',
@@ -52,35 +53,37 @@ class Order < ActiveRecord::Base
       shipping_price: order.shipping_price.to_f,
       customer_sign_in_count: order.user.sign_in_count,
       order_uuid: order.uuid,
-      submit_timestamp: order.updated_at
+      submitted_order_on: order.updated_at,
     })
+
     order.order_items.each do |oi|
-    Keen.publish("Order Items", {
-      marketplace_name: "MarketplaceBase",
-      platform_for: 'apparel',
-      ip_address: ip_address,
-      customer_zipcode: location["zipcode"],
-      customer_city: location["city"],
-      customer_state: location["region_name"],
-      customer_country: location["country_name"],
-      order_year: Time.now.strftime("%Y").to_i,
-      order_month: Time.now.strftime("%B").to_i,
-      order_day: Time.now.strftime("%d").to_i,
-      order_hour: Time.now.strftime("%H").to_i,
-      order_minute: Time.now.strftime("%M").to_i,
-      product_tags: oi.product_tags,
-      price: oi.price.to_f,
-      quantity: oi.quantity,
-      total_price: oi.total_price.to_f,
-      product_uuid: oi.product_uuid,
-      order_uuid: oi.order.uuid,
-      shipping_price: oi.shipping_price.to_f,
-      merchant_id: order.merchant_id.to_i,
-      customer_id: order.user.id,
-      order_item_id: oi.id,
-      order_total_price: oi.total_price,
-      customer_sign_in_count: order.user.sign_in_count,
-      })
+      Keen.publish("Order Items", {
+        marketplace_name: "MarketplaceBase",
+        platform_for: 'apparel',
+        ip_address: ip_address,
+        customer_zipcode: location["zipcode"],
+        customer_city: location["city"],
+        customer_state: location["region_name"],
+        customer_country: location["country_name"],
+        order_year: Time.now.strftime("%Y").to_i,
+        order_month: Time.now.strftime("%B").to_i,
+        order_day: Time.now.strftime("%d").to_i,
+        order_hour: Time.now.strftime("%H").to_i,
+        order_minute: Time.now.strftime("%M").to_i,
+        product_tags: oi.product_tags,
+        price: oi.price.to_f,
+        quantity: oi.quantity,
+        total_price: oi.total_price.to_f,
+        product_uuid: oi.product_uuid,
+        order_uuid: oi.order.uuid,
+        shipping_price: oi.shipping_price.to_f,
+        merchant_id: order.merchant_id.to_i,
+        customer_id: order.user.id,
+        order_item_id: oi.id,
+        order_total_price: oi.total_price,
+        customer_sign_in_count: order.user.sign_in_count,
+        submitted_to_cart_on: oi.updated_at,
+        })
     end
     order.order_items.each do |oi|
       if !Product.find_by(uuid: oi.product_uuid).tags.empty?
