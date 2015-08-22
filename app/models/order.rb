@@ -10,109 +10,112 @@ class Order < ActiveRecord::Base
   accepts_nested_attributes_for :order_items, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :shipping_updates, reject_if: :all_blank, allow_destroy: true
 
-  def self.shipping_price(order)
-    @oi_shipping_price = order.order_items.map(&:shipping_price)
-    @oi_max = @oi_shipping_price.max
+  protected
 
-    @total_shipp = []
-    order.order_items.each do |oi|
-      @total_shipp << oi.shipping_price * oi.quantity
+    def self.shipping_price(order)
+      @oi_shipping_price = order.order_items.map(&:shipping_price)
+      @oi_max = @oi_shipping_price.max
+
+      @total_shipp = []
+      order.order_items.each do |oi|
+        @total_shipp << oi.shipping_price * oi.quantity
+      end
+      shipping_price = (@oi_max + ((@total_shipp.sum - @oi_max ) * 0.65 ) ).round(2)
     end
-    shipping_price = (@oi_max + ((@total_shipp.sum - @oi_max ) * 0.65 ) ).round(2)
-  end
-  def self.total_price(order)
-    @prod_shipp = order.order_items.map(&:total_price).sum + self.shipping_price(order)
-    total_price = ((@prod_shipp.to_f.round(2)) + ((@prod_shipp.to_f.round(2)) * User.find(order.merchant_id).tax_rate / 100  ))
-  end
+    
+    def self.total_price(order)
+      @prod_shipp = order.order_items.map(&:total_price).sum + self.shipping_price(order)
+      total_price = ((@prod_shipp.to_f.round(2)) + ((@prod_shipp.to_f.round(2)) * User.find(order.merchant_id).tax_rate / 100  ))
+    end
 
-  def self.orders_to_keen(order, ip_address, location)
-    shipping_to = order.ship_to.gsub(/\s+/, "").split(',')
-    shipping_street = order.ship_to.gsub(/\s+/, " ").split(',')[0]
+    def self.orders_to_keen(order, ip_address, location)
+      shipping_to = order.ship_to.gsub(/\s+/, "").split(',')
+      shipping_street = order.ship_to.gsub(/\s+/, " ").split(',')[0]
 
-    Keen.publish("Orders", {
-      marketplace_name: "MarketplaceBase",
-      platform_for: 'apparel',
-      platform_for: 'apparel',
-      ip_address: ip_address,
-      customer_current_zipcode: location["zipcode"],
-      customer_current_city: location["city"] ,
-      customer_current_state: location["region_name"],
-      customer_current_country: location["country_name"],
-      customer_shipping_street: shipping_street,
-      customer_shipping_city: shipping_to[1] ,
-      customer_shipping_state: shipping_to[2] ,
-      customer_shipping_country: shipping_to[3] ,
-      customer_shipping_zip: shipping_to[4] ,
-      order_year: Time.now.strftime("%Y").to_i,
-      order_month: Time.now.strftime("%B").to_i,
-      order_day: Time.now.strftime("%d").to_i,
-      order_hour: Time.now.strftime("%H").to_i,
-      order_minute: Time.now.strftime("%M").to_i,
-      merchant_id: order.merchant_id.to_i,
-      customer_id: order.user.id,
-      total_price: order.total_price.to_f,
-      shipping_price: order.shipping_price.to_f,
-      customer_sign_in_count: order.user.sign_in_count,
-      order_uuid: order.uuid,
-      submitted_order_on: order.updated_at,
-    })
-
-    order.order_items.each do |oi|
-      Keen.publish("Order Items", {
+      Keen.publish("Orders", {
         marketplace_name: "MarketplaceBase",
         platform_for: 'apparel',
         platform_for: 'apparel',
         ip_address: ip_address,
-        customer_zipcode: location["zipcode"],
-        customer_city: location["city"],
-        customer_state: location["region_name"],
-        customer_country: location["country_name"],
+        customer_current_zipcode: location["zipcode"],
+        customer_current_city: location["city"] ,
+        customer_current_state: location["region_name"],
+        customer_current_country: location["country_name"],
+        customer_shipping_street: shipping_street,
+        customer_shipping_city: shipping_to[1] ,
+        customer_shipping_state: shipping_to[2] ,
+        customer_shipping_country: shipping_to[3] ,
+        customer_shipping_zip: shipping_to[4] ,
         order_year: Time.now.strftime("%Y").to_i,
         order_month: Time.now.strftime("%B").to_i,
         order_day: Time.now.strftime("%d").to_i,
         order_hour: Time.now.strftime("%H").to_i,
         order_minute: Time.now.strftime("%M").to_i,
-        product_tags: oi.product_tags,
-        price: oi.price.to_f,
-        quantity: oi.quantity,
-        total_price: oi.total_price.to_f,
-        product_uuid: oi.product_uuid,
-        order_uuid: oi.order.uuid,
-        shipping_price: oi.shipping_price.to_f,
         merchant_id: order.merchant_id.to_i,
         customer_id: order.user.id,
-        order_item_id: oi.id,
-        order_total_price: oi.total_price,
+        total_price: order.total_price.to_f,
+        shipping_price: order.shipping_price.to_f,
         customer_sign_in_count: order.user.sign_in_count,
-        submitted_to_cart_on: oi.updated_at,
-        })
-    end
-    order.order_items.each do |oi|
-      if !Product.find_by(uuid: oi.product_uuid).tags.empty?
-        Product.find_by(uuid: oi.product_uuid).tags.each do |tag|
-        Keen.publish("Tags On Ordered Items", {
+        order_uuid: order.uuid,
+        submitted_order_on: order.updated_at,
+      })
+
+      order.order_items.each do |oi|
+        Keen.publish("Order Items", {
           marketplace_name: "MarketplaceBase",
           platform_for: 'apparel',
-          tag: tag.name, 
-          order_uuid: oi.order.uuid, 
+          platform_for: 'apparel',
+          ip_address: ip_address,
+          customer_zipcode: location["zipcode"],
+          customer_city: location["city"],
+          customer_state: location["region_name"],
+          customer_country: location["country_name"],
+          order_year: Time.now.strftime("%Y").to_i,
+          order_month: Time.now.strftime("%B").to_i,
+          order_day: Time.now.strftime("%d").to_i,
+          order_hour: Time.now.strftime("%H").to_i,
+          order_minute: Time.now.strftime("%M").to_i,
+          product_tags: oi.product_tags,
+          price: oi.price.to_f,
+          quantity: oi.quantity,
+          total_price: oi.total_price.to_f,
+          product_uuid: oi.product_uuid,
+          order_uuid: oi.order.uuid,
+          shipping_price: oi.shipping_price.to_f,
+          merchant_id: order.merchant_id.to_i,
+          customer_id: order.user.id,
           order_item_id: oi.id,
-          order_item_product_uuid: oi.product_uuid,
-          order_total_price: oi.order.total_price.to_f,
-          order_item_total_price: oi.total_price.to_f, 
-        })
+          order_total_price: oi.total_price,
+          customer_sign_in_count: order.user.sign_in_count,
+          submitted_to_cart_on: oi.updated_at,
+          })
+      end
+      order.order_items.each do |oi|
+        if !Product.find_by(uuid: oi.product_uuid).tags.empty?
+          Product.find_by(uuid: oi.product_uuid).tags.each do |tag|
+          Keen.publish("Tags On Ordered Items", {
+            marketplace_name: "MarketplaceBase",
+            platform_for: 'apparel',
+            tag: tag.name, 
+            order_uuid: oi.order.uuid, 
+            order_item_id: oi.id,
+            order_item_product_uuid: oi.product_uuid,
+            order_total_price: oi.order.total_price.to_f,
+            order_item_total_price: oi.total_price.to_f, 
+          })
+          end
+        else
+          @tags = Keen.publish("Tags On Ordered Items", {
+            marketplace_name: "MarketplaceBase",
+            platform_for: 'apparel',
+            tag: "None", 
+            order_uuid: oi.order.uuid, 
+            order_item_id: oi.id,
+            order_item_product_uuid: oi.product_uuid,
+            order_total_price: oi.order.total_price.to_f,
+            order_item_total_price: oi.total_price.to_f, 
+          })
         end
-      else
-        @tags = Keen.publish("Tags On Ordered Items", {
-          marketplace_name: "MarketplaceBase",
-          platform_for: 'apparel',
-          tag: "None", 
-          order_uuid: oi.order.uuid, 
-          order_item_id: oi.id,
-          order_item_product_uuid: oi.product_uuid,
-          order_total_price: oi.order.total_price.to_f,
-          order_item_total_price: oi.total_price.to_f, 
-        })
       end
     end
-  end
 end
