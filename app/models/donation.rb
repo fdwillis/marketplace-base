@@ -16,6 +16,7 @@ class Donation < ActiveRecord::Base
       customer_current_city: location["city"] ,
       customer_current_state: location["region_name"],
       customer_current_country: location["country_name"],
+      customer_sign_in_count: order.user.sign_in_count,
       donation_year: Time.now.strftime("%Y").to_i,
       donation_month: Time.now.strftime("%B").to_i,
       donation_day: Time.now.strftime("%d").to_i,

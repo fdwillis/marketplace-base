@@ -11,6 +11,13 @@ class MerchantsController < ApplicationController
     if User.friendly.find(params[:id]).merchant? || User.friendly.find(params[:id]).admin?
       @merchant = User.friendly.find(params[:id])
       @products = @merchant.products.where(active:true)
+      if current_user != @merchant || !current_user
+        if current_user
+          User.profile_views(current_user.id, request.remote_ip, request.location.data, @merchant)
+        else
+          User.profile_views(0, request.remote_ip, request.location.data, @merchant)
+        end
+      end
     else
       redirect_to root_path
       flash[:error] = "#{@name} is no longer selling items"

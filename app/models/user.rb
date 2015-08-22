@@ -90,141 +90,162 @@ class User < ActiveRecord::Base
     stripe_account_id.present?
   end
 
-  def self.new_token(current_user, card)    
-    Stripe::Token.create(
-      card: {
-        number: card,
-        exp_month: current_user.exp_month,
-        exp_year: current_user.exp_year,
-        cvc: current_user.cvc_number,
-        name: current_user.legal_name,
-        address_city: current_user.address_city,
-        address_zip: current_user.address_zip,
-        address_state: current_user.address_state,
-        address_country: current_user.country_name,
-      },
-    )
-  end
+  protected
 
-  def self.new_customer(token)
-    customer = Stripe::Customer.create(
-        :description => "Customer For MarketplaceBase",
-        :source => token
+    def self.profile_views(user_id, ip_address, location, merchant)
+      Keen.publish("Profile Views", {
+        marketplace_name: "MarketplaceBase",
+        platform_for: 'apparel', 
+        ip_address: ip_address, 
+        customer_id: user_id,
+        profile_viewed: merchant.id,
+        customer_current_zipcode: location["zipcode"],
+        customer_current_city: location["city"] ,
+        customer_current_state: location["region_name"],
+        customer_current_country: location["country_name"],
+        donation_year: Time.now.strftime("%Y").to_i,
+        donation_month: Time.now.strftime("%B").to_i,
+        donation_day: Time.now.strftime("%d").to_i,
+        donation_hour: Time.now.strftime("%H").to_i,
+        donation_minute: Time.now.strftime("%M").to_i,
+      })
+    end
+
+    def self.new_token(current_user, card)    
+      Stripe::Token.create(
+        card: {
+          number: card,
+          exp_month: current_user.exp_month,
+          exp_year: current_user.exp_year,
+          cvc: current_user.cvc_number,
+          name: current_user.legal_name,
+          address_city: current_user.address_city,
+          address_zip: current_user.address_zip,
+          address_state: current_user.address_state,
+          address_country: current_user.country_name,
+        },
       )
-    
-    user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
-                                    customer_card: customer.default_source, customer_id: customer.id)
-  end
+    end
 
-  def self.decrypt_and_verify(secret_key)
-    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    @merchant_secret = @crypt.decrypt_and_verify(secret_key)
-    Stripe.api_key = @merchant_secret
-  end
-
-  def self.find_stripe_customer_id(user)
-    @customers = Stripe::Customer.all.data
-    @customer_ids = @customers.map(&:id)
-    @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
-  end
-
-  def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
-    @token = token
-    @price = price
-    @merchant60 = ((@price) * 60) /100
-    @fee = (@price - @merchant60)
-
-    User.decrypt_and_verify(secret_key)
-    User.find_stripe_customer_id(user)
-
-    if !@customer_account.nil? && @customer_account.present?
-      customer_card = @customer_account.customer_card
-      charge = Stripe::Charge.create(
-      {
-        amount: @price,
-        currency: 'USD',
-        customer: @customer_account.customer_id ,
-        description: 'MarketplaceBase',
-        application_fee: @fee,
-      },
-      {stripe_account: merchant_account_id}
-        )  
-    else
+    def self.new_customer(token)
+      customer = Stripe::Customer.create(
+          :description => "Customer For MarketplaceBase",
+          :source => token
+        )
       
-      User.new_customer(@token)
-      
-      charge = Stripe::Charge.create(
+      user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
+                                      customer_card: customer.default_source, customer_id: customer.id)
+    end
+
+    def self.decrypt_and_verify(secret_key)
+      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      @merchant_secret = @crypt.decrypt_and_verify(secret_key)
+      Stripe.api_key = @merchant_secret
+    end
+
+    def self.find_stripe_customer_id(user)
+      @customers = Stripe::Customer.all.data
+      @customer_ids = @customers.map(&:id)
+      @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
+    end
+
+    def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
+      @token = token
+      @price = price
+      @merchant60 = ((@price) * 60) /100
+      @fee = (@price - @merchant60)
+
+      User.decrypt_and_verify(secret_key)
+      User.find_stripe_customer_id(user)
+
+      if !@customer_account.nil? && @customer_account.present?
+        customer_card = @customer_account.customer_card
+        charge = Stripe::Charge.create(
         {
           amount: @price,
           currency: 'USD',
-          customer: @customer.id,
+          customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
           application_fee: @fee,
-          
         },
         {stripe_account: merchant_account_id}
+          )  
+      else
+        
+        User.new_customer(@token)
+        
+        charge = Stripe::Charge.create(
+          {
+            amount: @price,
+            currency: 'USD',
+            customer: @customer.id,
+            description: 'MarketplaceBase',
+            application_fee: @fee,
+            
+          },
+          {stripe_account: merchant_account_id}
+          )
+      end
+    end
+
+    def self.charge_for_admin(user, price, token)
+
+      User.find_stripe_customer_id(user)
+
+      if !@customer_account.nil? && @customer_account.present?
+        customer_card = @customer_account.customer_card
+        charge = Stripe::Charge.create(
+          amount: price,
+          currency: 'USD',
+          customer: @customer_account.customer_id ,
+          description: 'MarketplaceBase',
+        )  
+      else
+        User.new_customer(@token)
+
+        charge = Stripe::Charge.create(
+          amount: price,
+          currency: 'USD',
+          customer: @customer.id,
+          description: 'MarketplaceBase',
         )
+      end
     end
-  end
 
-  def self.charge_for_admin(user, price, token)
+    def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
+      @token = token
+      @price = ((donation_plan.amount.to_f) * 100).to_i
+      @merchant60 = ((@price) * 60) /100
+      @fee = (@price - @merchant60)
 
-    User.find_stripe_customer_id(user)
+      User.decrypt_and_verify(secret_key)
+      User.find_stripe_customer_id(user)
 
-    if !@customer_account.nil? && @customer_account.present?
-      customer_card = @customer_account.customer_card
-      charge = Stripe::Charge.create(
-        amount: price,
-        currency: 'USD',
-        customer: @customer_account.customer_id ,
-        description: 'MarketplaceBase',
-      )  
-    else
-      User.new_customer(@token)
-
-      charge = Stripe::Charge.create(
-        amount: price,
-        currency: 'USD',
-        customer: @customer.id,
-        description: 'MarketplaceBase',
-      )
+      if !@customer_account.nil? && @customer_account.present?
+        customer_card = @customer_account.customer_card
+        customer = Stripe::Customer.retrieve(@customer_account.customer_id)
+        plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
+      else
+        User.new_customer(@token)
+        
+        plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
+      end
     end
-  end
 
-  def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
-    @token = token
-    @price = ((donation_plan.amount.to_f) * 100).to_i
-    @merchant60 = ((@price) * 60) /100
-    @fee = (@price - @merchant60)
+    def self.subscribe_to_admin(user, token, donation_plan)
 
-    User.decrypt_and_verify(secret_key)
-    User.find_stripe_customer_id(user)
+      User.find_stripe_customer_id(user)
 
-    if !@customer_account.nil? && @customer_account.present?
-      customer_card = @customer_account.customer_card
-      customer = Stripe::Customer.retrieve(@customer_account.customer_id)
-      plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
-    else
-      User.new_customer(@token)
-      
-      plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
+      if !@customer_account.nil? && @customer_account.present?
+        customer_card = @customer_account.customer_card
+        customer = Stripe::Customer.retrieve(@customer_account.customer_id)
+        plan = customer.subscriptions.create(:plan => donation_plan.uuid)
+      else
+        User.new_customer(@token)
+
+        plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
+      end
     end
-  end
-
-  def self.subscribe_to_admin(user, token, donation_plan)
-
-    User.find_stripe_customer_id(user)
-
-    if !@customer_account.nil? && @customer_account.present?
-      customer_card = @customer_account.customer_card
-      customer = Stripe::Customer.retrieve(@customer_account.customer_id)
-      plan = customer.subscriptions.create(:plan => donation_plan.uuid)
-    else
-      User.new_customer(@token)
-
-      plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
-    end
-  end
 end
 
 
