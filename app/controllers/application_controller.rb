@@ -27,8 +27,9 @@ class ApplicationController < ActionController::Base
       current_user_current_state: request.location.data["region_name"],
       current_user_current_country: request.location.data["country_name"],
       sign_in_year: Time.now.strftime("%Y").to_i,
-      sign_in_month: Time.now.strftime("%B").to_i,
+      sign_in_month: DateTime.now.to_date.strftime("%B"),
       sign_in_day: Time.now.strftime("%d").to_i,
+      sign_in_day_of_week: DateTime.now.to_date.strftime("%A"),
       sign_in_hour: Time.now.strftime("%H").to_i,
       sign_in_minute: Time.now.strftime("%M").to_i,
       })

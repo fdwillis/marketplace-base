@@ -35,7 +35,6 @@ class Order < ActiveRecord::Base
       Keen.publish("Orders", {
         marketplace_name: "MarketplaceBase",
         platform_for: 'apparel',
-        platform_for: 'apparel',
         ip_address: ip_address,
         customer_current_zipcode: location["zipcode"],
         customer_current_city: location["city"] ,
@@ -47,8 +46,9 @@ class Order < ActiveRecord::Base
         customer_shipping_country: shipping_to[3] ,
         customer_shipping_zip: shipping_to[4] ,
         order_year: Time.now.strftime("%Y").to_i,
-        order_month: Time.now.strftime("%B").to_i,
+        order_month: DateTime.now.to_date.strftime("%B"),
         order_day: Time.now.strftime("%d").to_i,
+        order_day_of_week: DateTime.now.to_date.strftime("%A"),
         order_hour: Time.now.strftime("%H").to_i,
         order_minute: Time.now.strftime("%M").to_i,
         merchant_id: order.merchant_id.to_i,
@@ -57,7 +57,7 @@ class Order < ActiveRecord::Base
         shipping_price: order.shipping_price.to_f,
         customer_sign_in_count: order.user.sign_in_count,
         order_uuid: order.uuid,
-        submitted_order_on: order.updated_at,
+        submitted_order_on: Time.now,
       })
 
       order.order_items.each do |oi|
@@ -71,8 +71,9 @@ class Order < ActiveRecord::Base
           customer_state: location["region_name"],
           customer_country: location["country_name"],
           order_year: Time.now.strftime("%Y").to_i,
-          order_month: Time.now.strftime("%B").to_i,
+          order_month: DateTime.now.to_date.strftime("%B"),
           order_day: Time.now.strftime("%d").to_i,
+          order_day_of_week: DateTime.now.to_date.strftime("%A"),
           order_hour: Time.now.strftime("%H").to_i,
           order_minute: Time.now.strftime("%M").to_i,
           product_tags: oi.product_tags,

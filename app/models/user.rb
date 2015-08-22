@@ -103,11 +103,12 @@ class User < ActiveRecord::Base
         customer_current_city: location["city"] ,
         customer_current_state: location["region_name"],
         customer_current_country: location["country_name"],
-        donation_year: Time.now.strftime("%Y").to_i,
-        donation_month: Time.now.strftime("%B").to_i,
-        donation_day: Time.now.strftime("%d").to_i,
-        donation_hour: Time.now.strftime("%H").to_i,
-        donation_minute: Time.now.strftime("%M").to_i,
+        year: Time.now.strftime("%Y").to_i,
+        month: DateTime.now.to_date.strftime("%B"),
+        day: Time.now.strftime("%d").to_i,
+        day_of_week: DateTime.now.to_date.strftime("%A"),
+        hour: Time.now.strftime("%H").to_i,
+        minute: Time.now.strftime("%M").to_i,
       })
     end
 
