@@ -25,12 +25,13 @@ class Order < ActiveRecord::Base
     total_price = ((@prod_shipp.to_f.round(2)) + ((@prod_shipp.to_f.round(2)) * User.find(order.merchant_id).tax_rate / 100  ))
   end
 
-  def self.send_to_keen(order, ip_address, location)
+  def self.orders_to_keen(order, ip_address, location)
     shipping_to = order.ship_to.gsub(/\s+/, "").split(',')
     shipping_street = order.ship_to.gsub(/\s+/, " ").split(',')[0]
 
     Keen.publish("Orders", {
       marketplace_name: "MarketplaceBase",
+      platform_for: 'apparel',
       platform_for: 'apparel',
       ip_address: ip_address,
       customer_current_zipcode: location["zipcode"],
@@ -59,6 +60,7 @@ class Order < ActiveRecord::Base
     order.order_items.each do |oi|
       Keen.publish("Order Items", {
         marketplace_name: "MarketplaceBase",
+        platform_for: 'apparel',
         platform_for: 'apparel',
         ip_address: ip_address,
         customer_zipcode: location["zipcode"],
@@ -90,6 +92,7 @@ class Order < ActiveRecord::Base
         Product.find_by(uuid: oi.product_uuid).tags.each do |tag|
         Keen.publish("Tags On Ordered Items", {
           marketplace_name: "MarketplaceBase",
+          platform_for: 'apparel',
           tag: tag.name, 
           order_uuid: oi.order.uuid, 
           order_item_id: oi.id,
@@ -101,6 +104,7 @@ class Order < ActiveRecord::Base
       else
         @tags = Keen.publish("Tags On Ordered Items", {
           marketplace_name: "MarketplaceBase",
+          platform_for: 'apparel',
           tag: "None", 
           order_uuid: oi.order.uuid, 
           order_item_id: oi.id,

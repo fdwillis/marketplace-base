@@ -55,7 +55,7 @@ class PurchasesController < ApplicationController
             @product.update_attributes(quantity: @product.quantity - oi.quantity.to_i)
           end
 
-          Order.send_to_keen(@order, request.remote_ip, request.location.data)
+          Order.orders_to_keen(@order, request.remote_ip, request.location.data)
           
           redirect_to orders_path
           flash[:notice] = "Thanks for the purchase!"
@@ -76,7 +76,7 @@ class PurchasesController < ApplicationController
       end
     else
       @fund = FundraisingGoal.find_by(uuid: params[:uuid])
-      @price = params[:donation].to_i * 100
+      @price = params[:donate][:donation].to_i * 100
       @card = @crypt.decrypt_and_verify(current_user.card_number)
 
       begin
@@ -91,9 +91,9 @@ class PurchasesController < ApplicationController
         return
       end
 
-      if params[:donation_type] 
-        if params[:donation_type] == "One Time"
-          if params[:donation].to_i > 0
+      if params[:donate][:donation_type] 
+        if params[:donate][:donation_type] == "One Time"
+          if params[:donate][:donation].to_i > 0
             begin
               if @merchant.role == 'admin'
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
@@ -105,9 +105,6 @@ class PurchasesController < ApplicationController
               @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               @fund.increment!(:backers, by = 1)
 
-              redirect_to fundraising_goals_path
-              flash[:notice] = "Thanks for the donation!"
-              return
             rescue Stripe::CardError => e
               redirect_to edit_user_registration_path
               flash[:error] = "#{e}"
@@ -122,8 +119,7 @@ class PurchasesController < ApplicationController
             flash[:error] = "Please Specify A Valid Donation Amount"
           end
         else
-          @donation_plan = DonationPlan.find_by(uuid: params[:donation_type])
-
+          @donation_plan = DonationPlan.find_by(uuid: params[:donate][:donation_type])
           begin
             if @merchant.role == 'admin'
               @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
@@ -131,12 +127,8 @@ class PurchasesController < ApplicationController
               @subscription = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
             end
-            @donation = current_user.donations.create(stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
+            @donation = current_user.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
             
-            @fund.increment!(:backers, by = 1)
-            redirect_to fundraising_goals_path
-            flash[:notice] = "Thanks for the donation!"
-            return
           rescue Stripe::CardError => e
             redirect_to edit_user_registration_path
             flash[:error] = "#{e}"
@@ -147,6 +139,14 @@ class PurchasesController < ApplicationController
             return
           end
         end
+
+        Donation.donations_to_keen(@donation, request.remote_ip, request.location.data)
+
+        @fund.increment!(:backers, by = 1)
+        redirect_to fundraising_goals_path
+        flash[:notice] = "Thanks for the donation!"
+        return
+
       else
         redirect_to fundraising_goal_path(id: @fund.slug)
         flash[:error] = "Please Specify A Donation Type"
