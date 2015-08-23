@@ -10,9 +10,7 @@ before_filter :authenticate_user!
       config.access_token = ENV['BITLY_ACCESS_TOKEN']
     end
 
-    link = "https://google.com"
-
-    @bitly_link = Bitly.client.shorten(link).short_url
+    @bitly_link = Bitly.client.shorten("https://marketplace-base.herokuapp.com/merchants/#{current_user.username}").short_url
 
     plan = Stripe::Plan.retrieve(params[:id])
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])

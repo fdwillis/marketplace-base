@@ -112,7 +112,7 @@ class User < ActiveRecord::Base
       })
     end
 
-    def self.new_token(current_user, card)    
+    def self.new_token(current_user, card)
       Stripe::Token.create(
         card: {
           number: card,
@@ -246,6 +246,56 @@ class User < ActiveRecord::Base
 
         plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
       end
+    end
+
+    def self.create_merchant(user)
+      merchant = Stripe::Account.create(
+        managed: true,
+        country: user.address_country,
+        email: user.email,
+        business_url: user.business_url,
+        business_name: user.business_name,
+        support_url: user.support_url,
+        support_phone: user.support_phone,
+        support_email: user.support_email,
+        debit_negative_balances: true,
+        external_account: {
+          object: 'bank_account',
+          country: user.address_country,
+          currency: user.currency,
+          routing_number: user.routing_number,
+          account_number: @crypt.decrypt_and_verify(user.account_number),
+        },
+        tos_acceptance: {
+          ip: request.remote_ip,
+          date: Time.now.to_i,
+          user_agent: browser.full_version,
+        },
+        legal_entity: {
+          type: user.stripe_account_type,
+          business_name: user.business_name,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          dob: {
+            day: user.dob_day,
+            month: user.dob_month,
+            year: user.dob_year,
+          },
+          address: {
+            line1: user.address,
+            city: user.address_city,
+            state: user.address_state,
+            postal_code: user.address_zip,
+            country: user.address_country,
+          }
+        },
+        decline_charge_on: {
+          cvc_failure: true,
+        },
+        transfer_schedule:{
+          interval: 'manual',
+        },
+      )
     end
 end
 
