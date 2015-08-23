@@ -3,6 +3,17 @@ before_filter :authenticate_user!
 
   def update
     #Track for admin
+    Bitly.use_api_version_3
+
+    Bitly.configure do |config|
+      config.api_version = 3
+      config.access_token = ENV['BITLY_ACCESS_TOKEN']
+    end
+
+    link = "https://google.com"
+
+    @bitly_link = Bitly.client.shorten(link).short_url
+
     plan = Stripe::Plan.retrieve(params[:id])
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
@@ -96,10 +107,10 @@ before_filter :authenticate_user!
     customer.subscriptions.retrieve(current_user.stripe_plan_id).delete
     if current_user.products.present?
       current_user.products.each do |p|
-        p.update_attributes(active: true)
+        p.update_attributes(active: false)
       end
     end
-    current_user.update_attributes(role: 'buyer', stripe_plan_id: nil)
+    current_user.update_attributes(role: 'buyer', stripe_plan_id: nil, stripe_plan_name: nil)
     redirect_to edit_user_registration_path
     flash[:error] = "You No Longer Are A Merchant"
   end

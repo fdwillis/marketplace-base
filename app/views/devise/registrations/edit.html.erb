@@ -1,30 +1,28 @@
 <div class='container'>  
 
-  <h1 class='text-center'>Editing <i><%= (current_user.username.capitalize || current_user.email) %></i> Account</h1>
+  <h1 class='text-center'>Editing <i><%= (current_user.email || current_user.username.capitalize) %></i> Account</h1>
   <div class="tab-v2">
     <div class='row'>
-      <% if current_user.admin? || current_user.merchant? %> 
-        <ul class="nav nav-pills col-md-8 col-md-offset-3">
+      <ul class="nav nav-pills">
+        <% if current_user.admin? || current_user.merchant? %> 
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Basic Information </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
           <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
           <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
-        </ul>
-      <% else %>
-        <ul class="nav nav-pills col-md-6 col-md-offset-4">
+        <% else %>
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
-          <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">Donations</a></li>
-        </ul>
-      <% end %>
+        <% end %>
+        <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">My Donations</a></li>
+      </ul>
     </div>
     <div class="tab-content">
       <div class="tab-pane fade" id="basic_info">
         <div class='row'>
           <div class='container'>
-            <h2 class='text-center'>Basic Information For <%= (current_user.username.capitalize || current_user.email) %></h2>
+            <h2 class='text-center'>Basic Information For <%= (current_user.email || current_user.username.capitalize) %></h2>
             <div class="col-md-8 col-md-offset-2">
               <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :patch }) do |f| %>
                 <%= devise_error_messages! %>
@@ -375,16 +373,18 @@
               </div>
             <% end %>
           </div>
-          <div class="tab-pane fade" id="seller_plan">
-            <div class="row">
-              <div class="col-md-4">
-                <h3 class='text-center'>Cancel Merchant Plan</h3>
-                <div class="form-group text-center">
+          <% if current_user.stripe_plan_id %>  
+            <div class="tab-pane fade" id="seller_plan">
+              <div class="row">
+                <div class="col-md-4">
+                  <h3 class='text-center'>Cancel Merchant Plan: <%= current_user.stripe_plan_name %></h3>
+                  <div class="form-group text-center">
                     <p><%= button_to "Cancel", subscribe_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: 'btn btn-danger' %></p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          <% end %>
         </div>
       </div>
     </div>

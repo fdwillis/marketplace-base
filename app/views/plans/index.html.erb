@@ -13,37 +13,44 @@
               <h1>Basic Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#basicPlan' %>
             </div>
-            <div class="modal fade" id="basicPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h1 class="modal-title text-center" id="myModalLabel">Basic Plan</h1>
-                  </div>
-                  <div class="modal-body">
-                    <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
-                    <h3>Credit Card Number</h3>
-                    <% if current_user.card_number?%>
-                      <%= plan.text_field :card_number, class: 'form-control', maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
+              <div class="modal fade" id="basicPlan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h1 class="modal-title text-center" id="myModalLabel">Basic Plan</h1>
+                    </div>
+                    <% if current_user.card? %>  
+                      <div class="modal-body">
+                        <% crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE']) %>
+                        <h3>Credit Card Number</h3>
+                        <% if current_user.card_number?%>
+                          <%= plan.text_field :card_number, class: 'form-control', maxlength: 16, value: "#{crypt.decrypt_and_verify(current_user.card_number)}" %>
+                        <% else %>
+                          <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16 %>
+                        <% end %>
+                        <h3>Expiration Month</h3>
+                        <%= plan.text_field :exp_month, class: 'form-control', required: true, maxlength: 2, minlength: 2, value: current_user.exp_month || nil %>
+
+                        <h3>Expiration Year</h3>
+                        <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 4, minlength: 4, greater_than_or_equal_to: Time.now.year, value: current_user.exp_year || nil %>
+
+                        <h3>CVC Number</h3>
+                        <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4, minlength: 3, value: current_user.cvc_number || nil %>
+
+                        <h3>Username</h3>
+                        <%= plan.text_field :username, class: 'form-control', required: true, value: ("#{current_user.username}" || nil ) %>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <%= plan.submit 'Submit', class: 'btn btn-success' %>
+                      </div>
                     <% else %>
-                      <%= plan.text_field :card_number, class: 'form-control', required: true, maxlength: 16 %>
+                    <h3 class="text-center">Please Add Payment Source <%= link_to "Here", edit_user_registration_path, class: 'btn btn-info' %> </h3>
                     <% end %>
-                    <h3>Expiration Month</h3>
-                    <%= plan.text_field :exp_month, class: 'form-control', required: true, maxlength: 2, minlength: 2 %>
-                    <h3>Expiration Year</h3>
-                    <%= plan.text_field :exp_year, class: 'form-control', required: true, maxlength: 4, minlength: 4, greater_than_or_equal_to: Time.now.year, allow_blank: true %>
-                    <h3>CVC Number</h3>
-                    <%= plan.text_field :cvc_number, class: 'form-control', required: true, maxlength: 4 %>
-                    <h3>Username</h3>
-                    <%= plan.text_field :username, class: 'form-control', required: true, value: "#{current_user.username}" %>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <%= plan.submit 'Submit', class: 'btn btn-success' %>
                   </div>
                 </div>
               </div>
-            </div>
           <% end %>
         </div>
       </div>

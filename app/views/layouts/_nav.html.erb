@@ -2,9 +2,7 @@
   <li><%= link_to "Marketplace-Base", root_path %></li>
   <div class="pull-right user-info">
     <% if current_user %>
-      <% if current_user.merchant_approved || current_user.admin? %>
-        <%= link_to "Plans", plans_path %> |
-      <% end %>
+      <%= link_to "Plans", plans_path %> |
       <%= link_to "Orders", orders_path %> <% if current_user.merchant? || current_user.admin? %> <%= "(#{Order.all.where(merchant_id: current_user.id).where(paid: true, tracking_number: nil, refunded: (false || nil)).count})"  %> <% else %> (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>) <% end %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
       <% if current_user.merchant? || current_user.admin? %>
