@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :business_name, :username
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -128,7 +128,7 @@ class User < ActiveRecord::Base
       )
     end
 
-    def self.new_customer(token)
+    def self.new_customer(token, user)
       customer = Stripe::Customer.create(
           :description => "Customer For MarketplaceBase",
           :source => token
@@ -145,20 +145,19 @@ class User < ActiveRecord::Base
     end
 
     def self.find_stripe_customer_id(user)
+      
       @customers = Stripe::Customer.all.data
       @customer_ids = @customers.map(&:id)
       @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
     end
 
     def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
-      @token = token
       @price = price
       @merchant60 = ((@price) * 60) /100
       @fee = (@price - @merchant60)
 
       User.decrypt_and_verify(secret_key)
       User.find_stripe_customer_id(user)
-
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
@@ -173,13 +172,13 @@ class User < ActiveRecord::Base
           )  
       else
         
-        User.new_customer(@token)
+        @customer = User.new_customer(token, user)
         
         charge = Stripe::Charge.create(
           {
             amount: @price,
             currency: 'USD',
-            customer: @customer.id,
+            customer: @customer.customer_id,
             description: 'MarketplaceBase',
             application_fee: @fee,
             
@@ -202,12 +201,12 @@ class User < ActiveRecord::Base
           description: 'MarketplaceBase',
         )  
       else
-        User.new_customer(@token)
+        @customer = User.new_customer(token, user)
 
         charge = Stripe::Charge.create(
           amount: price,
           currency: 'USD',
-          customer: @customer.id,
+          customer: @customer.customer_id,
           description: 'MarketplaceBase',
         )
       end

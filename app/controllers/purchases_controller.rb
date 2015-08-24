@@ -39,14 +39,13 @@ class PurchasesController < ApplicationController
         end
 
         begin
-
           if @merchant.role == 'admin'
             @charge = User.charge_for_admin(current_user, @price, @token.id)
           else
             @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id, @currency)
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
           end
-          
+
           @order.update_attributes(stripe_charge_id: @charge.id, purchase_id: SecureRandom.uuid,
                                    paid: true, application_fee: @charge.application_fee, status: "Paid")
 
@@ -127,7 +126,8 @@ class PurchasesController < ApplicationController
               @subscription = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
             end
-            @donation = current_user.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
+
+            @donation = current_user.donations.create(application_fee: (@subscription.plan.amount * (@subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
             
           rescue Stripe::CardError => e
             redirect_to edit_user_registration_path

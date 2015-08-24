@@ -3,28 +3,56 @@ class Donation < ActiveRecord::Base
   belongs_to :fundraising_goal
   protected
 	  def self.donations_to_keen(donation, ip_address, location)
-		  Keen.publish("Donations", {
-		    marketplace_name: "MarketplaceBase",
-		    platform_for: 'donations',
-		    donation_amount: (donation.amount / 100).to_f,
-		    donation_type: donation.donation_type,
-		    ip_address: ip_address, 
-		    customer_id: donation.user_id,
-		    fundraising_goal_uuid: donation.fundraising_goal.uuid,
-		    merchant_id: donation.fundraising_goal.user_id,
-		    customer_current_zipcode: location["zipcode"],
-	      customer_current_city: location["city"] ,
-	      customer_current_state: location["region_name"],
-	      customer_current_country: location["country_name"],
-	      customer_sign_in_count: order.user.sign_in_count,
-	      donation_year: Time.now.strftime("%Y").to_i,
-	      donation_month: DateTime.now.to_date.strftime("%B"),
-	      donation_day: Time.now.strftime("%d").to_i,
-	      donation_day_of_week: DateTime.now.to_date.strftime("%A"),
-	      donation_hour: Time.now.strftime("%H").to_i,
-	      donation_minute: Time.now.strftime("%M").to_i,
-	      donation_plan_uuid: DonationPlan.find_by(uuid: donation.stripe_subscription_id),
-		  })  
+			if !donation.application_fee.nil?  
+				
+			  Keen.publish("Donations", {
+			    marketplace_name: "MarketplaceBase",
+			    platform_for: 'donations',
+			    donation_amount: (donation.amount / 100).to_f,
+			    donation_type: donation.donation_type,
+			    ip_address: ip_address, 
+			    customer_id: donation.user_id,
+			    fundraising_goal_uuid: donation.fundraising_goal.uuid,
+			    merchant_id: donation.fundraising_goal.user_id,
+			    customer_current_zipcode: location["zipcode"],
+		      customer_current_city: location["city"] ,
+		      customer_current_state: location["region_name"],
+		      customer_current_country: location["country_name"],
+		      customer_sign_in_count: donation.user.sign_in_count,
+		      donation_year: Time.now.strftime("%Y").to_i,
+		      donation_month: DateTime.now.to_date.strftime("%B"),
+		      donation_day: Time.now.strftime("%d").to_i,
+		      donation_day_of_week: DateTime.now.to_date.strftime("%A"),
+		      donation_hour: Time.now.strftime("%H").to_i,
+		      donation_minute: Time.now.strftime("%M").to_i,
+		      donation_plan_uuid: DonationPlan.find_by(uuid: donation.stripe_subscription_id),
+		      application_fee: donation.application_fee,
+			  })  
+			else
+			  Keen.publish("Donations", {
+			    marketplace_name: "MarketplaceBase",
+			    platform_for: 'donations',
+			    donation_amount: (donation.amount / 100).to_f,
+			    donation_type: donation.donation_type,
+			    ip_address: ip_address, 
+			    customer_id: donation.user_id,
+			    fundraising_goal_uuid: donation.fundraising_goal.uuid,
+			    merchant_id: donation.fundraising_goal.user_id,
+			    customer_current_zipcode: location["zipcode"],
+		      customer_current_city: location["city"] ,
+		      customer_current_state: location["region_name"],
+		      customer_current_country: location["country_name"],
+		      customer_sign_in_count: donation.user.sign_in_count,
+		      donation_year: Time.now.strftime("%Y").to_i,
+		      donation_month: DateTime.now.to_date.strftime("%B"),
+		      donation_day: Time.now.strftime("%d").to_i,
+		      donation_day_of_week: DateTime.now.to_date.strftime("%A"),
+		      donation_hour: Time.now.strftime("%H").to_i,
+		      donation_minute: Time.now.strftime("%M").to_i,
+		      donation_plan_uuid: DonationPlan.find_by(uuid: donation.stripe_subscription_id),
+		    })
+			end
+
 			if !donation.fundraising_goal.tags.empty?  
 			  donation.fundraising_goal.tags.each do |tag|
 				  Keen.publish("Tags On Fundraising Goals", {
