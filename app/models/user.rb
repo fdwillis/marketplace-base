@@ -213,7 +213,6 @@ class User < ActiveRecord::Base
     end
 
     def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
-      @token = token
       @price = ((donation_plan.amount.to_f) * 100).to_i
       @merchant60 = ((@price) * 60) /100
       @fee = (@price - @merchant60)
@@ -226,7 +225,7 @@ class User < ActiveRecord::Base
         customer = Stripe::Customer.retrieve(@customer_account.customer_id)
         plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
       else
-        User.new_customer(@token)
+        User.new_customer(token)
         
         plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
       end
@@ -241,7 +240,7 @@ class User < ActiveRecord::Base
         customer = Stripe::Customer.retrieve(@customer_account.customer_id)
         plan = customer.subscriptions.create(:plan => donation_plan.uuid)
       else
-        User.new_customer(@token)
+        User.new_customer(token)
 
         plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
       end
