@@ -121,10 +121,10 @@ class PurchasesController < ApplicationController
           @donation_plan = DonationPlan.find_by(uuid: params[:donate][:donation_type])
           begin
             if @merchant.role == 'admin'
-              @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan)
+              @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan.uuid)
               @donation = current_user.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
             else
-              @subscription = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan)
+              @subscription = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan.uuid)
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
               @donation = current_user.donations.create(application_fee: (@subscription.plan.amount * (@subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
             end

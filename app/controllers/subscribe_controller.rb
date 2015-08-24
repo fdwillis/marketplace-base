@@ -43,7 +43,6 @@ before_filter :authenticate_user!
       redirect_to edit_user_registration_path
       return
     end
-
     if current_user.stripe_plan_id?  
 
       customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
@@ -56,7 +55,7 @@ before_filter :authenticate_user!
       redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
       return
     elsif current_user.card?
-      if current_user.marketplace_stripe_id
+      if !current_user.marketplace_stripe_id.nil?
         customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
         subscription = customer.subscriptions.create(plan: plan)
         if current_user.products.present?
@@ -72,16 +71,14 @@ before_filter :authenticate_user!
         return
       else
         begin
-          customer = Stripe::Customer.create(
-            email: current_user.email,
-            source: @token.id,
-            plan: plan.id,
-            description: 'MarketplaceBase'
-          )
+
+          customer = User.subscribe_to_admin(current_user, @token.id, plan.id)
+          
           current_user.update_attributes(slug: @username = params[:user][:username], marketplace_stripe_id: customer.id, role: 'merchant', 
                                          username: @username = params[:user][:username], card_number: @card_number, exp_year: @exp_year, 
-                                         exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: customer.subscriptions.data[0].id,
-                                         stripe_plan_name: customer.subscriptions.data[0].plan.name, bitly_link: @bitly_link)
+                                         exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: customer.plan.id,
+                                         stripe_plan_name: customer.plan.name, bitly_link: @bitly_link)
+
           flash[:notice] = "You Joined #{plan.name} Plan"
           redirect_to edit_user_registration_path
           return

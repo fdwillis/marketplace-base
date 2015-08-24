@@ -133,7 +133,6 @@ class User < ActiveRecord::Base
           :description => "Customer For MarketplaceBase",
           :source => token
         )
-      
       user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
                                       customer_card: customer.default_source, customer_id: customer.id)
     end
@@ -213,9 +212,6 @@ class User < ActiveRecord::Base
     end
 
     def self.subscribe_to_fundraiser(secret_key, user, token, merchant_account_id, donation_plan)
-      @price = ((donation_plan.amount.to_f) * 100).to_i
-      @merchant60 = ((@price) * 60) /100
-      @fee = (@price - @merchant60)
 
       User.decrypt_and_verify(secret_key)
       User.find_stripe_customer_id(user)
@@ -223,11 +219,12 @@ class User < ActiveRecord::Base
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         customer = Stripe::Customer.retrieve(@customer_account.customer_id)
-        plan = customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
+        plan = customer.subscriptions.create(:plan => donation_plan, application_fee_percent: 40)
       else
-        User.new_customer(token)
         
-        plan = @customer.subscriptions.create(:plan => donation_plan.uuid, application_fee_percent: 40)
+        new_customer = User.new_customer(token, user)
+        customer = Stripe::Customer.retrieve(new_customer.customer_id)
+        plan = customer.subscriptions.create(:plan => donation_plan, application_fee_percent: 40)
       end
     end
 
@@ -237,12 +234,14 @@ class User < ActiveRecord::Base
 
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
+        
         customer = Stripe::Customer.retrieve(@customer_account.customer_id)
-        plan = customer.subscriptions.create(:plan => donation_plan.uuid)
+        plan = customer.subscriptions.create(:plan => donation_plan)
       else
-        User.new_customer(token)
-
-        plan = @customer.subscriptions.create(:plan => donation_plan.uuid)
+        
+        new_customer = User.new_customer(token, user)
+        customer = Stripe::Customer.retrieve(new_customer.customer_id)
+        plan = customer.subscriptions.create(:plan => donation_plan)
       end
     end
 
