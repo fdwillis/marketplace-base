@@ -4,7 +4,6 @@ class Donation < ActiveRecord::Base
   protected
 	  def self.donations_to_keen(donation, ip_address, location)
 			if !donation.application_fee.nil?  
-				
 			  Keen.publish("Donations", {
 			    marketplace_name: "MarketplaceBase",
 			    platform_for: 'donations',
@@ -27,6 +26,7 @@ class Donation < ActiveRecord::Base
 		      donation_minute: Time.now.strftime("%M").to_i,
 		      donation_plan_uuid: DonationPlan.find_by(uuid: donation.stripe_subscription_id),
 		      application_fee: donation.application_fee,
+		      timestamp: Time.now,
 			  })  
 			else
 			  Keen.publish("Donations", {
@@ -50,6 +50,7 @@ class Donation < ActiveRecord::Base
 		      donation_hour: Time.now.strftime("%H").to_i,
 		      donation_minute: Time.now.strftime("%M").to_i,
 		      donation_plan_uuid: DonationPlan.find_by(uuid: donation.stripe_subscription_id),
+		      timestamp: Time.now,
 		    })
 			end
 

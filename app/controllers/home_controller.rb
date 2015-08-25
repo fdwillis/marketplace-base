@@ -13,6 +13,7 @@ class HomeController < ApplicationController
       hour: Time.now.strftime("%H").to_i,
       minute: Time.now.strftime("%M"),
       day_of_week: DateTime.now.to_date.strftime("%A"),
+      timestamp: Time.now,
     })
   end
 end

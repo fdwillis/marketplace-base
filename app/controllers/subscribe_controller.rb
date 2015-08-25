@@ -43,7 +43,7 @@ before_filter :authenticate_user!
       redirect_to edit_user_registration_path
       return
     end
-    if current_user.stripe_plan_id?  
+    if !current_user.stripe_plan_id.nil?  
 
       customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
       subscription = customer.subscriptions.retrieve(current_user.stripe_plan_id)
@@ -72,12 +72,14 @@ before_filter :authenticate_user!
       else
         begin
 
-          customer = User.subscribe_to_admin(current_user, @token.id, plan.id)
+          subscription = User.subscribe_to_admin(current_user, @token.id, plan.id)
+
+          User.new_paying_merchant(request.location.data, request.remote_ip, subscription.plan.amount, current_user)
           
-          current_user.update_attributes(slug: @username = params[:user][:username], marketplace_stripe_id: customer.id, role: 'merchant', 
+          current_user.update_attributes(slug: @username = params[:user][:username], marketplace_stripe_id: subscription.customer, role: 'merchant', 
                                          username: @username = params[:user][:username], card_number: @card_number, exp_year: @exp_year, 
-                                         exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: customer.plan.id,
-                                         stripe_plan_name: customer.plan.name, bitly_link: @bitly_link)
+                                         exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: subscription.id,
+                                         stripe_plan_name: subscription.plan.name, bitly_link: @bitly_link)
 
           flash[:notice] = "You Joined #{plan.name} Plan"
           redirect_to edit_user_registration_path

@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :business_name, :username
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -109,6 +109,7 @@ class User < ActiveRecord::Base
         day_of_week: DateTime.now.to_date.strftime("%A"),
         hour: Time.now.strftime("%H").to_i,
         minute: Time.now.strftime("%M").to_i,
+        timestamp: Time.now,
       })
     end
 
@@ -129,6 +130,7 @@ class User < ActiveRecord::Base
     end
 
     def self.new_customer(token, user)
+      #Keen event "New Paying Customers"
       customer = Stripe::Customer.create(
           :description => "Customer For MarketplaceBase",
           :source => token
@@ -152,7 +154,7 @@ class User < ActiveRecord::Base
 
     def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
       @price = price
-      @merchant60 = ((@price) * 60) /100
+      @merchant60 = ((price) * 60) /100
       @fee = (@price - @merchant60)
 
       User.decrypt_and_verify(secret_key)
@@ -218,14 +220,12 @@ class User < ActiveRecord::Base
 
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
-        customer = Stripe::Customer.retrieve(@customer_account.customer_id)
-        plan = customer.subscriptions.create(:plan => donation_plan, application_fee_percent: 40)
       else
-        
-        new_customer = User.new_customer(token, user)
-        customer = Stripe::Customer.retrieve(new_customer.customer_id)
-        plan = customer.subscriptions.create(:plan => donation_plan, application_fee_percent: 40)
+        @customer_account = User.new_customer(token, user)
       end
+
+      customer = Stripe::Customer.retrieve(@customer_account.customer_id)
+      plan = customer.subscriptions.create(:plan => donation_plan, application_fee_percent: 40)
     end
 
     def self.subscribe_to_admin(user, token, donation_plan)
@@ -234,15 +234,12 @@ class User < ActiveRecord::Base
 
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
-        
-        customer = Stripe::Customer.retrieve(@customer_account.customer_id)
-        plan = customer.subscriptions.create(:plan => donation_plan)
       else
-        
-        new_customer = User.new_customer(token, user)
-        customer = Stripe::Customer.retrieve(new_customer.customer_id)
-        plan = customer.subscriptions.create(:plan => donation_plan)
+        @customer_account = User.new_customer(token, user)
       end
+
+      customer = Stripe::Customer.retrieve(@customer_account.customer_id)
+      plan = customer.subscriptions.create(:plan => donation_plan)
     end
 
     def self.create_merchant(user)
@@ -293,6 +290,28 @@ class User < ActiveRecord::Base
           interval: 'manual',
         },
       )
+    end
+
+    def self.new_paying_merchant(location, ip_address, price, user)
+      Keen.publish("New Paying Merchant", {
+        marketplace_name: "MarketplaceBase",
+        platform_for: 'apparel', 
+        ip_address: ip_address, 
+        customer_current_zipcode: location["zipcode"],
+        customer_current_city: location["city"] ,
+        customer_current_state: location["region_name"],
+        customer_current_country: location["country_name"],
+        year: Time.now.strftime("%Y").to_i,
+        month: DateTime.now.to_date.strftime("%B"),
+        day: Time.now.strftime("%d").to_i,
+        day_of_week: DateTime.now.to_date.strftime("%A"),
+        hour: Time.now.strftime("%H").to_i,
+        minute: Time.now.strftime("%M").to_i,
+        subscription_price: (price/100).to_f, 
+        merchant_email: user.email,
+        sign_in_count: user.sign_in_count,
+        timestamp: Time.now,
+      })
     end
 end
 

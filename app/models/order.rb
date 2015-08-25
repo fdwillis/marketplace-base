@@ -58,8 +58,8 @@ class Order < ActiveRecord::Base
           shipping_price: order.shipping_price.to_f,
           customer_sign_in_count: order.user.sign_in_count,
           order_uuid: order.uuid,
-          submitted_order_on: Time.now,
-          application_fee: ((Stripe::ApplicationFee.retrieve(order.application_fee).amount).to_f / 100)
+          timestamp: Time.now,
+          application_fee: ((Stripe::ApplicationFee.retrieve(order.application_fee).amount).to_f / 100),
         })
       else 
         Keen.publish("Orders", {
@@ -87,7 +87,7 @@ class Order < ActiveRecord::Base
           shipping_price: order.shipping_price.to_f,
           customer_sign_in_count: order.user.sign_in_count,
           order_uuid: order.uuid,
-          submitted_order_on: Time.now,
+          timestamp: Time.now,
         })
       end
 
