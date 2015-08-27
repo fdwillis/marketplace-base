@@ -1,17 +1,18 @@
-# require "active_support"
+require "active_support"
 
-# @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+@crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
-# namespace :tasks do
+namespace :email do
 
-#   desc "Create Recipients"
-#   task merchant_ready: :environment do
-#     User.all.each do |user|
-#       @user = if user.merchant_ready? && !user.stripe_account_id?
-        
-#         puts 'send an email'
-#       end
-#     end
-#     puts "#{@user}"
-#   end
-# end
+  desc "Create Recipients"
+  task pending_orders: :environment do
+    User.all.each do |user|
+    	pending_orders = Order.all.where(merchant_id: user.id).where(paid: true).where(refunded: (false || nil)).where(tracking_number: nil).count
+      if user.merchant_ready? && pending_orders > 0
+        Notify.pending_orders(user, pending_orders ).deliver_now
+        puts Notify.pending_orders(user, pending_orders ).message
+        puts "email to #{user.email}"
+      end
+    end
+  end
+end

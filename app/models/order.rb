@@ -95,7 +95,6 @@ class Order < ActiveRecord::Base
         Keen.publish("Order Items", {
           marketplace_name: "MarketplaceBase",
           platform_for: 'apparel',
-          platform_for: 'apparel',
           ip_address: ip_address,
           customer_zipcode: location["zipcode"],
           customer_city: location["city"],
