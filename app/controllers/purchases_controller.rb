@@ -42,7 +42,7 @@ class PurchasesController < ApplicationController
           if @merchant.role == 'admin'
             @charge = User.charge_for_admin(current_user, @price, @token.id)
           else
-            @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id, @currency)
+            @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id)
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
           end
 
@@ -97,7 +97,7 @@ class PurchasesController < ApplicationController
               if @merchant.role == 'admin'
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
               else
-                @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id, @currency)
+                @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id)
                 Stripe.api_key = Rails.configuration.stripe[:secret_key]
               end
 

@@ -152,13 +152,14 @@ class User < ActiveRecord::Base
       @customer_account = user.stripe_customer_ids.where(business_name: Stripe::Account.retrieve().business_name).first
     end
 
-    def self.charge_n_process(secret_key, user, price, token, merchant_account_id, currency)
+    def self.charge_n_process(secret_key, user, price, token, merchant_account_id)
       @price = price
       @merchant60 = ((price) * 60) /100
       @fee = (@price - @merchant60)
-
+      # Call to create token here
       User.decrypt_and_verify(secret_key)
       User.find_stripe_customer_id(user)
+      
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
@@ -190,7 +191,7 @@ class User < ActiveRecord::Base
     end
 
     def self.charge_for_admin(user, price, token)
-
+      # Call to create token here
       User.find_stripe_customer_id(user)
 
       if !@customer_account.nil? && @customer_account.present?
