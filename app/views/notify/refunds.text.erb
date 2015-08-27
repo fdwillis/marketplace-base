@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1><%= @user.name %>, you have <%= pluralize(@pending_count, "refund") %> waiting to be processed</h1>
+  </body>
+</html>
