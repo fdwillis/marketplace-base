@@ -138,7 +138,7 @@
                                                 <h3>Check Box For Full Refund</h3>
                                                 <h5><%= check_box_tag :full_refund, true, nil %> Full Refund</h5>
                                                 <div class="col-md-12">  
-                                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund" %>
+                                                  <%= text_area_tag :full_refund_note, nil, class: 'form-control', placeholder: "Reason For Full Refund"%>
                                                 </div>
                                               </div>
                                               <small>OR</small>
@@ -150,7 +150,7 @@
                                                 <div class='row'>  
                                                   <div class='col-md-6'>  
                                                     <%= hidden_field_tag("uuids[]", oi.product_uuid) %>
-                                                    <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                                    <%= number_field_tag("amount[]", nil, class: 'form-control text-center', step: 'any', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
                                                   </div>
                                                   <div class='col-md-6'>  
                                                     <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>

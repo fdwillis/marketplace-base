@@ -242,7 +242,7 @@ class User < ActiveRecord::Base
       plan = customer.subscriptions.create(:plan => donation_plan)
     end
 
-    def self.create_merchant(user)
+    def self.create_merchant(user, ip_address, user_agent)
       merchant = Stripe::Account.create(
         managed: true,
         country: user.address_country,
@@ -261,9 +261,9 @@ class User < ActiveRecord::Base
           account_number: @crypt.decrypt_and_verify(user.account_number),
         },
         tos_acceptance: {
-          ip: request.remote_ip,
+          ip: ip_address,
           date: Time.now.to_i,
-          user_agent: browser.full_version,
+          user_agent: user_agent,
         },
         legal_entity: {
           type: user.stripe_account_type,

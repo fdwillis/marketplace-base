@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
 
   def update
+    
     if current_user.update_attributes(user_params)
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
@@ -75,7 +76,7 @@ class UsersController < ApplicationController
         begin 
           #Merchant creation from sign of signup, to merchant creation
 
-          User.create_merchant(current_user)
+          User.create_merchant(current_user, request.remote_ip, browser.user_agent )
           
           @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
           @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)

@@ -18,7 +18,7 @@
 	                <h2>Refund Details For <br><u><em><strong><%= refund.order.uuid %></strong></em></u></h2>
 	              </div>
 	              <div class="modal-body">
-		              <%= form_tag refund_path(id: refund.id, refund_id: refund.order.stripe_charge_id, refund_uuid: refund.uuid), method: :put do %>
+		              <%= form_for :refund, :url => refund_path(id: refund.id, refund_id: refund.order.stripe_charge_id, refund_uuid: refund.uuid), method: :put do |f| %>
 		                <div class="container-fluid text-center">
 		                  <% if refund.amount == Order.find_by(uuid: refund.order.uuid).total_price %>
 		                  	<h4>Requesting Full Refund For The Following Reason:</h4>
@@ -38,17 +38,38 @@
 			                    </div>
 			                  <% end %>
 		                  <% end %>
-
-		                  <h3>Refund Request Amount</h3>
-		                  <h4><%= "#{ number_to_currency((refund.amount), precision: 2)}" %><h4><br>
-		                  <h3>Max Refund Amount</h3>
-		                  <h4><%= number_to_currency(refund.order.total_price - refund.order.refund_amount, precision: 2) %></h4>
+			                <div class='row'>  
+			                  <div class='col-md-6'>
+				                  <h3>Refund Request Amount</h3>
+				                  <h4><%= "#{ number_to_currency((refund.amount), precision: 2)}" %><h4><br>
+				                </div>
+			                  <div class='col-md-6'>
+				                  <h3>Max Refund Amount <small>(itemized)</small></h3>
+				                  <h4><%= number_to_currency(((refund.order.order_items.map(&:total_price).sum) +(refund.order.order_items.map(&:total_price).sum * User.find(refund.merchant_id).tax_rate / 100).to_f - refund.order.refunds.map(&:amount_issued).sum), precision: 2) %></h4>
+				                </div>
+			                </div>
 		                  <hr>
-		                  <h3>Issue Refund Amount</h3>
-		                  <%= number_field_tag :refund_amount, nil, class: 'form-control text-center', step: 'any', placeholder: "Enter Refund Amount"  %>
+			                <div class='row'>  
+				                <div class='col-md-4'>  
+				                  <h3>Itemized Refund</h3>
+				                  <div class='form-group'>  
+				                    <%= f.radio_button(:refund_type, "partial_refund")%>   Partial Refund<br>
+				                  </div>
+				                  <%= f.number_field :refund_amount, class: 'form-control text-center', step: 'any', placeholder: "Enter Refund Amount", max: ((refund.order.order_items.map(&:total_price).sum) +(refund.order.order_items.map(&:total_price).sum * User.find(refund.merchant_id).tax_rate / 100).to_f)  %>
+				                </div>
+				                <div class='col-md-4'>  
+				                	<h1>Or</h1>
+				                </div>
+				                <div class='col-md-4'>  
+				                  <h3>Full Refund</h3>
+				                	<div class='form-group'>  
+				                    <%= f.radio_button(:refund_type, "full_refund")%>   Full Refund<br>
+				                  </div>
+				                </div>
+			                </div>
 		                </div>
 		                <div class='modal-footer actions'>
-		                	<%= submit_tag "Issue Refund", class: 'btn btn-success' %>
+		                	<%= f.submit "Issue Refund", class: 'btn btn-success' %>
 		                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
 		                </div>
 		              <% end %>
