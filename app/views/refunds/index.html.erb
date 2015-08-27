@@ -64,6 +64,7 @@
 				                  <h3>Full Refund</h3>
 				                	<div class='form-group'>  
 				                    <%= f.radio_button(:refund_type, "full_refund")%>   Full Refund<br>
+				                    <%= number_to_currency(refund.order.total_price - refund.order.refund_amount, precision: 2) %>
 				                  </div>
 				                </div>
 			                </div>

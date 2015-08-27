@@ -60,7 +60,7 @@
                             <div class="container-fluid">  
                               <div class="col-md-9">
                                 <h3>Pending Orders</h3>
-                                <% @current_orders.each do |s| %>
+                                <% @current_orders.where(merchant_id: product.user_id).each do |s| %>
                                   <div class='col-md-6'>
                                     <%= radio_button_tag(:add_order, "#{s.ship_to}--#{s.uuid}") %> <%= s.ship_to %><br>
                                     <h5>Products By: <%= link_to User.find(s.merchant_id).username.titleize, merchant_path(User.find(s.merchant_id).slug) %></h5>

@@ -64,7 +64,7 @@ class RefundsController < ApplicationController
     if params[:refund][:refund_amount].to_f != 0.0 && params[:refund][:refund_type] != 'full_refund'
       @amount = params[:refund][:refund_amount].to_f
     else
-      @amount = refund.amount - refund.order.refund_amount
+      @amount = refund.order.total_price - refund.order.refund_amount
     end
 
     stripe_charge_id = params[:refund_id]
@@ -85,8 +85,8 @@ class RefundsController < ApplicationController
         @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
         Stripe.api_key = @crypt.decrypt_and_verify((User.find(@order.merchant_id)).merchant_secret_key)
         ch = Stripe::Charge.retrieve(stripe_charge_id)
-
-        refund_request = ch.refunds.create(refund_application_fee: true, amount: @stripe_amount - ch.amount_refunded)
+        
+        refund_request = ch.refunds.create(refund_application_fee: true, amount: @stripe_amount)
 
       end
 

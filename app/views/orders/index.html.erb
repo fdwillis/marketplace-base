@@ -398,7 +398,7 @@
                                               <div class='row'>  
                                                 <div class='col-md-6'>  
                                                   <%= hidden_field_tag("uuids[]", oi.product_uuid) %>
-                                                  <%= number_field_tag("amount[]", nil, class: 'form-control text-center', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
+                                                  <%= number_field_tag("amount[]", nil, class: 'form-control text-center', step: 'any', placeholder: "Return Amount: 34.52", max: ((oi.total_price) +(oi.total_price * User.find(oi.order.merchant_id).tax_rate / 100).to_f)) %>
                                                 </div>
                                                 <div class='col-md-6'>  
                                                   <%= text_field_tag("note[]", nil, class: 'form-control text-center', placeholder: "Reason For Refund") %>
@@ -780,19 +780,19 @@
                                     <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
                                     <div class='col-md-3'>
                                       <h5>Box Length (inches)</h5>
-                                      <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
+                                      <%= number_field_tag :box_length, nil, step: 'any', class: 'form-control text-center', placeholder: '2' %>
                                     </div>
                                     <div class='col-md-3'>
                                       <h5>Box Width (inches)</h5>
-                                      <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
+                                      <%= number_field_tag :box_width, nil, step: 'any', class: 'form-control text-center', placeholder: '8' %>
                                     </div>
                                     <div class='col-md-3'>
                                       <h5>Box Height (inches)</h5>
-                                      <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
+                                      <%= number_field_tag :box_height, nil, step: 'any', class: 'form-control text-center', placeholder: '8' %>
                                     </div>
                                     <div class='col-md-3'>
                                       <h5>Weight (With Products)</h5>
-                                      <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
+                                      <%= number_field_tag :box_weight, nil, step: 'any', class: 'form-control text-center', placeholder: '8' %>
                                     </div>
                                   </div>
                                   <%= "Shipping To: #{order.ship_to}" %><br>
@@ -944,19 +944,19 @@
                                     <h3>Dimensions: Inches &amp; Pounds(lbs.)</h3>
                                     <div class='col-md-3'>
                                       <h5>Box Length (inches)</h5>
-                                      <%= number_field_tag :box_length, nil, class: 'form-control text-center', placeholder: '2' %>
+                                      <%= number_field_tag :box_length, nil, step: 'any', class: 'form-control text-center', placeholder: '2' %>
                                     </div>
                                     <div class='col-md-3'>
                                       <h5>Box Width (inches)</h5>
-                                      <%= number_field_tag :box_width, nil, class: 'form-control text-center', placeholder: '8' %>
+                                      <%= number_field_tag :box_width, nil, step: 'any', class: 'form-control text-center', placeholder: '8' %>
                                     </div>
                                     <div class='col-md-3'>
                                       <h5>Box Height (inches)</h5>
-                                      <%= number_field_tag :box_height, nil, class: 'form-control text-center', placeholder: '8' %>
+                                      <%= number_field_tag :box_height, nil, step: 'any', class: 'form-control text-center', placeholder: '8' %>
                                     </div>
                                     <div class='col-md-3'>
                                       <h5>Weight (With Products)</h5>
-                                      <%= number_field_tag :box_weight, nil, class: 'form-control text-center', placeholder: '8' %>
+                                      <%= number_field_tag :box_weight, nil, step: 'any', class: 'form-control text-center', placeholder: '8' %>
                                     </div>
                                   </div>
                                   <%= "Shipping To: #{order.ship_to}" %><br>
