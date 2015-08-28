@@ -73,6 +73,8 @@ class RefundsController < ApplicationController
 
     @order = Order.find_by(stripe_charge_id: stripe_charge_id)
 
+    Refund.returns_to_keen(refund, @amount )
+    
     begin
       if User.find(@order.merchant_id).role == 'admin'
       
@@ -107,7 +109,6 @@ class RefundsController < ApplicationController
 
       @order.update_attributes(refund_amount: refund_amount)
 
-      Refund.returns_to_keen(refund, @amount )
 
 
       # @order.order_items.each do |oi|
