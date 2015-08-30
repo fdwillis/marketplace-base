@@ -27,8 +27,8 @@ class DonateController < ApplicationController
           return
         end
       else
-        redirect_to donate_path(card_number: card_number, cvc_number: cvc_number, amount: stripe_amount, fundraiser_name: fundraiser, phone_number: phone_number, legal_name: legal_name, email: email, exp_month: exp_month, exp_year: exp_year)
-        flash[:error] = "Expiration Year Or Month Is Invalid"
+        redirect_to request.referrer
+        flash[:error] = "Expiration Year Or Month Was Invalid"
         return
       end
     end
@@ -60,7 +60,7 @@ class DonateController < ApplicationController
       if params[:create_user][:donation_plan].present?
         redirect_to request.referrer
       else
-        redirect_to donate_path(card_number: card_number, cvc_number: cvc_number, amount: stripe_amount, fundraiser_name: fundraiser, phone_number: phone_number, legal_name: legal_name, email: email, exp_month: exp_month, exp_year: exp_year)
+        redirect_to request.referrer
       end
 
       new_user.destroy!
@@ -70,7 +70,7 @@ class DonateController < ApplicationController
       if params[:create_user][:donation_plan].present?
         redirect_to request.referrer
       else
-        redirect_to donate_path(card_number: card_number, cvc_number: cvc_number, amount: stripe_amount, fundraiser_name: fundraiser, phone_number: phone_number, legal_name: legal_name, email: email, exp_month: exp_month, exp_year: exp_year)
+        redirect_to request.referrer
       end
 
       new_user.destroy!

@@ -20,7 +20,14 @@ class NotificationsController < ApplicationController
     if text_message[0].to_f >= 1
       phone_number = params[:From][2,params[:From].length]
       raiser_username = text_message[1].downcase
-      stripe_amount = text_message[0].gsub(/[^0-9]/i, '').to_i
+      amount = (text_message[0].gsub(/[^0-9]/i, '').to_i)
+
+      if text_message[0].gsub(/[^0-9]/i, '').length < 3 
+        stripe_amount = amount * 100
+      else
+        stripe_amount = amount
+      end
+
       if text_message[2]  
         donation_type = text_message[2].downcase
         donation_plan = DonationPlan.find_by(amount: stripe_amount.to_f).uuid
@@ -41,7 +48,6 @@ class NotificationsController < ApplicationController
             end
           else
             if donation_type == 'monthly'  
-              debugger
               User.subscribe_to_admin(donater, token.id, donation_plan )
             else
               User.charge_for_admin(donater, stripe_amount, token.id)

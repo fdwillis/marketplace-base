@@ -9,8 +9,6 @@ admin = User.create!(
               password: 'pa', 
               role: 'admin',
               username: 'admin',
-              business_name: '',
-              tax_rate: 5,
               card_number: @crypt.encrypt_and_sign('4242424242424242'),
               cvc_number: '433',
               exp_month: '03',
