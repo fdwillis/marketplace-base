@@ -100,13 +100,16 @@ before_filter :authenticate_user!
   end
 
   def destroy
+    # merchant canceled
     customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
     customer.subscriptions.retrieve(current_user.stripe_plan_id).delete
+
     if current_user.products.present?
       current_user.products.each do |p|
         p.update_attributes(active: false)
       end
     end
+    
     current_user.update_attributes(role: 'buyer', stripe_plan_id: nil, stripe_plan_name: nil)
     redirect_to edit_user_registration_path
     flash[:error] = "You No Longer Are A Merchant"

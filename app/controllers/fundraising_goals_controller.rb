@@ -68,6 +68,8 @@ class FundraisingGoalsController < ApplicationController
   end
 
   def cancel_donation_plan
+    #cancel donation
+    
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
     donation = Donation.find_by(uuid: params[:uuid])

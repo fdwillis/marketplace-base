@@ -15,7 +15,6 @@ class NotificationsController < ApplicationController
     render nothing: true, status: :ok, content_type: "application/xml"
     twilio_text = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-
     text_message = params[:Body].split
     
     if text_message[0].to_f >= 1
@@ -24,7 +23,7 @@ class NotificationsController < ApplicationController
       stripe_amount = text_message[0].gsub(/[^0-9]/i, '').to_i
       donater = User.find_by(support_phone: phone_number)
       fundraiser = User.find_by(username: raiser_username)
-      
+
       if fundraiser  
         if donater && donater.card?
           @token = User.new_token(donater, @crypt.decrypt_and_verify(donater.card_number))
@@ -59,12 +58,6 @@ class NotificationsController < ApplicationController
     end
   end
 end
-
-
-
-
-# Need to get or create shipping_update by order.tracking_number?
-# 780995494278
 
 # Test CURL
   # Tracking
