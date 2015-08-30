@@ -55,6 +55,7 @@ class DonateController < ApplicationController
     end
 
   	redirect_to donate_path
+    # Twilio text telling user they can text from now on and will be charged automatically
   	flash[:notice] = "Thanks For The Donation"
   end
 end

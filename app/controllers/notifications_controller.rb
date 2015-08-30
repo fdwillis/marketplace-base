@@ -21,6 +21,10 @@ class NotificationsController < ApplicationController
       phone_number = params[:From][2,params[:From].length]
       raiser_username = text_message[1].downcase
       stripe_amount = text_message[0].gsub(/[^0-9]/i, '').to_i
+      if text_message[2]  
+        donation_type = text_message[2].downcase
+        donation_plan = DonationPlan.find_by(amount: stripe_amount.to_f).uuid
+      end
       donater = User.find_by(support_phone: phone_number)
       fundraiser = User.find_by(username: raiser_username)
       
@@ -28,13 +32,20 @@ class NotificationsController < ApplicationController
         if donater && donater.card?
           @token = User.new_token(donater, @crypt.decrypt_and_verify(donater.card_number))
           if !fundraiser.admin?
-
             stripe_account_id = @crypt.decrypt_and_verify(fundraiser.stripe_account_id)
 
-            @charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, @token.id, stripe_account_id )
-
+            if donation_type == 'monthly'  
+              @subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, @token.id, stripe_account_id, donation_plan)
+            else
+              @charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, @token.id, stripe_account_id )
+            end
           else
-            User.charge_for_admin(donater, stripe_amount, @token.id)
+            if donation_type == 'monthly'  
+              debugger
+              @subscription = User.subscribe_to_admin(donater, @token.id, donation_plan )
+            else
+              User.charge_for_admin(donater, stripe_amount, @token.id)
+            end
           end
 
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
@@ -43,7 +54,7 @@ class NotificationsController < ApplicationController
           return
         else
           # Link to enter card info and create user profile
-          puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number}"
+          puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number, donation_type: donation_type}"
           return
         end
       else
