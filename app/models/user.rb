@@ -314,6 +314,21 @@ class User < ActiveRecord::Base
         timestamp: Time.now,
       })
     end
+
+    def self.merchant_cancled(merchant, net_revenue )
+      Keen.publish("Merchant Cancels", {
+        merchant_id: merchant.email, 
+        sign_in_count: merchant.sign_in_count,
+        net_revenue: net_revenue,
+        year: Time.now.strftime("%Y").to_i,
+        month: DateTime.now.to_date.strftime("%B"),
+        day: Time.now.strftime("%d").to_i,
+        day_of_week: DateTime.now.to_date.strftime("%A"),
+        hour: Time.now.strftime("%H").to_i,
+        minute: Time.now.strftime("%M").to_i,
+        timestamp: Time.now,
+        })
+    end
 end
 
 

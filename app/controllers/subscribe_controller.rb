@@ -58,15 +58,17 @@ before_filter :authenticate_user!
       if !current_user.marketplace_stripe_id.nil?
         customer = Stripe::Customer.retrieve(current_user.marketplace_stripe_id)
         subscription = customer.subscriptions.create(plan: plan)
+
         if current_user.products.present?
           current_user.products.each do |p|
             p.update_attributes(active: true)
           end
         end
+
         current_user.update_attributes(slug: @username = params[:user][:username], stripe_plan_id: subscription.id , stripe_plan_name: plan.name,
                                        role: 'merchant', bitly_link: @bitly_link)
 
-        flash[:notice] = "You Joined #{plan.name} Plan"
+        flash[:notice] = "Welcome Back! You Joined The #{plan.name} Plan"
         redirect_to edit_user_registration_path
         return
       else
@@ -81,7 +83,7 @@ before_filter :authenticate_user!
                                          exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: subscription.id,
                                          stripe_plan_name: subscription.plan.name, bitly_link: @bitly_link)
 
-          flash[:notice] = "You Joined #{plan.name} Plan"
+          flash[:notice] = "Happy To Have You! You've Joined The #{plan.name} Plan"
           redirect_to edit_user_registration_path
           return
         rescue Stripe::CardError => e
@@ -110,6 +112,9 @@ before_filter :authenticate_user!
       end
     end
     
+    merchant_orders = Order.all.where(merchant_id: current_user.id)
+    User.merchant_cancled(current_user, (merchant_orders.map(&:total_price).sum - merchant_orders.map(&:refund_amount).sum))
+
     current_user.update_attributes(role: 'buyer', stripe_plan_id: nil, stripe_plan_name: nil)
     redirect_to edit_user_registration_path
     flash[:error] = "You No Longer Are A Merchant"
