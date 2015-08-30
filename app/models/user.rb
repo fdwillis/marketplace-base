@@ -192,6 +192,7 @@ class User < ActiveRecord::Base
 
     def self.charge_for_admin(user, price, token)
       # Call to create token here
+      
       User.find_stripe_customer_id(user)
 
       if !@customer_account.nil? && @customer_account.present?
@@ -317,6 +318,8 @@ class User < ActiveRecord::Base
 
     def self.merchant_cancled(merchant, net_revenue )
       Keen.publish("Merchant Cancels", {
+        marketplace_name: "MarketplaceBase",
+        platform_for: 'apparel',
         merchant_id: merchant.email, 
         sign_in_count: merchant.sign_in_count,
         net_revenue: net_revenue,

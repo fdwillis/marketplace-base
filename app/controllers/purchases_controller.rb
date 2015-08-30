@@ -96,12 +96,13 @@ class PurchasesController < ApplicationController
             begin
               if @merchant.role == 'admin'
                 @charge = User.charge_for_admin(current_user, @price, @token.id)
+                @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               else
                 @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id)
                 Stripe.api_key = Rails.configuration.stripe[:secret_key]
+                @donation = current_user.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(@charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
               end
-
-              @donation = current_user.donations.create(donation_type: 'one-time', organization: @fund.user.username, amount: @price, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id)
+              
               @fund.increment!(:backers, by = 1)
 
             rescue Stripe::CardError => e
@@ -128,8 +129,6 @@ class PurchasesController < ApplicationController
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
               @donation = current_user.donations.create(application_fee: (@subscription.plan.amount * (@subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @fund.user.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraising_goal_id: @fund.id, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
             end
-
-            
           rescue Stripe::CardError => e
             redirect_to edit_user_registration_path
             flash[:error] = "#{e}"
