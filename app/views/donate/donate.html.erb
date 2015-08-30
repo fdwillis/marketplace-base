@@ -1,0 +1,33 @@
+<%= form_for :create_user, url: create_user_path, method: :put  do |u| %>
+	<div class='row'>	
+		<div class='col-md-6 col-md-offset-3'>	
+			<div class='form-group'>	
+				<%= u.text_field :legal_name, placeholder: 'Enter Full Name On Card', class: 'form-control', required: true, value: params[:legal_name] %>
+			</div>
+			<div class='form-group'>	
+				<%= u.text_field :card_number, placeholder: 'Enter Card Number', class: 'form-control', required: true, minlength: 16, maxlength: 16, value: params[:card_number] %>
+			</div>
+			<div class='form-group'>	
+				<%= u.text_field :exp_month, placeholder: 'Enter Expiration Month', class: 'form-control', minlength: 2, maxlength: 2, required: true, value: params[:exp_month] %>
+			</div>
+			<div class='form-group'>	
+				<%= u.number_field :exp_year, placeholder: 'Enter Expiration Year', class: 'form-control', minlength: 4, maxlength: 4, required: true, value: params[:exp_year]%>
+			</div>
+			<div class='form-group'>	
+				<%= u.text_field :cvc_number, placeholder: 'Enter CVC Number', class: 'form-control', minlength: 3, maxlength: 4, required: true, value: params[:cvc_number]%>
+				<%= u.hidden_field :stripe_amount, class: 'form-control', value: params[:amount] %>
+				<%= u.hidden_field :fundraiser_name, class: 'form-control', value: params[:fundraiser_name] %>
+				<%= u.hidden_field :phone_number, class: 'form-control', value: params[:phone_number] %>
+			</div>
+			<div class='form-group'>	
+				<%= u.text_field :email, placeholder: 'Enter Email Address', class: 'form-control', required: true, value: params[:email] %>
+			</div>
+			<div class='form-group'>	
+				<%= u.text_field :password, placeholder: 'Enter Desired Password', class: 'form-control', required: true %>
+			</div>
+			<div class='actions form-group'>
+				<%= u.submit "Donate", class: 'btn btn-success' %>
+			</div>
+		</div>
+	</div>
+<% end %>

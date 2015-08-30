@@ -23,7 +23,7 @@ class NotificationsController < ApplicationController
       stripe_amount = text_message[0].gsub(/[^0-9]/i, '').to_i
       donater = User.find_by(support_phone: phone_number)
       fundraiser = User.find_by(username: raiser_username)
-
+      
       if fundraiser  
         if donater && donater.card?
           @token = User.new_token(donater, @crypt.decrypt_and_verify(donater.card_number))
@@ -43,7 +43,7 @@ class NotificationsController < ApplicationController
           return
         else
           # Link to enter card info and create user profile
-          puts "Please follow link to enter CC details"
+          puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number}"
           return
         end
       else

@@ -15,10 +15,10 @@ class User < ActiveRecord::Base
   has_many :donations
   has_many :transfers
   has_many :shipping_addresses
-  has_many :stripe_customer_ids
+  has_many :stripe_customer_ids, dependent: :destroy
   has_many :fundraising_goals
 
-  validates_uniqueness_of :business_name, :username
+  validates_uniqueness_of :business_name, :username, allow_blank: true
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable#, :confirmable
@@ -121,10 +121,6 @@ class User < ActiveRecord::Base
           exp_year: current_user.exp_year,
           cvc: current_user.cvc_number,
           name: current_user.legal_name,
-          address_city: current_user.address_city,
-          address_zip: current_user.address_zip,
-          address_state: current_user.address_state,
-          address_country: current_user.country_name,
         },
       )
     end
@@ -156,7 +152,7 @@ class User < ActiveRecord::Base
       @price = price
       @merchant60 = ((price) * 60) /100
       @fee = (@price - @merchant60)
-      # Call to create token here
+      
       User.decrypt_and_verify(secret_key)
       User.find_stripe_customer_id(user)
       
@@ -191,7 +187,6 @@ class User < ActiveRecord::Base
     end
 
     def self.charge_for_admin(user, price, token)
-      # Call to create token here
       
       User.find_stripe_customer_id(user)
 

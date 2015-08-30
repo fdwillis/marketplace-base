@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+
   resources :orders
   resources :fundraising_goals
 
@@ -21,10 +22,14 @@ Rails.application.routes.draw do
 
   get 'shipping_rates' => 'orders#shipping_rates'
   get 'select_label' => 'orders#select_label'
+  get 'donate' => 'donate#donate'
+
   put 'approve_product' => 'pending_products#approve_product'
   put 'approve_merchant' => 'merchants#approve_merchant'
   put 'active_order' => 'orders#active_order'
   put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'
+  put 'create_user' => 'donate#create_user'
+  
   post 'notifications' => 'notifications#create'
   post 'twilio/voice' => 'twilio#voice'
   post 'notifications/twilio' => 'notifications#twilio'

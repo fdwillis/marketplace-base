@@ -1,4 +1,5 @@
 class FundraisingGoalsController < ApplicationController
+  before_filter :authenticate_user!, except: [:index, :show]
   before_action :set_fundraising_goal, only: [:show, :edit, :update, :destroy]
 
   # GET /fundraising_goals
