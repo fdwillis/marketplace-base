@@ -14,7 +14,7 @@ class NotificationsController < ApplicationController
   def twilio
     render nothing: true, status: :ok, content_type: "application/xml"
     twilio_text = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
-    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+    crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     text_message = params[:Body].split
     
     if text_message[0].to_f >= 1
@@ -30,21 +30,21 @@ class NotificationsController < ApplicationController
       
       if fundraiser  
         if donater && donater.card?
-          @token = User.new_token(donater, @crypt.decrypt_and_verify(donater.card_number))
+          token = User.new_token(donater, crypt.decrypt_and_verify(donater.card_number))
           if !fundraiser.admin?
-            stripe_account_id = @crypt.decrypt_and_verify(fundraiser.stripe_account_id)
+            stripe_account_id = crypt.decrypt_and_verify(fundraiser.stripe_account_id)
 
             if donation_type == 'monthly'  
-              @subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, @token.id, stripe_account_id, donation_plan)
+              User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, token.id, stripe_account_id, donation_plan)
             else
-              @charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, @token.id, stripe_account_id )
+              User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, token.id, stripe_account_id )
             end
           else
             if donation_type == 'monthly'  
               debugger
-              @subscription = User.subscribe_to_admin(donater, @token.id, donation_plan )
+              User.subscribe_to_admin(donater, token.id, donation_plan )
             else
-              User.charge_for_admin(donater, stripe_amount, @token.id)
+              User.charge_for_admin(donater, stripe_amount, token.id)
             end
           end
 
@@ -54,7 +54,7 @@ class NotificationsController < ApplicationController
           return
         else
           # Link to enter card info and create user profile
-          puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number, donation_type: donation_type}"
+          puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number, donation_plan: donation_plan}"
           return
         end
       else
