@@ -30,7 +30,7 @@ class NotificationsController < ApplicationController
 
       if text_message[2]  
         donation_type = text_message[2].downcase
-        donation_plan = DonationPlan.find_by(amount: stripe_amount.to_f).uuid
+        donation_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f).uuid
       end
       donater = User.find_by(support_phone: phone_number)
       fundraiser = User.find_by(username: raiser_username)
@@ -42,19 +42,23 @@ class NotificationsController < ApplicationController
             stripe_account_id = crypt.decrypt_and_verify(fundraiser.stripe_account_id)
 
             if donation_type == 'monthly'  
-              User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, token.id, stripe_account_id, donation_plan)
+              subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, token.id, stripe_account_id, donation_plan)
+              @donation = donater.donations.create(application_fee: (subscription.plan.amount * (subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id, organization: raiser_username, amount: subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: fundraiser.merchant_secret_key)
             else
               User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, token.id, stripe_account_id )
             end
           else
             if donation_type == 'monthly'  
-              User.subscribe_to_admin(donater, token.id, donation_plan )
+              @subscription = User.subscribe_to_admin(donater, token.id, donation_plan )
+              @donation = donater.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: raiser_username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid)
             else
               User.charge_for_admin(donater, stripe_amount, token.id)
             end
           end
 
+          # Donation.donations_to_keen(@donation, request.remote_ip, request.location.data)
           fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
           # Twilio message to thank user for donation
           puts "Thanks for your $#{text_message[0]} donation to #{raiser_username}"
