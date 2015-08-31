@@ -28,7 +28,7 @@ class DonateController < ApplicationController
         end
       else
         redirect_to request.referrer
-        flash[:error] = "Expiration Year Or Month Was Invalid"
+        flash[:error] = "Expiration Year Or Month Was Invalid. Please Try Again"
         return
       end
     end
@@ -56,6 +56,7 @@ class DonateController < ApplicationController
         end
     	end
 
+      fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
     rescue Stripe::CardError => e
       if params[:create_user][:donation_plan].present?
         redirect_to request.referrer
