@@ -140,7 +140,7 @@ class PurchasesController < ApplicationController
           end
         end
 
-        Donation.donations_to_keen(@donation, request.remote_ip, request.location.data)
+        Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'web')
 
         @fund.increment!(:backers, by = 1)
         redirect_to fundraising_goals_path

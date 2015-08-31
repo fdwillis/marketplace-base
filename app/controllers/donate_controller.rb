@@ -38,32 +38,44 @@ class DonateController < ApplicationController
 
       customer = User.new_customer(token.id, new_user)
 
-    	a_token = User.new_token(new_user, card_number)
+      a_token = User.new_token(new_user, card_number)
 
-    	if fundraiser.role == 'admin'
+      if fundraiser.role == 'admin'
         if params[:create_user][:donation_plan].present?
-          User.subscribe_to_admin(new_user, a_token.id, DonationPlan.find_by(uuid: params[:create_user][:donation_plan]).uuid )
+          donation_plan = DonationPlan.find_by(uuid: params[:create_user][:donation_plan]).uuid
+          subscription = User.subscribe_to_admin(new_user, a_token.id, donation_plan )
+          @donation = new_user.donations.create!(stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id ,organization: fundraiser.username, amount: subscription.plan.amount, uuid: SecureRandom.uuid)
         else
-      		User.charge_for_admin(new_user, stripe_amount, a_token.id )
+          User.charge_for_admin(new_user, stripe_amount, a_token.id )
+          @donation = new_user.donations.create!(donation_type: 'one-time', organization: fundraiser.username, amount: (stripe_amount / 100).to_f, uuid: SecureRandom.uuid)
         end
-    	else
+      else
         
         if params[:create_user][:donation_plan].present?
-          User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, new_user, a_token.id, crypt.decrypt_and_verify(fundraiser.stripe_account_id), DonationPlan.find_by(uuid: params[:create_user][:donation_plan]).uuid  )
+          donation_plan = DonationPlan.find_by(uuid: params[:create_user][:donation_plan]).uuid
+          subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, new_user, a_token.id, crypt.decrypt_and_verify(fundraiser.stripe_account_id), donation_plan  )
+          @donation = new_user.donations.create!(application_fee: (subscription.plan.amount * (subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id, organization: fundraiser.username, amount: subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: fundraiser.merchant_secret_key)
         else
-      	 User.decrypt_and_verify(fundraiser.merchant_secret_key)
-      	 User.charge_n_process(fundraiser.merchant_secret_key, new_user, stripe_amount, a_token.id, crypt.decrypt_and_verify(fundraiser.stripe_account_id))
+      	  User.decrypt_and_verify(fundraiser.merchant_secret_key)
+      	  charge = User.charge_n_process(fundraiser.merchant_secret_key, new_user, stripe_amount, a_token.id, crypt.decrypt_and_verify(fundraiser.stripe_account_id))
+          Stripe.api_key = Rails.configuration.stripe[:secret_key]
+          @donation = new_user.donations.create!(application_fee: ((Stripe::ApplicationFee.retrieve(charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: fundraiser.username, amount: (stripe_amount / 100).to_f, uuid: SecureRandom.uuid)
         end
-    	end
-
+      end
+      
+      Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text')
       fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+      Stripe.api_key = Rails.configuration.stripe[:secret_key]
+      # Twilio text telling user they can text from now on and will be charged automatically
+      redirect_to donate_path
+      flash[:notice] = "Thanks For The Donation"
+      return
     rescue Stripe::CardError => e
       if params[:create_user][:donation_plan].present?
         redirect_to request.referrer
       else
         redirect_to request.referrer
       end
-
       new_user.destroy!
       flash[:error] = "#{e}"
       return
@@ -73,14 +85,10 @@ class DonateController < ApplicationController
       else
         redirect_to request.referrer
       end
-
       new_user.destroy!
       flash[:error] = "#{e}"
       return
     end
 
-  	redirect_to donate_path
-    # Twilio text telling user they can text from now on and will be charged automatically
-  	flash[:notice] = "Thanks For The Donation"
   end
 end

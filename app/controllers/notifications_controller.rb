@@ -30,7 +30,13 @@ class NotificationsController < ApplicationController
 
       if text_message[2]  
         donation_type = text_message[2].downcase
-        donation_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f).uuid
+        the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
+        if the_plan
+          donation_plan = the_plan.uuid
+        else
+          puts "There Is No Monthly Plan For That Amount Assigned To #{raiser_username}"
+          return
+        end
       end
       donater = User.find_by(support_phone: phone_number)
       fundraiser = User.find_by(username: raiser_username)
@@ -45,21 +51,21 @@ class NotificationsController < ApplicationController
               subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, token.id, stripe_account_id, donation_plan)
               @donation = donater.donations.create(application_fee: (subscription.plan.amount * (subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id, organization: raiser_username, amount: subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: fundraiser.merchant_secret_key)
             else
-              @charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, token.id, stripe_account_id )
+              charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, token.id, stripe_account_id )
               Stripe.api_key = Rails.configuration.stripe[:secret_key]
-              @donation = donater.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(@charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
+              @donation = donater.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
             end
           else
             if donation_type == 'monthly'  
               @subscription = User.subscribe_to_admin(donater, token.id, donation_plan )
               @donation = donater.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: raiser_username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid)
             else
-              @charge = User.charge_for_admin(donater, stripe_amount, token.id)
+              User.charge_for_admin(donater, stripe_amount, token.id)
               @donation = donater.donations.create(donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
             end
           end
 
-          # Donation.donations_to_keen(@donation, request.remote_ip, request.location.data)
+          Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text')
           fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
 
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
