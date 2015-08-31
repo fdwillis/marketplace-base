@@ -54,6 +54,7 @@ class NotificationsController < ApplicationController
             end
           end
 
+          fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
           # Twilio message to thank user for donation
           puts "Thanks for your $#{text_message[0]} donation to #{raiser_username}"

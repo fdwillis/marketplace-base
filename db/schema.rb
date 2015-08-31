@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150824175247) do
+ActiveRecord::Schema.define(version: 20150831111552) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -264,6 +264,15 @@ ActiveRecord::Schema.define(version: 20150824175247) do
 
   add_index "tags", ["name"], name: "index_tags_on_name", unique: true, using: :btree
 
+  create_table "text_lists", force: :cascade do |t|
+    t.string   "phone_number"
+    t.integer  "user_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "text_lists", ["user_id"], name: "index_text_lists_on_user_id", using: :btree
+
   create_table "transfers", force: :cascade do |t|
     t.string   "status"
     t.integer  "amount"
@@ -366,5 +375,6 @@ ActiveRecord::Schema.define(version: 20150824175247) do
   add_foreign_key "shipping_options", "products"
   add_foreign_key "shipping_updates", "orders"
   add_foreign_key "stripe_customer_ids", "users"
+  add_foreign_key "text_lists", "users"
   add_foreign_key "transfers", "users"
 end

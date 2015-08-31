@@ -12,6 +12,7 @@ class User < ActiveRecord::Base
   has_many :purchases
   has_many :donation_plans
   has_many :roles
+  has_many :text_lists
   has_many :donations
   has_many :transfers
   has_many :shipping_addresses
