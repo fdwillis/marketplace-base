@@ -174,7 +174,11 @@
                                 <%= "Organization: #{d.organization}" %>
                               </div>
                               <div class='form-group'> 
-                                Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
+                                <% if d.fundraising_goal %>
+                                  Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
+                                <% else %>
+                                  Fundraiser: Text Donation
+                                <% end %>
                               </div>
                             <% end %>
                           </div>
@@ -194,7 +198,11 @@
                                 <%= "Organization: #{d.organization}" %>
                               </div>
                               <div class='form-group'> 
-                                Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
+                                <% if d.fundraising_goal %>
+                                  Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
+                                <% else %>
+                                  Fundraiser: Text Donation
+                                <% end %>
                               </div>
                               <div class='form-group'> 
                                 <%= link_to "Suspend Donation", cancel_donation_plan_path(uuid: d.uuid, fundraiser_stripe_account_id: d.fundraiser_stripe_account_id, subscription_id: d.subscription_id), method: :put, class: 'btn btn-warning form-control', data: { confirm: 'Are you sure?' } %>
