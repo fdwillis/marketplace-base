@@ -82,3 +82,7 @@ end
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
     # curl -X POST -d 'Body=90.30 admin&From=+14143997341' http://localhost:3000/notifications/twilio
+
+# Send Twilio Message
+  # twilio_text = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
+  # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: '4143997341', body: "Thanks for wanting to donate. https://www.google.com/ "
