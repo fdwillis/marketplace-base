@@ -3,18 +3,64 @@
   <div class="pull-right user-info">
     <% if current_user %>
       <%= link_to "Plans", plans_path %> |
-      <%= link_to "Orders", orders_path %> <% if current_user.merchant? || current_user.admin? %> <%= "(#{Order.all.where(merchant_id: current_user.id).where(paid: true, tracking_number: nil, refunded: (false || nil)).count + current_user.orders.where(status: "Pending Submission").where(active: true).count })"  %> <% else %> (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>) <% end %> | 
+      <%= link_to "Orders", orders_path %> <% if current_user.merchant_approved? || current_user.admin? %> <%= "(#{Order.all.where(merchant_id: current_user.id).where(paid: true, tracking_number: nil, refunded: (false || nil)).count + current_user.orders.where(status: "Pending Submission").where(active: true).count })"  %> <% else %> (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>) <% end %> | 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
-      <% if current_user.merchant? || current_user.admin? %>
+      <% if current_user.merchant_approved? || current_user.admin? %>
         <%= link_to "Reports", reports_path %> | 
         <%= link_to "Profile", merchant_path(current_user.username) %> | 
         <%= link_to "Refunds (#{Refund.all.where(merchant_id: current_user.id).where(status: "Pending").count})", refunds_path %> | 
+        <!-- Split button -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-info">Message Blasts</button>
+          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><%= link_to "Text Message Blast", "#text_blast", 'data-toggle' => 'modal' %></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Email Blast</a></li>
+          </ul>
+        </div>
       <% end %>
       <% if current_user.admin? %>
-        <%= link_to "Pending Products", pending_products_path %> | 
-        <%= link_to "Pending Merchants", merchants_path %> | 
+        <div class="btn-group">
+          <button type="button" class="btn btn-warning">Pendings</button>
+          <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><%= link_to "Pending Products", pending_products_path %></li>
+            <li role="separator" class="divider"></li>
+            <li><%= link_to "Pending Merchants", merchants_path %></li>
+          </ul>
+        </div>
       <% end %>
-      <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
+      <%= link_to "Sign out", destroy_user_session_path, method: :delete, class: 'btn btn-danger' %>
+      <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='text_blast'>
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header text-center">
+              <h1> Text Message Blast (<%= current_user.text_lists.count %>)</h1>
+            </div>
+            <%= form_for :text_blast, url: twilio_text_blast_path, method: :put do |f| %>
+              <div class="modal-body">
+                <div class="container-fluid">  
+                  <div class='col-md-8 col-md-offset-2'>
+                    <h4 class='text-center'>Enter You Text Below</h4>
+                    <%= f.text_area :message, class: 'form-control', required: true %>
+                  </div>
+              </div>
+              </div>
+              <div class="modal-footer actions">
+                <%= link_to "Cancel", '#', class: 'btn btn-danger', 'data-dismiss' => 'modal'%>
+                <%= f.submit "Send Text", class: 'btn btn-success' %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
     <% else %>
       <%= link_to "Products", products_path %> |
       <%= link_to "Plans", plans_path %> |
@@ -25,3 +71,4 @@
 </ul>
 
 
+<!-- Large modal -->

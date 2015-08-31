@@ -29,9 +29,9 @@ Rails.application.routes.draw do
   put 'active_order' => 'orders#active_order'
   put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'
   put 'create_user' => 'donate#create_user'
+  put 'twilio/text_blast' => 'twilio#text_blast'
   
   post 'notifications' => 'notifications#create'
-  post 'twilio/voice' => 'twilio#voice'
   post 'notifications/twilio' => 'notifications#twilio'
 
   root to: 'products#index'

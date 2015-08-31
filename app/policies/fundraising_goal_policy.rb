@@ -3,7 +3,7 @@ class FundraisingGoalPolicy < ApplicationPolicy
     true
   end
   def create?
-    user.present? && (record.user == user || user.admin? || user.merchant? ) && (record.user == user || user.admin? || user.merchant_ready?)
+    user.present? && (record.user == user || user.admin? || user.merchant? ) && (record.user == user || user.admin? || user.merchant_approved?)
   end
 
   def new?
