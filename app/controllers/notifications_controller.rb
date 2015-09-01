@@ -23,7 +23,10 @@ class NotificationsController < ApplicationController
       'zipcode' => params[:FromZip],
       'country_code' => params[:FromCountry],
     }
-    
+
+    puts params[:FromCity]
+    puts location
+        
     if text_message[0].to_f >= 1
       phone_number = params[:From][2,params[:From].length]
       raiser_username = text_message[1].downcase
