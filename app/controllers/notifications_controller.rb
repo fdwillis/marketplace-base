@@ -35,6 +35,7 @@ class NotificationsController < ApplicationController
       end
       if text_message[2]  
         donation_type = text_message[2].downcase
+        
         the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
         if the_plan
           donation_plan = the_plan.uuid
@@ -99,7 +100,7 @@ end
   # Tracking
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
-    # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=90.30 admin&From=+14143997341' http://localhost:3000/notifications/twilio
     # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' https://marketplace-base.herokuapp.com/notifications/twilio
 
 # Send Twilio Message

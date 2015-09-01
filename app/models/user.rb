@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   has_many :donation_plans
   has_many :roles
   has_many :text_lists
-  has_many :donations
+  has_many :donations, dependent: :destroy
   has_many :transfers
   has_many :shipping_addresses
   has_many :stripe_customer_ids, dependent: :destroy
@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :business_name, :username, allow_blank: true
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true

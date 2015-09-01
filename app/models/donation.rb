@@ -132,7 +132,7 @@ class Donation < ActiveRecord::Base
 		      application_fee: donation.application_fee,
 		      timestamp: Time.now,
 		  		})
-		  else
+		  elsif donation.fundraising_goal
 		  	Keen.publish("Cancel Monthly Donation", {
 		  		marketplace_name: "MarketplaceBase",
 	        platform_for: 'donations',
@@ -141,6 +141,24 @@ class Donation < ActiveRecord::Base
 			    customer_id: donation.user_id,
 			    fundraising_goal_uuid: donation.fundraising_goal.uuid,
 			    merchant_id: donation.fundraising_goal.user_id,
+		      year: Time.now.strftime("%Y").to_i,
+		      month: DateTime.now.to_date.strftime("%B"),
+		      day: Time.now.strftime("%d").to_i,
+		      day_of_week: DateTime.now.to_date.strftime("%A"),
+		      hour: Time.now.strftime("%H").to_i,
+		      minute: Time.now.strftime("%M").to_i,
+		      donation_plan_uuid: donation.stripe_subscription_id,
+		      timestamp: Time.now,
+		  		})
+		  else
+		  	Keen.publish("Cancel Monthly Donation", {
+		  		marketplace_name: "MarketplaceBase",
+	        platform_for: 'donations',
+	        donation_amount: (donation.amount / 100).to_f,
+			    donation_type: donation.donation_type,
+			    customer_id: donation.user_id,
+			    fundraising_goal_uuid: 0,
+			    merchant_id: DonationPlan.find_by(name: donation.stripe_plan_name).user_id,
 		      year: Time.now.strftime("%Y").to_i,
 		      month: DateTime.now.to_date.strftime("%B"),
 		      day: Time.now.strftime("%d").to_i,
