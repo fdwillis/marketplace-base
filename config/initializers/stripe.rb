@@ -5,8 +5,8 @@ if Rails.env.development?
   }
 elsif Rails.env.production?
   Rails.configuration.stripe = {
-    :publishable_key => ENV['PUBLISHABLE_KEY_LIVE'],
-    :secret_key      => ENV['SECRET_KEY_LIVE']
+    :publishable_key => ENV['PUBLISHABLE_KEY_TEST'],
+    :secret_key      => ENV['SECRET_KEY_TEST']
   }
 end  
 

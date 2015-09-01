@@ -15,7 +15,7 @@ class Donation < ActiveRecord::Base
 			    customer_current_zipcode: location["zipcode"],
 		      customer_current_city: location["city"] ,
 		      customer_current_state: location["region_name"],
-		      customer_current_country: location["country_name"],
+		      customer_current_country: location["country_code"],
 		      customer_sign_in_count: donation.user.sign_in_count,
 		      year: Time.now.strftime("%Y").to_i,
 		      month: DateTime.now.to_date.strftime("%B"),
@@ -42,7 +42,7 @@ class Donation < ActiveRecord::Base
 				    customer_current_zipcode: location["zipcode"],
 			      customer_current_city: location["city"] ,
 			      customer_current_state: location["region_name"],
-			      customer_current_country: location["country_name"],
+			      customer_current_country: location["country_code"],
 			      customer_sign_in_count: donation.user.sign_in_count,
 			      year: Time.now.strftime("%Y").to_i,
 			      month: DateTime.now.to_date.strftime("%B"),
@@ -68,7 +68,7 @@ class Donation < ActiveRecord::Base
 				    customer_current_zipcode: location["zipcode"],
 			      customer_current_city: location["city"] ,
 			      customer_current_state: location["region_name"],
-			      customer_current_country: location["country_name"],
+			      customer_current_country: location["country_code"],
 			      customer_sign_in_count: donation.user.sign_in_count,
 			      year: Time.now.strftime("%Y").to_i,
 			      month: DateTime.now.to_date.strftime("%B"),
@@ -151,5 +151,31 @@ class Donation < ActiveRecord::Base
 		      timestamp: Time.now,
 		  		})
 		  end
+	  end
+
+	  def self.text_donation(donation, location, text)
+	  	Keen.publish("Donations", {
+			    marketplace_name: "MarketplaceBase",
+			    platform_for: 'donations',
+			    donation_amount: (donation.amount / 100).to_f,
+			    donation_type: donation.donation_type,
+			    ip_address: '0.0.0.0', 
+			    customer_id: donation.user_id,
+			    customer_current_zipcode: location["zipcode"],
+		      customer_current_city: location["city"] ,
+		      customer_current_state: location["region_name"],
+		      customer_current_country: location["country_code"],
+		      customer_sign_in_count: donation.user.sign_in_count,
+		      year: Time.now.strftime("%Y").to_i,
+		      month: DateTime.now.to_date.strftime("%B"),
+		      day: Time.now.strftime("%d").to_i,
+		      day_of_week: DateTime.now.to_date.strftime("%A"),
+		      hour: Time.now.strftime("%H").to_i,
+		      minute: Time.now.strftime("%M").to_i,
+		      donation_plan_uuid: donation.stripe_subscription_id,
+		      application_fee: donation.application_fee,
+		      timestamp: Time.now,
+		      donate_by: text,
+			  })  
 	  end
 end

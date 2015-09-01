@@ -16,6 +16,13 @@ class NotificationsController < ApplicationController
     twilio_text = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
     crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     text_message = params[:Body].split
+
+    location = {
+      'city' => params[:FromCity],
+      'region_name' => params[:FromState],
+      'zipcode' => params[:FromZip],
+      'country_code' => params[:FromCountry],
+    }
     
     if text_message[0].to_f >= 1
       phone_number = params[:From][2,params[:From].length]
@@ -65,8 +72,7 @@ class NotificationsController < ApplicationController
             end
           end
 
-          # This may not work for text, no web? create custom?
-            # Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text')
+          Donation.text_donation(@donation, location, 'text')
           fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
 
           Stripe.api_key = Rails.configuration.stripe[:secret_key]

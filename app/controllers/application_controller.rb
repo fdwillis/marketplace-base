@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
       current_user_current_zipcode: request.location.data["zipcode"],
       current_user_current_city: request.location.data["city"] ,
       current_user_current_state: request.location.data["region_name"],
-      current_user_current_country: request.location.data["country_name"],
+      current_user_current_country: request.location.data["country_code"],
       year: Time.now.strftime("%Y").to_i,
       month: DateTime.now.to_date.strftime("%B"),
       day: Time.now.strftime("%d").to_i,
