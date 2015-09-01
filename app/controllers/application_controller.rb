@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
       minute: Time.now.strftime("%M").to_i,
       timestamp: Time.now,
       })
-    if current_user.merchant? || current_user.admin?
+    if current_user.merchant_approved? || current_user.admin?
       reports_path
     else
       session[:previous_url] || root_path

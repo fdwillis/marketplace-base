@@ -4,12 +4,13 @@
   <div class="tab-v2">
     <div class='row'>
       <ul class="nav nav-pills">
-        <% if current_user.admin? || current_user.merchant? %> 
+        <% if current_user.admin? || current_user.merchant_approved? %> 
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Basic Information </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
           <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
           <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
+          <li class=""><a href="#team" data-toggle="tab" aria-expanded="false">Team Members</a></li>
         <% else %>
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
@@ -276,7 +277,7 @@
         <div class="tab-content">
           <div class="tab-pane fade" id="business_info">
             <div class='row'>  
-              <% if current_user.merchant? || current_user.admin? %>  
+              <% if current_user.merchant_approved? || current_user.admin? %>  
                 <h3 class='text-center'>Business Information</h3>
                 <%= form_for(current_user) do |f| %>
                   <div class="form-group text-center">
@@ -393,6 +394,44 @@
               </div>
             </div>
           <% end %>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="team">
+        <div class='row'>
+          <div class='container'>
+            <h2 class='text-center'>Team Members For <%= (current_user.email || current_user.username.capitalize) %></h2>
+            <div class="col-md-8 col-md-offset-2">
+              <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :patch }) do |f| %>
+                <%= devise_error_messages! %>
+                <div class="form-group text-center">
+                  <%= f.label :email %>
+                  <%= f.email_field :email, class: 'form-control text-center', placeholder: "Enter email" %>
+                </div>
+                <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+                  <div class="form-group text-center">
+                    <p>Waiting confirmation for:</p>
+                    <%= resource.unconfirmed_email %>
+                  </div>
+                <% end %>
+                <div class="form-group text-center">
+                  <%= f.label :password %>
+                  <%= f.password_field :password, class: 'form-control text-center', placeholder: "Enter current password" %>
+                  <i>(leave blank if you don't want to change it)</i>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :password_confirmation, 'Change Password' %>
+                  <%= f.password_field :password_confirmation, class: 'form-control text-center', placeholder: "Enter new password" %>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.password_field :current_password, class: 'form-control text-center', placeholder: "Repeat password" %>
+                  <i>(we need your current password to confirm your changes)</i>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.submit "Update", class: 'btn btn-success form-control text-center' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
         </div>
       </div>
     </div>
