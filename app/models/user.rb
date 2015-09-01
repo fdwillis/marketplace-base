@@ -11,6 +11,7 @@ class User < ActiveRecord::Base
   
   has_many :purchases
   has_many :donation_plans
+  has_many :team_members
   has_many :roles
   has_many :text_lists
   has_many :donations, dependent: :destroy
@@ -28,6 +29,7 @@ class User < ActiveRecord::Base
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
 
   accepts_nested_attributes_for :donation_plans, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :team_members, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :shipping_addresses, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :stripe_customer_ids, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :orders, reject_if: :all_blank, allow_destroy: true

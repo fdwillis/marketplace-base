@@ -397,41 +397,25 @@
         </div>
       </div>
       <div class="tab-pane fade" id="team">
-        <div class='row'>
-          <div class='container'>
-            <h2 class='text-center'>Team Members For <%= (current_user.email || current_user.username.capitalize) %></h2>
-            <div class="col-md-8 col-md-offset-2">
-              <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :patch }) do |f| %>
-                <%= devise_error_messages! %>
-                <div class="form-group text-center">
-                  <%= f.label :email %>
-                  <%= f.email_field :email, class: 'form-control text-center', placeholder: "Enter email" %>
-                </div>
-                <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-                  <div class="form-group text-center">
-                    <p>Waiting confirmation for:</p>
-                    <%= resource.unconfirmed_email %>
-                  </div>
-                <% end %>
-                <div class="form-group text-center">
-                  <%= f.label :password %>
-                  <%= f.password_field :password, class: 'form-control text-center', placeholder: "Enter current password" %>
-                  <i>(leave blank if you don't want to change it)</i>
-                </div>
-                <div class="form-group text-center">
-                  <%= f.label :password_confirmation, 'Change Password' %>
-                  <%= f.password_field :password_confirmation, class: 'form-control text-center', placeholder: "Enter new password" %>
-                </div>
-                <div class="form-group text-center">
-                  <%= f.password_field :current_password, class: 'form-control text-center', placeholder: "Repeat password" %>
-                  <i>(we need your current password to confirm your changes)</i>
-                </div>
-                <div class="form-group text-center">
-                  <%= f.submit "Update", class: 'btn btn-success form-control text-center' %>
-                </div>
+        <div class='row'>  
+          <%= form_for(current_user, url: team_member_path, method: :post) do |f| %>  
+            <h2 class='text-center'>Team Members</h2>
+            <div class='form-group'>  
+              <%= f.simple_fields_for :team_members do |member| %>
+                <%= render 'team_member_fields', f: member %>
               <% end %>
             </div>
-          </div>
+            <div class="links form-group">
+              <div class='row form-group'>    
+                <%= link_to_add_association 'Add Team Member', f, :team_members, class: 'btn btn-info col-md-6 col-md-offset-3' %>
+              </div>
+            </div>
+            <div class="actions form-group">
+              <div class='row form-group'>    
+                <%= f.submit "Update", class: 'btn btn-success col-md-6 col-md-offset-3' %>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

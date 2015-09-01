@@ -124,6 +124,7 @@ private
                                   :tax_rate,:bank_currency, shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy],
                                   stripe_customer_ids_attributes: [:business_name, :customer_id, :customer_card, :_destroy],
                                   orders_attributes: [:id, :status, :ship_to, :customer_name, :tracking_number, :shipping_option, :total_price, :user_id, :_destroy], 
-                                  donation_plans_attributes: [:id, :amount, :interval, :name, :currency, :uuid, :_destroy])
+                                  donation_plans_attributes: [:id, :amount, :interval, :name, :currency, :uuid, :_destroy],
+                                  team_members_attributes: [:id, :name, :percent, :stripe_bank_id, :uuid, :routing_number, :country, :account_number, :_destroy])
   end
 end
