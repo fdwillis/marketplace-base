@@ -28,13 +28,11 @@ class NotificationsController < ApplicationController
       phone_number = params[:From][2,params[:From].length]
       raiser_username = text_message[1].downcase
       amount = (text_message[0].gsub(/[^0-9]/i, '').to_i)
-
-      if text_message[0].gsub(/[^0-9]/i, '').length < 3 
-        stripe_amount = amount * 100
-      else
+      if text_message[0].include?(".")
         stripe_amount = amount
+      else
+        stripe_amount = amount * 100
       end
-
       if text_message[2]  
         donation_type = text_message[2].downcase
         the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
