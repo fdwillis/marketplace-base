@@ -65,7 +65,8 @@ class NotificationsController < ApplicationController
             end
           end
 
-          Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text')
+          # This may not work for text, no web? create custom?
+            # Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text')
           fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
 
           Stripe.api_key = Rails.configuration.stripe[:secret_key]
@@ -94,7 +95,8 @@ end
   # Tracking
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
-    # curl -X POST -d 'Body=90.30 admin&From=+14143997341' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' https://marketplace-base.herokuapp.com/notifications/twilio
 
 # Send Twilio Message
   # twilio_text = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
