@@ -30,7 +30,7 @@ class Product < ActiveRecord::Base
 protected
   
   def set_keywords
-    self.keywords = [description, title, user.username, "#{ActionController::Base.helpers.number_to_currency(price, precision: 2)}"].join(", ")
+    self.keywords = [self.tag_list, self.description, self.title, self.user.username, "#{ActionController::Base.helpers.number_to_currency(price, precision: 2)}"].join(", ")
   end
 
 
