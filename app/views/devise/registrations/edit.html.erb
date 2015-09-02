@@ -397,15 +397,23 @@
           <div class='container'>
             <h1>Team Members</h1>
             <br>
-            <div class='row'>
-              <% current_user.team_members.each do |member| %>
-                <div class='col-md-4 form-group'>
-                  <%= member.name %>
-                  <%= number_with_precision(member.percent, precision: 2) %>%
-                  <%= link_to "Remove #{member.name}", bank_account_path(id: member.uuid), method: :delete, data: {confirm: "Delete #{member.name}?"}, class: 'btn btn-danger' %>
+            <%= form_for current_user do |u| %>  
+              <div class='row'>
+                <% current_user.team_members.each do |member| %>
+                  <div class='col-md-3 form-group'>
+                    <h4 class='text-center'><%= member.name.capitalize %>'s Percent Of Profit</h4>
+                    <%= u.number_field :percent, value: member.percent, class: 'form-control text-center' %>
+                    <%= u.hidden_field :member_uuid, value: member.uuid %>
+                    <%= link_to "Remove #{member.name}", bank_account_path(id: member.uuid), method: :delete, data: {confirm: "Delete #{member.name}?"}, class: 'btn btn-danger form-control' %>
+                  </div>
+                <% end %>
+              </div>
+              <div class='row'>  
+                <div class='actios col-md-4 col-md-offset-4'>
+                  <%= u.submit "Submit", class: 'btn btn-success form-control' %>
                 </div>
-              <% end %>
-            </div>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>

@@ -5,6 +5,13 @@ class UsersController < ApplicationController
     if current_user.update_attributes(user_params)
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       
+      if params[:user][:member_uuid]
+        member = TeamMember.find_by(uuid: params[:user][:member_uuid])
+        member.update_attributes(percent: params[:user][:percent])
+      end
+
+
+
       if params[:user][:username]
         current_user.update_attributes(username: params[:user][:username].gsub(" ", "_"))
       end

@@ -74,6 +74,7 @@ class PurchasesController < ApplicationController
         return
       end
     else
+      
       @fund = FundraisingGoal.find_by(uuid: params[:uuid])
       @price = params[:donate][:donation].to_i * 100
       @card = @crypt.decrypt_and_verify(current_user.card_number)

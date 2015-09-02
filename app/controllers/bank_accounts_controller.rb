@@ -23,10 +23,6 @@ class BankAccountsController < ApplicationController
 	  end
   end
 
-  def update
-  	
-  end
-
   def destroy
   	member = TeamMember.find_by(uuid: params[:id])
   	name = member.name

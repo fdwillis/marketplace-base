@@ -152,6 +152,7 @@ class User < ActiveRecord::Base
     end
 
     def self.charge_n_process(secret_key, user, price, token, merchant_account_id)
+      
       @price = price
       @merchant60 = ((price) * 60) /100
       @fee = (@price - @merchant60)
@@ -163,7 +164,7 @@ class User < ActiveRecord::Base
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
         {
-          amount: @price,
+          amount: (((@price * 4.8) / 100) + @price),
           currency: 'USD',
           customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
@@ -177,7 +178,7 @@ class User < ActiveRecord::Base
         
         charge = Stripe::Charge.create(
           {
-            amount: @price,
+            amount: (((@price * 4.8) / 100) + @price),
             currency: 'USD',
             customer: @customer.customer_id,
             description: 'MarketplaceBase',
@@ -196,7 +197,7 @@ class User < ActiveRecord::Base
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
-          amount: price,
+          amount: (((price * 4.8) / 100) + price),
           currency: 'USD',
           customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
@@ -205,7 +206,7 @@ class User < ActiveRecord::Base
         @customer = User.new_customer(token, user)
 
         charge = Stripe::Charge.create(
-          amount: price,
+          amount: (((price * 4.8) / 100) + price),
           currency: 'USD',
           customer: @customer.customer_id,
           description: 'MarketplaceBase',
