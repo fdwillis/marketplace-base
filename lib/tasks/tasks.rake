@@ -33,11 +33,12 @@ namespace :payout do
   task teams: :environment do
     User.all.each do |user|
       crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-      if !user.team_members.empty?
+      
+      if user.merchant_secret_key.present?  
         if user.admin?
-          trans_amount = ((Stripe::Balance.retrieve()['available'][0].amount * 1) / 100).to_i
+          trans_amount = Stripe::Balance.retrieve()['available'][0].amount
 
-          if trans_amounts > 0
+          if trans_amount > 10000
             
             Stripe::Transfer.create(
               :amount => trans_amount,
@@ -46,34 +47,41 @@ namespace :payout do
               :description => "Transfer for MarketplaceBase revenue"
             )
           end
-          User.decrypt_and_verify(user.merchant_secret_key)          
+        end
+
+        User.decrypt_and_verify(user.merchant_secret_key)          
+
+        if user.team_members.count >= 1
           bal = Stripe::Balance.retrieve()['available'][0].amount
-          amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
-          
           user.team_members.each_with_index do |member, index|
-            
-            Stripe::Transfer.create(
-              :amount => amounts[index],
-              :currency => "usd",
-              :destination => member.stripe_bank_id,
-              :description => "Transfer for MarketplaceBase revenue"
-            )
+            if  bal > 10000  
+              amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
+              
+                Stripe::Transfer.create(
+                  :amount => amounts[index],
+                  :currency => "usd",
+                  :destination => member.stripe_bank_id,
+                  :description => "Transfer for MarketplaceBase revenue"
+                )
+              puts "Team Paid"
+            else
+              puts "No Team Payout"
+            end
           end
         else
-          User.decrypt_and_verify(user.merchant_secret_key)          
-          bal = Stripe::Balance.retrieve()['available'][0].amount
-          amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
-          user.team_members.each_with_index do |member, index|
+          amount = Stripe::Balance.retrieve()['available'][0].amount
+          if  amount > 10000  
             Stripe::Transfer.create(
-              :amount => amounts[index],
+              :amount => amount,
               :currency => "usd",
-              :destination => member.stripe_bank_id,
+              :destination => Stripe::Account.retrieve.bank_accounts.data[0].id,
               :description => "Transfer for MarketplaceBase revenue"
             )
+            puts "Non-Team Paid"
+          else
+            puts "No non-team payout"
           end
         end
-      else
-        # for non team members
       end
       Stripe.api_key = Rails.configuration.stripe[:secret_key]
     end
