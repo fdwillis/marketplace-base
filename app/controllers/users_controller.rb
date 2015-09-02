@@ -61,29 +61,27 @@ class UsersController < ApplicationController
         end
       end
       
-      if !current_user.admin?  
-        if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?        
-          begin 
+      if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?        
+        begin 
 
-            User.create_merchant(current_user, request.remote_ip, browser.user_agent )
-            
-            @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
-            @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
-            @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
+          merchant = User.create_merchant(current_user, request.remote_ip, browser.user_agent )
+          
+          @stripe_account_id = @crypt.encrypt_and_sign(merchant.id)
+          @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
+          @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
 
-            current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
-            flash[:notice] = "User Information Updated"
-            redirect_to edit_user_registration_path
-            return
-          rescue Stripe::CardError => e
-            flash[:error] = "#{e}"
-            redirect_to edit_user_registration_path
-            return
-          rescue => e
-            flash[:error] = "#{e}"
-            redirect_to edit_user_registration_path
-            return
-          end
+          current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
+          flash[:notice] = "User Information Updated"
+          redirect_to edit_user_registration_path
+          return
+        rescue Stripe::CardError => e
+          flash[:error] = "#{e}"
+          redirect_to edit_user_registration_path
+          return
+        rescue => e
+          flash[:error] = "#{e}"
+          redirect_to edit_user_registration_path
+          return
         end
       end
     else

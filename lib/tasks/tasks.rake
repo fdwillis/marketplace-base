@@ -28,3 +28,61 @@ namespace :email do
   	end
   end
 end
+
+namespace :payout do
+  task teams: :environment do
+    User.all.each do |user|
+      crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+
+      if !user.team_members.empty? && user.admin?
+        trans_amount = ((Stripe::Balance.retrieve()['available'][0].amount * 1) / 100).to_i
+
+        if trans_amount > 0
+          
+          Stripe::Transfer.create(
+            :amount => trans_amount,
+            :currency => "usd",
+            :destination => crypt.decrypt_and_verify(user.stripe_account_id),
+            :description => "Transfer for marketplace revenue"
+          )
+        end
+        User.decrypt_and_verify(user.merchant_secret_key)          
+        bal = Stripe::Balance.retrieve()['available'][0].amount
+        amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
+        
+        user.team_members.each_with_index do |member, index|
+          debugger
+          Stripe::Transfer.create(
+            :amount => amounts[index],
+            :currency => "usd",
+            :destination => member.stripe_bank_id,
+            :description => "Transfer for test@example.com"
+          )
+        end
+      elsif !user.team_members.empty? && !user.admin?
+        # debugger
+        User.decrypt_and_verify(user.merchant_secret_key)
+
+        user.team_members.each do |member|
+          bal = Stripe::Balance.retrieve()['available'][0].amount
+          main_account = Stripe::Account.retrieve(crypt.decrypt_and_verify(user.stripe_account_id))
+          bank_account = main_account.external_accounts.retrieve(member.stripe_bank_id)
+          bank_account.default_for_currency = true
+          bank_account.save
+          
+          if bal > 0
+            Stripe::Transfer.create(
+              :amount => 400,
+              :currency => "usd",
+              :destination => "acct_16JI3TKmBut4q4CE",
+              :description => "Transfer for test@example.com"
+            )
+          else
+            puts "No Payout"
+          end
+        end
+      end
+      Stripe.api_key = Rails.configuration.stripe[:secret_key]
+    end
+  end
+end

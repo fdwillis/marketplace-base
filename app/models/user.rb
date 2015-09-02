@@ -159,12 +159,11 @@ class User < ActiveRecord::Base
       
       User.decrypt_and_verify(secret_key)
       User.find_stripe_customer_id(user)
-      
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
         {
-          amount: (((@price * 4.8) / 100) + @price),
+          amount: (((@price * 4.8) / 100) + @price).to_i,
           currency: 'USD',
           customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
@@ -178,7 +177,7 @@ class User < ActiveRecord::Base
         
         charge = Stripe::Charge.create(
           {
-            amount: (((@price * 4.8) / 100) + @price),
+            amount: (((@price * 4.8) / 100) + @price).to_i,
             currency: 'USD',
             customer: @customer.customer_id,
             description: 'MarketplaceBase',
@@ -197,7 +196,7 @@ class User < ActiveRecord::Base
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
-          amount: (((price * 4.8) / 100) + price),
+          amount: (((price * 4.8) / 100) + price).to_i,
           currency: 'USD',
           customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
@@ -206,7 +205,7 @@ class User < ActiveRecord::Base
         @customer = User.new_customer(token, user)
 
         charge = Stripe::Charge.create(
-          amount: (((price * 4.8) / 100) + price),
+          amount: (((price * 4.8) / 100) + price).to_i,
           currency: 'USD',
           customer: @customer.customer_id,
           description: 'MarketplaceBase',
@@ -244,6 +243,7 @@ class User < ActiveRecord::Base
     end
 
     def self.create_merchant(user, ip_address, user_agent)
+      @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       merchant = Stripe::Account.create(
         managed: true,
         country: user.address_country,
