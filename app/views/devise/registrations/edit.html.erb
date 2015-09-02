@@ -401,7 +401,8 @@
               <% current_user.team_members.each do |member| %>
                 <div class='col-md-4 form-group'>
                   <%= member.name %>
-                  <%= member.percent %>
+                  <%= number_with_precision(member.percent, precision: 2) %>%
+                  <%= link_to "Remove #{member.name}", bank_account_path(id: member.uuid), method: :delete, data: {confirm: "Delete #{member.name}?"}, class: 'btn btn-danger' %>
                 </div>
               <% end %>
             </div>

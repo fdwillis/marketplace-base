@@ -341,14 +341,23 @@ class User < ActiveRecord::Base
     )
     end
 
-    def self.new_member(user, account_id, token, new_member_percent)
+    def self.new_member(user, account_id, token, new_member_percent, member)
       if user.team_members.map(&:percent).sum + new_member_percent <= 100.00
         crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
         account_id = crypt.decrypt_and_verify(account_id)
         account = Stripe::Account.retrieve(account_id)
-        account.external_accounts.create(external_account: token)
-        user.team_members.create(name: member[:name], percent: member[:percent].to_f, stripe_bank_id: bank_account.id)
+        bank_account = account.external_accounts.create(external_account: token)
+        user.team_members.create(uuid: SecureRandom.uuid,  name: member[:name], percent: member[:percent].to_f, stripe_bank_id: bank_account.id)
       end
+    end
+
+    def self.delete_member(user, account_id, member)
+      crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      account_id = crypt.decrypt_and_verify(account_id)
+
+      account = Stripe::Account.retrieve(account_id)
+      account.external_accounts.retrieve(member.stripe_bank_id).delete()
+      member.delete
     end
 end
 
