@@ -33,47 +33,47 @@ namespace :payout do
   task teams: :environment do
     User.all.each do |user|
       crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+      if !user.team_members.empty?
+        if user.admin?
+          trans_amount = ((Stripe::Balance.retrieve()['available'][0].amount * 1) / 100).to_i
 
-      if !user.team_members.empty? && user.admin?
-        trans_amount = ((Stripe::Balance.retrieve()['available'][0].amount * 1) / 100).to_i
-
-        if trans_amount > 0
+          if trans_amounts > 0
+            
+            Stripe::Transfer.create(
+              :amount => trans_amount,
+              :currency => "usd",
+              :destination => crypt.decrypt_and_verify(user.stripe_account_id),
+              :description => "Transfer for MarketplaceBase revenue"
+            )
+          end
+          User.decrypt_and_verify(user.merchant_secret_key)          
+          bal = Stripe::Balance.retrieve()['available'][0].amount
+          amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
           
-          Stripe::Transfer.create(
-            :amount => trans_amount,
-            :currency => "usd",
-            :destination => crypt.decrypt_and_verify(user.stripe_account_id),
-            :description => "Transfer for MarketplaceBase revenue"
-          )
+          user.team_members.each_with_index do |member, index|
+            
+            Stripe::Transfer.create(
+              :amount => amounts[index],
+              :currency => "usd",
+              :destination => member.stripe_bank_id,
+              :description => "Transfer for MarketplaceBase revenue"
+            )
+          end
+        else
+          User.decrypt_and_verify(user.merchant_secret_key)          
+          bal = Stripe::Balance.retrieve()['available'][0].amount
+          amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
+          user.team_members.each_with_index do |member, index|
+            Stripe::Transfer.create(
+              :amount => amounts[index],
+              :currency => "usd",
+              :destination => member.stripe_bank_id,
+              :description => "Transfer for MarketplaceBase revenue"
+            )
+          end
         end
-        User.decrypt_and_verify(user.merchant_secret_key)          
-        bal = Stripe::Balance.retrieve()['available'][0].amount
-        amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
-        
-        user.team_members.each_with_index do |member, index|
-          debugger
-          Stripe::Transfer.create(
-            :amount => amounts[index],
-            :currency => "usd",
-            :destination => member.stripe_bank_id,
-            :description => "Transfer for MarketplaceBase revenue"
-          )
-        end
-      elsif !user.team_members.empty? && !user.admin?
-        debugger
-        User.decrypt_and_verify(user.merchant_secret_key)          
-        bal = 100000 #Stripe::Balance.retrieve()['available'][0].amount
-        amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
-        
-        user.team_members.each_with_index do |member, index|
-          debugger
-          Stripe::Transfer.create(
-            :amount => amounts[index],
-            :currency => "usd",
-            :destination => member.stripe_bank_id,
-            :description => "Transfer for MarketplaceBase revenue"
-          )
-        end
+      else
+        # for non team members
       end
       Stripe.api_key = Rails.configuration.stripe[:secret_key]
     end

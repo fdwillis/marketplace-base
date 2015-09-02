@@ -9,7 +9,7 @@ admin = User.create!(
               password: 'pa', 
               role: 'admin',
               username: 'admin',
-              card_number: @crypt.encrypt_and_sign('4242424242424242'),
+              card_number: @crypt.encrypt_and_sign('4000000000000077'),
               cvc_number: '433',
               exp_month: '03',
               exp_year: '2034',
@@ -45,7 +45,7 @@ merchant = User.create!(
               password: 'pa', 
               role: 'merchant',
               username: 'merchant',
-              card_number: @crypt.encrypt_and_sign('4242424242424242'),
+              card_number: @crypt.encrypt_and_sign('4000000000000077'),
               cvc_number: '433',
               exp_month: '03',
               exp_year: '2034',
@@ -72,7 +72,8 @@ merchant = User.create!(
               currency: 'USD',
               bank_currency: 'USD',
               tax_rate: 2.0,
-              legal_name: "Full Test Merch"
+              legal_name: "Full Test Merch",
+              merchant_approved: true,
 )
 
 @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
@@ -80,7 +81,7 @@ a = User.create!(
   email: 'a@a.com',
   password: 'pa',
   business_name: '34',
-  card_number: @crypt.encrypt_and_sign('4242424242424242'), 
+  card_number: @crypt.encrypt_and_sign('4000000000000077'), 
   exp_year: '2018',
   exp_month: '09',
   cvc_number: '3333',
@@ -101,7 +102,7 @@ admin.save!
 merchant.skip_confirmation!
 merchant.save!
 
-100.times do
+20.times do
   Product.create!(
     user_id: 2,
     title: Faker::Name.name,
