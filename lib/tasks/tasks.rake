@@ -43,7 +43,7 @@ namespace :payout do
             :amount => trans_amount,
             :currency => "usd",
             :destination => crypt.decrypt_and_verify(user.stripe_account_id),
-            :description => "Transfer for marketplace revenue"
+            :description => "Transfer for MarketplaceBase revenue"
           )
         end
         User.decrypt_and_verify(user.merchant_secret_key)          
@@ -56,30 +56,23 @@ namespace :payout do
             :amount => amounts[index],
             :currency => "usd",
             :destination => member.stripe_bank_id,
-            :description => "Transfer for test@example.com"
+            :description => "Transfer for MarketplaceBase revenue"
           )
         end
       elsif !user.team_members.empty? && !user.admin?
-        # debugger
-        User.decrypt_and_verify(user.merchant_secret_key)
-
-        user.team_members.each do |member|
-          bal = Stripe::Balance.retrieve()['available'][0].amount
-          main_account = Stripe::Account.retrieve(crypt.decrypt_and_verify(user.stripe_account_id))
-          bank_account = main_account.external_accounts.retrieve(member.stripe_bank_id)
-          bank_account.default_for_currency = true
-          bank_account.save
-          
-          if bal > 0
-            Stripe::Transfer.create(
-              :amount => 400,
-              :currency => "usd",
-              :destination => "acct_16JI3TKmBut4q4CE",
-              :description => "Transfer for test@example.com"
-            )
-          else
-            puts "No Payout"
-          end
+        debugger
+        User.decrypt_and_verify(user.merchant_secret_key)          
+        bal = 100000 #Stripe::Balance.retrieve()['available'][0].amount
+        amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
+        
+        user.team_members.each_with_index do |member, index|
+          debugger
+          Stripe::Transfer.create(
+            :amount => amounts[index],
+            :currency => "usd",
+            :destination => member.stripe_bank_id,
+            :description => "Transfer for MarketplaceBase revenue"
+          )
         end
       end
       Stripe.api_key = Rails.configuration.stripe[:secret_key]

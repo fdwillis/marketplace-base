@@ -163,7 +163,7 @@ class User < ActiveRecord::Base
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
         {
-          amount: (((@price * 4.8) / 100) + @price).to_i,
+          amount: @price,
           currency: 'USD',
           customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
@@ -177,7 +177,7 @@ class User < ActiveRecord::Base
         
         charge = Stripe::Charge.create(
           {
-            amount: (((@price * 4.8) / 100) + @price).to_i,
+            amount: @price,
             currency: 'USD',
             customer: @customer.customer_id,
             description: 'MarketplaceBase',
@@ -196,7 +196,7 @@ class User < ActiveRecord::Base
       if !@customer_account.nil? && @customer_account.present?
         customer_card = @customer_account.customer_card
         charge = Stripe::Charge.create(
-          amount: (((price * 4.8) / 100) + price).to_i,
+          amount: price,
           currency: 'USD',
           customer: @customer_account.customer_id ,
           description: 'MarketplaceBase',
@@ -205,7 +205,7 @@ class User < ActiveRecord::Base
         @customer = User.new_customer(token, user)
 
         charge = Stripe::Charge.create(
-          amount: (((price * 4.8) / 100) + price).to_i,
+          amount: price,
           currency: 'USD',
           customer: @customer.customer_id,
           description: 'MarketplaceBase',
