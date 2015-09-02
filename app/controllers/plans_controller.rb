@@ -16,14 +16,21 @@ class PlansController < ApplicationController
     Stripe.api_key = @crypt.decrypt_and_verify(current_user.merchant_secret_key)
 
 	  begin  
-	    # check stripe is plan exists, if not create one. 
-	    stripe_plan = Stripe::Plan.create(
-	    	:amount => stripe_amount,
-	      :interval => 'month',
-	      :name => plan[:name],
-	      :currency => 'usd',
-	      :id => plan[:uuid]
-	    )
+		  exitsting_plans = Stripe::Plan.all.data
+		  if !exitsting_plans.map(&:amount).include? stripe_amount
+		    # check stripe is plan exists, if not create one. 
+		    stripe_plan = Stripe::Plan.create(
+		    	:amount => stripe_amount,
+		      :interval => 'month',
+		      :name => plan[:name],
+		      :currency => 'usd',
+		      :id => plan[:uuid]
+		    )
+		  else
+		  	redirect_to request.referrer
+		  	flash[:error] = "You Have A Plan For This Amount"
+		  	return
+		  end
 
 	    current_user.donation_plans.create(stripe_subscription_id: stripe_plan.id, currency: 'usd', amount: plan[:amount], uuid: plan[:uuid], name: plan[:name], interval: 'monthly')
 	    Stripe.api_key = Rails.configuration.stripe[:secret_key]

@@ -34,7 +34,7 @@
             <li><%= link_to "Reports", reports_path %></li>
             <li role="separator" class="divider"></li>
             <li><%= link_to "Create Donation Plan",  "#create_dplan", 'data-toggle' => 'modal' %></li>
-            <li><%= link_to "Create Team Member", reports_path %></li>
+            <li><%= link_to "Create Team Member",  "#create_member", 'data-toggle' => 'modal' %></li>
           </ul>
         </div>
       <% end %>
@@ -53,6 +53,51 @@
         </div>
       <% end %>
       <%= link_to "Sign out", destroy_user_session_path, method: :delete, class: 'btn btn-danger' %>
+
+      <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='create_member'>
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header text-center">
+              <h1 class='text-center'> New Team Member</h1>
+            </div>
+            <%= form_for :member, url: bank_accounts_path, method: :post do |f| %>
+              <div class="modal-body">
+                <div class="container-fluid">  
+                  <div class='col-md-4 col-md-offset-4'>
+                    <div class='form-group'>  
+                      <h4 class='text-center'>Name Of Member</h4>
+                      <%= f.text_field :name, class: 'form-control text-center', required: true, placeholder: 'Jane G Doe' %>
+                    </div>
+                    <div class='form-group'>  
+                      <h4 class='text-center'>Account Number</h4>
+                      <%= f.text_field :acct_num, class: 'form-control text-center', required: true, placeholder: '000123456789' %>
+                    </div>
+                    <div class='form-group'>  
+                      <h4 class='text-center'>Routing Number</h4>
+                      <%= f.text_field :rout_num, class: 'form-control text-center', required: true, placeholder: '110000000' %>
+                    </div>
+                    <div class='form-group'>  
+                      <h4 class='text-center'>Country Code</h4>
+                      <%= f.text_field :country, class: 'form-control text-center', required: true, placeholder: 'US', maxlength: 2 %>
+                    </div>
+                    <div class='form-group'>  
+                      <h4 class='text-center'>Percent Of Revenue</h4>
+                      <%= f.number_field :percent, class: 'form-control text-center', required: true, placeholder: '25', step: 'any' %>
+                      <%= f.hidden_field :uuid, class: 'form-control text-center', value: SecureRandom.uuid %>
+                    </div>
+                  </div>
+              </div>
+              </div>
+              <div class="modal-footer actions">
+                <%= link_to "Cancel", '#', class: 'btn btn-danger', 'data-dismiss' => 'modal'%>
+                <%= f.submit "Create Member", class: 'btn btn-success' %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+
       <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='create_dplan'>
         <div class="modal-dialog modal-sm">
           <div class="modal-content">

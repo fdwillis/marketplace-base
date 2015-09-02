@@ -331,8 +331,24 @@ class User < ActiveRecord::Base
         })
     end
 
-    def self.bank_token
-      
+    def self.bank_token(country, account, route)
+      Stripe::Token.create(
+        :bank_account => {
+        :country => country,
+        :routing_number => route,
+        :account_number => account,
+      },
+    )
+    end
+
+    def self.new_member(user, account_id, token, new_member_percent)
+      if user.team_members.map(&:percent).sum + new_member_percent <= 100.00
+        crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+        account_id = crypt.decrypt_and_verify(account_id)
+        account = Stripe::Account.retrieve(account_id)
+        account.external_accounts.create(external_account: token)
+        user.team_members.create(name: member[:name], percent: member[:percent].to_f, stripe_bank_id: bank_account.id)
+      end
     end
 end
 
