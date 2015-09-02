@@ -30,10 +30,4 @@ class MerchantsController < ApplicationController
     redirect_to merchants_path
     flash[:notice] = "Merchant #{@merchant.username} Was Approved"
   end
-
-  def team_member
-    debugger
-    redirect_to request.referrer
-    return
-  end
 end

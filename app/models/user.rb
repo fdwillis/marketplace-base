@@ -330,6 +330,10 @@ class User < ActiveRecord::Base
         timestamp: Time.now,
         })
     end
+
+    def self.bank_token
+      
+    end
 end
 
 

@@ -398,7 +398,7 @@
       </div>
       <div class="tab-pane fade" id="team">
         <div class='row'>  
-          <%= form_for(current_user, url: team_member_path, method: :post) do |f| %>  
+          <%= form_for(current_user) do |f| %>  
             <h2 class='text-center'>Team Members</h2>
             <div class='form-group'>  
               <%= f.simple_fields_for :team_members do |member| %>

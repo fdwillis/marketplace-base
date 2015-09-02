@@ -31,7 +31,6 @@ Rails.application.routes.draw do
   put 'create_user' => 'donate#create_user'
   put 'twilio/text_blast' => 'twilio#text_blast'
   
-  post 'team_member' => 'merchants#team_member'
   post 'notifications' => 'notifications#create'
   post 'notifications/twilio' => 'notifications#twilio'
 

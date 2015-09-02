@@ -2,12 +2,35 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
 
   def update
-    
     if current_user.update_attributes(user_params)
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       
       if params[:user][:username]
         current_user.update_attributes(username: params[:user][:username].gsub(" ", "_"))
+      end
+
+      if params[:user][:team_members_attributes]
+        team_memebers = params[:user][:team_members_attributes]
+
+        team_memebers.each_with_index do |mem, index|
+          begin   
+            debugger
+            token = User.bank_token
+
+            if current_user.role == 'admin'
+
+              redirect_to request.referrer
+              return
+            else
+
+            end
+          rescue => e
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          end
+        end
+
       end
 
       if params[:user][:donation_plans_attributes]
