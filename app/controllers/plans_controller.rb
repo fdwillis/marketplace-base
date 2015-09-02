@@ -18,7 +18,7 @@ class PlansController < ApplicationController
 	  begin  
 	    # check stripe is plan exists, if not create one. 
 	    stripe_plan = Stripe::Plan.create(
-	    	:amount => amount,
+	    	:amount => stripe_amount,
 	      :interval => 'month',
 	      :name => plan[:name],
 	      :currency => 'usd',
@@ -36,9 +36,17 @@ class PlansController < ApplicationController
   end
 
   def destroy
-  	debugger
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
+    @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
+    Stripe.api_key = @crypt.decrypt_and_verify(current_user.merchant_secret_key)
+
+  	plan = Stripe::Plan.retrieve(params[:id])
+		plan.delete
   	redirect_to request.referrer
-  	return
+  	flash[:notice] = "Successfully Deleted Donation Plan"
+
+    current_user.donation_plans.find_by(uuid: params[:id]).delete
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 end
 

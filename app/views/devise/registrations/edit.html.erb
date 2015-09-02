@@ -252,7 +252,7 @@
                   <%= number_to_currency(plan.amount, precision: 2) %>
                   <%= plan.name %>
                   <%= plan.interval %>
-                  <%= link_to "Delete Plan", plan_path(id: plan.id), class: 'btn btn-danger', method: :delete, data: {confirm: "Delete #{plan.name} Plan?"} %>
+                  <%= link_to "Delete Plan", plan_path(id: plan.uuid), class: 'btn btn-danger', method: :delete, data: {confirm: "Delete #{plan.name} Plan?"} %>
                 </div>
               <% end %>
             </div>
