@@ -242,25 +242,21 @@
         </div>
       </div>
       <div class="tab-pane fade" id="donation_plans">
-        <div class='row'>  
-          <%= form_for(current_user) do |f| %>  
-            <h2 class='text-center'>Donation Plans</h2>
-            <div class='form-group'>  
-              <%= f.simple_fields_for :donation_plans do |plan| %>
-                <%= render 'donation_plan_fields', f: plan %>
+        <div class='row'>
+          <div class='container'>
+            <h1>Current Donation Plans</h1>
+            <br>
+            <div class='row'>
+              <% current_user.donation_plans.each do |plan| %>
+                <div class='col-md-4 form-group'>  
+                  <%= number_to_currency(plan.amount, precision: 2) %>
+                  <%= plan.name %>
+                  <%= plan.interval %>
+                  <%= link_to "Delete Plan", plan_path(id: plan.id), class: 'btn btn-danger', method: :delete, data: {confirm: "Delete #{plan.name} Plan?"} %>
+                </div>
               <% end %>
             </div>
-            <div class="links form-group">
-              <div class='row form-group'>    
-                <%= link_to_add_association 'Add Donation Plan', f, :donation_plans, class: 'btn btn-info col-md-6 col-md-offset-3' %>
-              </div>
-            </div>
-            <div class="actions form-group">
-              <div class='row form-group'>    
-                <%= f.submit "Update", class: 'btn btn-success col-md-6 col-md-offset-3' %>
-              </div>
-            </div>
-          <% end %>
+          </div>
         </div>
       </div>
       <div class="tab-pane fade" id="merchant">
@@ -397,25 +393,74 @@
         </div>
       </div>
       <div class="tab-pane fade" id="team">
-        <div class='row'>  
-          <%= form_for(current_user) do |f| %>  
-            <h2 class='text-center'>Team Members</h2>
-            <div class='form-group'>  
-              <%= f.simple_fields_for :team_members do |member| %>
-                <%= render 'team_member_fields', f: member %>
-              <% end %>
-            </div>
-            <div class="links form-group">
-              <div class='row form-group'>    
-                <%= link_to_add_association 'Add Team Member', f, :team_members, class: 'btn btn-info col-md-6 col-md-offset-3' %>
+        <div class='row'>
+          <div class='container'>
+            <h1>Team Members</h1>
+            <br>
+            <div class='row'>
+              <div class="tab-v2">
+                <div class='row'>
+                  <ul class="nav nav-pills col-md-6 col-md-offset-4">
+                    <li class=""><a href="#create_member" data-toggle="tab" aria-expanded="false">Create Team Member </a></li>
+                    <li class=""><a href="#current_members" data-toggle="tab" aria-expanded="false">Current Team Members</a></li>
+                  </ul>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="create_member">
+                      <%= form_for(current_user) do |f| %>
+                        <h1>Create Team Member</h1>
+                        <div class='row'>
+                          <div class='col-md-4'>  
+                            <% current_user.donations.where(donation_type: 'one-time').each do |d| %>
+                              <div class='form-group'> 
+                                <%= "Donation Amount: #{number_to_currency(d.amount/100, precision: 2)}" %>
+                              </div>
+                              <div class='form-group'> 
+                                <%= "Organization: #{d.organization}" %>
+                              </div>
+                              <div class='form-group'> 
+                                <% if d.fundraising_goal %>
+                                  Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
+                                <% else %>
+                                  Fundraiser: Text Donation
+                                <% end %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                    <div class="tab-pane fade" id="current_members">
+                      <%= form_for(current_user) do |f| %>
+                        <h1>Current Team Members</h1>
+                        <div class='row'>
+                          <div class='col-md-4'>  
+                            <% current_user.donations.where(donation_type: 'subscription', active: true).each do |d| %>
+                              <div class='form-group'> 
+                                <%= "Donation Amount: #{number_to_currency(d.amount/100, precision: 2)}" %>
+                              </div>
+                              <div class='form-group'> 
+                                <%= "Organization: #{d.organization}" %>
+                              </div>
+                              <div class='form-group'> 
+                                <% if d.fundraising_goal %>
+                                  Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
+                                <% else %>
+                                  Fundraiser: Text Donation
+                                <% end %>
+                              </div>
+                              <div class='form-group'> 
+                                <%= link_to "Suspend Donation", cancel_donation_plan_path(uuid: d.uuid, fundraiser_stripe_account_id: d.fundraiser_stripe_account_id, subscription_id: d.subscription_id), method: :put, class: 'btn btn-warning form-control', data: { confirm: 'Are you sure?' } %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                </div>
               </div>
             </div>
-            <div class="actions form-group">
-              <div class='row form-group'>    
-                <%= f.submit "Update", class: 'btn btn-success col-md-6 col-md-offset-3' %>
-              </div>
-            </div>
-          <% end %>
+          </div>
         </div>
       </div>
     </div>

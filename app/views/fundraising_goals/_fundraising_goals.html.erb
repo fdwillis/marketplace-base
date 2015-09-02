@@ -25,10 +25,10 @@
                     </div>
                     <% if frg.user.donation_plans.present? %>
                       <div class='form-group'>  
+                        <h1>Or</h1>
+                        <h4>Monthly Donation</h4>
                         <% frg.user.donation_plans.each do |plan| %>
                           <% if !current_user.donations.where(active: true).map(&:stripe_subscription_id).include?(plan.uuid) %>
-                            <h1>Or</h1>
-                            <h4>Monthly Donation</h4>
                             <div class='row'>
                             	<%= f.radio_button(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
                             </div>

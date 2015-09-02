@@ -9,53 +9,6 @@ class UsersController < ApplicationController
         current_user.update_attributes(username: params[:user][:username].gsub(" ", "_"))
       end
 
-      if params[:user][:team_members_attributes]
-        team_memebers = params[:user][:team_members_attributes]
-
-        team_memebers.each_with_index do |mem, index|
-          begin   
-            debugger
-            token = User.bank_token
-
-            if current_user.role == 'admin'
-
-              redirect_to request.referrer
-              return
-            else
-
-            end
-          rescue => e
-            redirect_to edit_user_registration_path
-            flash[:error] = "#{e}"
-            return
-          end
-        end
-
-      end
-
-      if params[:user][:donation_plans_attributes]
-        Stripe.api_key = Rails.configuration.stripe[:secret_key]
-
-        donation_plans = params[:user][:donation_plans_attributes]
-        donation_plans.each do |plan|
-          if !current_user.admin?
-            @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-            Stripe.api_key = @crypt.decrypt_and_verify(current_user.merchant_secret_key)
-          end
-          # check stripe is plan exists, if not create one. 
-          Stripe::Plan.create(
-            :amount => ((plan[1]['amount'].to_f) * 100).to_i,
-            :interval => 'month',
-            :name => plan[1]['name'],
-            :currency => 'usd',
-            :id => plan[1]['uuid']
-          )
-        end
-
-        Stripe.api_key = Rails.configuration.stripe[:secret_key]
-      end
-
-
       if params[:stripe_account_type]
         current_user.update_attributes(stripe_account_type: params[:stripe_account_type])
       end
