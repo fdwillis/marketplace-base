@@ -11,6 +11,7 @@
           <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
           <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
           <li class=""><a href="#team" data-toggle="tab" aria-expanded="false">Team Members</a></li>
+          <li class=""><a href="#text_list" data-toggle="tab" aria-expanded="false">Text List</a></li>
         <% else %>
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
@@ -426,6 +427,23 @@
           <div class='col-md-2 text-center'>  
             <%= link_to text.user.username, merchant_path(id: text.user.username) %>
             <%= link_to "Remove Notifications", notification_path(id: text.id), class: 'btn btn-warning form-control', method: :delete, data: {confirm: "Remove notifications from #{text.user.username}?"} %>
+          </div>
+        <% end %>
+      </div>
+      <div class="tab-pane fade" id="text_list">
+        <% list = current_user.text_lists.map(&:phone_number) %>
+        <% site_donations = Donation.all.map(&:user).map(&:support_phone).uniq %>
+        <div class='row'>
+          <h4 class='text-center'><%= number_with_precision((list - (list - site_donations)).count.to_f / list.count.to_f * 100, precision: 2) %>% Of Your List Has Donated</h4>
+        </div>
+        <% current_user.text_lists.each do |entry| %>
+          <div class='col-md-1 text-center'>  
+            <%= entry.phone_number %>
+            <% if Donation.all.map(&:user).map(&:support_phone).uniq.include?(entry.phone_number) %>
+              <button class="btn btn-success" type="button">
+                <span class="badge"><small>Donated</small></span>
+              </button>
+            <% end %>
           </div>
         <% end %>
       </div>
