@@ -7,7 +7,7 @@
       Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
       <% if current_user.merchant_approved? || current_user.admin? %>
         <%= link_to "Refunds (#{Refund.all.where(merchant_id: current_user.id).where(status: "Pending").count})", refunds_path %> | 
-        <!-- Split button -->
+
         <div class="btn-group">
           <button type="button" class="btn btn-info">Message Blasts</button>
           <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -20,7 +20,6 @@
             <li><a href="#">Email Blast</a></li>
           </ul>
         </div>
-
         <div class="btn-group">
           <button type="button" class="btn btn-primary">Shortcuts</button>
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -96,8 +95,6 @@
           </div>
         </div>
       </div>
-
-
       <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='create_dplan'>
         <div class="modal-dialog modal-sm">
           <div class="modal-content">
@@ -128,32 +125,44 @@
           </div>
         </div>
       </div>
-
-
       <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='text_blast'>
         <div class="modal-dialog modal-sm">
           <div class="modal-content">
             <div class="modal-header text-center">
               <h1> Text Message Blast (<%= current_user.text_lists.count %>)</h1>
             </div>
-            <%= form_for :text_blast, url: twilio_text_blast_path, method: :put do |f| %>
-              <div class="modal-body">
-                <div class="container-fluid">  
-                  <div class='col-md-8 col-md-offset-2'>
-                    <h4 class='text-center'>Enter You Text Below</h4>
-                    <%= f.text_area :message, class: 'form-control', required: true %>
+            <div class='row'> 
+              <%= form_for :text_blast, url: twilio_text_blast_path, method: :put do |f| %>
+                <div class="modal-body">
+                  <div class="container-fluid">  
+                    <div class='col-md-8 col-md-offset-2'>
+                      <h4 class='text-center'>Enter You Text Below</h4>
+                      <%= f.text_area :message, class: 'form-control', required: true %>
+                    </div>
                   </div>
-              </div>
-              </div>
-              <div class="modal-footer actions">
-                <%= link_to "Cancel", '#', class: 'btn btn-danger', 'data-dismiss' => 'modal'%>
-                <%= f.submit "Send Text", class: 'btn btn-success' %>
-              </div>
-            <% end %>
-            <%= form_tag notifications_import_numbers_path, multipart: true do %>
-              <%= file_field_tag :file %>
-              <%= submit_tag "Import" %>
-            <% end %>
+                </div>
+                <div class="text-center actions">
+                  <%= link_to "Cancel", '#', class: 'btn btn-danger', 'data-dismiss' => 'modal'%>
+                  <%= f.submit "Send Text", class: 'btn btn-success' %>
+                </div>
+              <% end %>
+              <%= form_tag notifications_import_numbers_path, multipart: true do %>
+                <div class="modal-body">
+                  <hr>
+                  <div class="container-fluid"> 
+                    <div class='col-md-4 col-md-offset-4'>
+                      <h4 class='text-center'>Import Phone Numbers</h4>
+                      <div class='form-group'>
+                        <%= file_field_tag :file, class: 'form-control' %>
+                      </div>
+                      <div class='form-group'>
+                        <%= submit_tag "Import", class: 'btn btn-primary form-control'  %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
@@ -165,6 +174,3 @@
     <% end %>
   </div>
 </ul>
-
-
-<!-- Large modal -->
