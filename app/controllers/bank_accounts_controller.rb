@@ -12,7 +12,7 @@ class BankAccountsController < ApplicationController
 		  	return
 		  else
 		  	redirect_to request.referrer
-		  	flash[:error] = "You Need To Adjust The Percentages"
+		  	flash[:error] = "Team Members Percentages Can't Exceed 100%"
 		  	return
 		  end
 

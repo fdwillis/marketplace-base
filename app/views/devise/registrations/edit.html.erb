@@ -11,7 +11,9 @@
           <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
           <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
           <li class=""><a href="#team" data-toggle="tab" aria-expanded="false">Team Members</a></li>
-          <li class=""><a href="#text_list" data-toggle="tab" aria-expanded="false">Text List</a></li>
+          <% if current_user.text_lists.present? %>
+            <li class=""><a href="#text_list" data-toggle="tab" aria-expanded="false">Text List</a></li>
+          <% end %>
         <% else %>
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
@@ -406,9 +408,13 @@
                 <% current_user.team_members.each do |member| %>
                   <div class='col-md-3 form-group'>
                     <h4 class='text-center'><%= member.name.capitalize %>'s Percent Of Profit</h4>
-                    <%= u.number_field :percent, value: member.percent, class: 'form-control text-center' %>
-                    <%= u.hidden_field :member_uuid, value: member.uuid %>
+                    <% if member.name.downcase == 'hacknvest' %>
+                      <%= u.number_field :percent, value: member.percent, class: 'form-control text-center', disabled: true %>
+                    <% else %>
+                      <%= u.number_field :percent, value: member.percent, class: 'form-control text-center' %>
                     <%= link_to "Remove #{member.name}", bank_account_path(id: member.uuid), method: :delete, data: {confirm: "Delete #{member.name}?"}, class: 'btn btn-danger form-control' %>
+                    <% end %>
+                    <%= u.hidden_field :member_uuid, value: member.uuid %>
                   </div>
                 <% end %>
               </div>

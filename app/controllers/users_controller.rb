@@ -6,10 +6,10 @@ class UsersController < ApplicationController
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       
       if params[:user][:member_uuid]
+        debugger
         member = TeamMember.find_by(uuid: params[:user][:member_uuid])
         member.update_attributes(percent: params[:user][:percent])
       end
-
 
 
       if params[:user][:username]
