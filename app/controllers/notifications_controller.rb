@@ -105,6 +105,12 @@ class NotificationsController < ApplicationController
     redirect_to request.referrer
     flash[:notice] = "You removed notifications from #{username}"
   end
+
+  def import_numbers
+    TextList.import(params[:file], current_user)
+    redirect_to request.referrer
+    flash[:notice] = "Imported Numbers Successfully"
+  end
 end
 
 # Test CURL
