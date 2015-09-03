@@ -89,6 +89,5 @@ class DonateController < ApplicationController
       flash[:error] = "#{e}"
       return
     end
-
   end
 end

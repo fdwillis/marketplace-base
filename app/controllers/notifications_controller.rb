@@ -97,6 +97,14 @@ class NotificationsController < ApplicationController
       return
     end
   end
+
+  def destroy
+    number = TextList.find(params[:id] )
+    username = number.user.username
+    number.delete
+    redirect_to request.referrer
+    flash[:notice] = "You removed notifications from #{username}"
+  end
 end
 
 # Test CURL

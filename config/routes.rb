@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :refunds, only: [:index, :create, :update]
   
   resources :reports, only: :index
+  resources :notifications, only: [:create, :destroy]
   resources :subscribe, only: [:update,:destroy]
   
   devise_for :users
@@ -32,7 +33,6 @@ Rails.application.routes.draw do
   put 'create_user' => 'donate#create_user'
   put 'twilio/text_blast' => 'twilio#text_blast'
   
-  post 'notifications' => 'notifications#create'
   post 'notifications/twilio' => 'notifications#twilio'
 
   root to: 'products#index'

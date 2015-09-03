@@ -425,7 +425,7 @@
         <% TextList.all.where(phone_number: current_user.support_phone).each do |text| %>
           <div class='col-md-2 text-center'>  
             <%= link_to text.user.username, merchant_path(id: text.user.username) %>
-            <%= link_to "Remove Notifications", '#', class: 'btn btn-warning form-control' %>
+            <%= link_to "Remove Notifications", notification_path(id: text.id), class: 'btn btn-warning form-control', method: :delete, data: {confirm: "Remove notifications from #{text.user.username}?"} %>
           </div>
         <% end %>
       </div>
