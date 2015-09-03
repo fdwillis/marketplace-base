@@ -38,4 +38,19 @@ class BankAccountsController < ApplicationController
 	  	return
 	  end
   end
+
+  def update
+    if params[:user][:member_uuid]
+      member = TeamMember.find_by(uuid: params[:user][:member_uuid])
+	  	
+    	if current_user.team_members.where.not(uuid: params[:user][:member_uuid]).map(&:percent).sum + params[:user][:percent].to_f <= 100.00
+	      member.update_attributes(percent: params[:user][:percent])
+		  	redirect_to request.referrer
+		  	flash[:notice] = "Updated #{member.name} percentage"
+		  else
+		  	redirect_to request.referrer
+		  	flash[:error] = "Team Members Percentages Can't Exceed 100%"
+		  end
+    end
+  end
 end
