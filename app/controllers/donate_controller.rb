@@ -18,7 +18,7 @@ class DonateController < ApplicationController
     if user_exists
       new_user = user_exists
     else
-      if exp_year.to_i >= 2015 && exp_month.to_i >= 1
+      if exp_year.to_i >= Time.now.strftime('%Y').to_i && exp_month.to_i >= 1
         if !User.all.map(&:email).include?(email)
           new_user = User.create!(currency: 'USD', support_phone: phone_number, email: email, password: params[:create_user][:password], legal_name: legal_name, exp_month: exp_month, exp_year: exp_year.to_i, cvc_number: cvc_number, card_number: crypt.encrypt_and_sign(card_number))
         else
