@@ -3,6 +3,13 @@ before_filter :authenticate_user!
 
   def update
     #Track for admin
+    # Create Multiple Records at once
+      # Role.create(
+      #   [
+      #     { :role => 'merchant') },
+      #     { :role => 'teams') }
+      #   ]
+      # )
     Bitly.use_api_version_3
 
     Bitly.configure do |config|
