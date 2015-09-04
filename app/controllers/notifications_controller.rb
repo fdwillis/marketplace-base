@@ -98,12 +98,14 @@ class NotificationsController < ApplicationController
     end
   end
 
-  def destroy
-    number = TextList.find(params[:id] )
-    username = number.user.username
-    number.delete
+  def remove_not
+    numbers = params[:text_id]
+    numbers.each do |num|
+      number = TextList.find(num.to_i)
+      number.delete
+    end
     redirect_to request.referrer
-    flash[:notice] = "You removed notifications from #{username}"
+    flash[:notice] = "You removed #{numbers.count} from notifications"
   end
 
   def import_numbers

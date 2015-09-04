@@ -35,6 +35,7 @@ Rails.application.routes.draw do
   
   post 'notifications/twilio' => 'notifications#twilio'
   post 'notifications/import_numbers' => 'notifications#import_numbers'
+  post 'notifications/remove_not' => 'notifications#remove_not'
 
   root to: 'products#index'
   resources :products
