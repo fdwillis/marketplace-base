@@ -409,9 +409,19 @@
                   <h4 class='text-center'><%= member.name.capitalize %>'s Percent Of Profit</h4>
                   <div class='text-center'>  
                     <% if member.name.downcase == 'hacknvest' %>
-                      <%= member.percent %>
+                      <div class='row'>
+                        Percent Of Revenue: <%= member.percent %>
+                      </div>
+                      <div class='row'>
+                        Role: <%= member.role %>
+                      </div>
                     <% else %>
-                      <%= member.percent %>
+                      <div class='row'>
+                        Percent Of Revenue: <%= member.percent %>
+                      </div>
+                      <div class='row'>
+                        Role: <%= member.role %>
+                      </div>
                       <div class='form-group'>
                         <%= link_to "Edit #{member.name}",  "#edit#{member.name}", 'data-toggle' => 'modal', class: 'btn btn-warning form-control' %>
                       </div>

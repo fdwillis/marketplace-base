@@ -348,7 +348,7 @@ class User < ActiveRecord::Base
         account_id = crypt.decrypt_and_verify(account_id)
         account = Stripe::Account.retrieve(account_id)
         bank_account = account.external_accounts.create(external_account: token)
-        user.team_members.create(uuid: SecureRandom.uuid,  name: member[:name], percent: member[:percent].to_f, stripe_bank_id: bank_account.id)
+        user.team_members.create(role: member[:role], uuid: SecureRandom.uuid,  name: member[:name], percent: member[:percent].to_f, stripe_bank_id: bank_account.id)
       end
     end
 
