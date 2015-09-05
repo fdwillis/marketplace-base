@@ -60,14 +60,19 @@ namespace :payout do
           user.team_members.each_with_index do |member, index|
             if  bal > 10000  
               amounts = user.team_members.map{|t| ((Stripe::Balance.retrieve()['available'][0].amount * t.percent.to_i) / 100 )}
-              
-                Stripe::Transfer.create(
+                transfer = Stripe::Transfer.create(
                   :amount => amounts[index],
                   :currency => "usd",
                   :destination => member.stripe_bank_id,
                   :description => "Transfer for MarketplaceBase revenue"
                 )
-              puts "Team Paid"
+                if member.name.downcase == 'hacknvest'
+                  Keen.publish("Hacknvest", {
+                    income: transfer.amount
+                    })
+                end
+                # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
+                puts "Team Paid"
             else
               puts "No Team Payout"
             end
@@ -87,15 +92,20 @@ namespace :payout do
           end
         end
       else
-        bal = Stripe::Balance.retrieve()['available'][0].amount
-        if bal >= 10000  
-          transfer = Stripe::Transfer.create(
-            :amount => Stripe::Balance.retrieve()['available'][0].amount,
-            :currency => "usd",
-            :recipient => "self",
-          )
-          message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency(transfer.amount/100)}"
-          puts message.body
+        if user.admin?  
+          bal = Stripe::Balance.retrieve()['available'][0].amount
+          if bal >= 10000  
+            transfer = Stripe::Transfer.create(
+              :amount => Stripe::Balance.retrieve()['available'][0].amount,
+              :currency => "usd",
+              :recipient => "self",
+            )
+            Keen.publish("Hacknvest", {
+              income: transfer.amount
+            })
+            # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
+            # puts message.body
+          end
         end
       end
       Stripe.api_key = Rails.configuration.stripe[:secret_key]
