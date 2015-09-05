@@ -61,13 +61,12 @@ namespace :payout do
             if  bal > 10000  
               amounts = user.team_members.map{|t| ((Stripe::Balance.retrieve()['available'][0].amount * t.percent.to_i) / 100 )}
                 transfer = Stripe::Transfer.create(
-                  :amount => amounts[index],
+                  :amount => amounts[index] - (Stripe::Balance.retrieve()['available'][0].amount * 0.0051).to_i,
                   :currency => "usd",
                   :destination => member.stripe_bank_id,
                   :description => "Transfer for MarketplaceBase revenue"
                 )
                 if member.name.downcase == 'hacknvest'
-                  debugger
                   Keen.publish("Hacknvest", {
                     income: transfer.amount
                     })
@@ -82,7 +81,7 @@ namespace :payout do
           amount = Stripe::Balance.retrieve()['available'][0].amount
           if  amount > 10000  
             Stripe::Transfer.create(
-              :amount => amount,
+              :amount => Stripe::Balance.retrieve()['available'][0].amount - (Stripe::Balance.retrieve()['available'][0].amount * 0.0051).to_i,
               :currency => "usd",
               :destination => Stripe::Account.retrieve.bank_accounts.data[0].id,
               :description => "Transfer for MarketplaceBase revenue"
@@ -97,7 +96,7 @@ namespace :payout do
           bal = Stripe::Balance.retrieve()['available'][0].amount
           if bal >= 10000  
             transfer = Stripe::Transfer.create(
-              :amount => Stripe::Balance.retrieve()['available'][0].amount,
+              :amount => Stripe::Balance.retrieve()['available'][0].amount - (Stripe::Balance.retrieve()['available'][0].amount * 0.0051).to_i,
               :currency => "usd",
               :recipient => "self",
             )
