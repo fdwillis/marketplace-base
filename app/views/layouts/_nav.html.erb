@@ -2,24 +2,35 @@
   <li><%= link_to "Marketplace-Base", root_path %></li>
   <div class="pull-right user-info">
     <% if current_user %>
-      <%= link_to "Plans", plans_path %> |
-      <%= link_to "Orders", orders_path %> <% if current_user.merchant_approved? || current_user.admin? %> <%= "(#{Order.all.where(merchant_id: current_user.id).where(paid: true, tracking_number: nil, refunded: (false || nil)).count + current_user.orders.where(status: "Pending Submission").where(active: true).count })"  %> <% else %> (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>) <% end %> | 
-      Hello <%= link_to (current_user.email), edit_user_registration_path %>! | 
-      <% if current_user.merchant_approved? || current_user.admin? %>
-        <%= link_to "Refunds (#{Refund.all.where(merchant_id: current_user.id).where(status: "Pending").count})", refunds_path %> | 
+      <% if !current_user.stripe_plan_id %>  
+        <%= link_to "Plans", plans_path %> |
+        <% end %>
+      <% if current_user.orders.size >= 1 %>  
+        <% if current_user.account_approved? || current_user.admin? %> 
+          <%= link_to "Orders", orders_path %> 
+          <%= "(#{Order.all.where(merchant_id: current_user.id).where(paid: true, tracking_number: nil, refunded: (false || nil)).count + current_user.orders.where(status: "Pending Submission").where(active: true).count })"  %> 
+          <%= link_to "Refunds (#{Refund.all.where(merchant_id: current_user.id).where(status: "Pending").count})", refunds_path %> | 
+        <% else %> 
+          (<%= current_user.orders.where(status: "Pending Submission").where(active: true).count %>)
+        <% end %> | 
+      <% end %> 
 
-        <div class="btn-group">
-          <button type="button" class="btn btn-info">Message Blasts</button>
-          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul class="dropdown-menu">
-            <li><%= link_to "Text Blast", "#text_blast", 'data-toggle' => 'modal' %></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Email Blast</a></li>
-          </ul>
-        </div>
+      Hello <%= link_to (current_user.email), edit_user_registration_path %>!
+      <% if current_user.account_approved? || current_user.admin? %>
+        <% if current_user.text_lists.present?  %>
+          <div class="btn-group">
+            <button type="button" class="btn btn-info">Message Blasts</button>
+            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><%= link_to "Text Blast", "#text_blast", 'data-toggle' => 'modal' %></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Email Blast</a></li>
+            </ul>
+          </div>
+        <% end %>
         <div class="btn-group">
           <button type="button" class="btn btn-primary">Shortcuts</button>
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -47,7 +58,9 @@
           <ul class="dropdown-menu">
             <li><%= link_to "Pending Products", pending_products_path %></li>
             <li role="separator" class="divider"></li>
-            <li><%= link_to "Pending Merchants", merchants_path %></li>
+            <li><%= link_to "Pending Goals", pending_goals_path %></li>
+            <li role="separator" class="divider"></li>
+            <li><%= link_to "Pending Accounts", merchants_path %></li>
           </ul>
         </div>
       <% end %>

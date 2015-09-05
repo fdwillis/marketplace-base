@@ -1,0 +1,21 @@
+<h1>Pending Products</h1>
+<% if policy(FundraisingGoal.new).new? %>
+  <%= link_to 'New Goal', new_fundraising_goal_path %>
+<% end %>
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @pendings.each do |pending| %>
+      <tr>
+        <td><%= pending.title %></td>
+        <td><%= number_to_currency(pending.goal_amount, precision: 2) %></td>
+        <td><%= link_to 'Show', pending %></td>
+        <td><%= link_to 'Approve', approve_goal_path(id: pending.id), method: :put %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

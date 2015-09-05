@@ -43,7 +43,9 @@ merchant = User.create!(
               name: "Merchant", 
               email: 'merch@test.com', 
               password: 'pa', 
-              role: 'merchant',
+              roles: {
+                title: 'merchant'
+              },
               username: 'merchant',
               card_number: @crypt.encrypt_and_sign('4000000000000077'),
               cvc_number: '433',
@@ -73,7 +75,7 @@ merchant = User.create!(
               bank_currency: 'USD',
               tax_rate: 2.0,
               legal_name: "Full Test Merch",
-              merchant_approved: true,
+              account_approved: true,
 )
 
 @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])

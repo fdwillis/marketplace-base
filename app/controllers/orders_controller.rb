@@ -174,7 +174,7 @@ class OrdersController < ApplicationController
   end
 
   def select_label
-    if current_user.merchant_ready?  
+    if current_user.account_ready?  
       @order = Order.find_by(uuid: params[:order_uuid])
       
       transaction = Shippo::Transaction.create(rate: params[:object_id] )

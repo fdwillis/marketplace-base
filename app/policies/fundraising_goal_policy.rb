@@ -3,7 +3,7 @@ class FundraisingGoalPolicy < ApplicationPolicy
     true
   end
   def create?
-    user.present? && (record.user == user || user.admin? || user.merchant? ) && (record.user == user || user.admin? || user.merchant_approved?)
+    user.present? && (record.user == user || user.admin? || (user.account_approved? && user.roles.map(&:title).include?('donations')))
   end
 
   def new?

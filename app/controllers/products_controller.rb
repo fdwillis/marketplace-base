@@ -22,7 +22,7 @@ class ProductsController < ApplicationController
   end
 
   def new
-    if current_user.merchant_ready? || current_user.admin?
+    if current_user.account_ready? || current_user.admin?
       @product = Product.new
       authorize @product
     else

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150904124521) do
+ActiveRecord::Schema.define(version: 20150905155812) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,7 +34,6 @@ ActiveRecord::Schema.define(version: 20150904124521) do
     t.string   "organization"
     t.decimal  "amount",                       precision: 12, scale: 2
     t.string   "uuid"
-    t.string   "fundraising_goal"
     t.integer  "user_id"
     t.datetime "created_at",                                            null: false
     t.datetime "updated_at",                                            null: false
@@ -62,6 +61,7 @@ ActiveRecord::Schema.define(version: 20150904124521) do
     t.string   "uuid"
     t.string   "slug"
     t.text     "keywords"
+    t.boolean  "active"
   end
 
   add_index "fundraising_goals", ["slug"], name: "index_fundraising_goals_on_slug", unique: true, using: :btree
@@ -368,7 +368,7 @@ ActiveRecord::Schema.define(version: 20150904124521) do
     t.decimal  "tax_rate",                           precision: 12, scale: 2
     t.string   "bitly_link"
     t.string   "bank_currency"
-    t.boolean  "merchant_approved",                                           default: false
+    t.boolean  "account_approved"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

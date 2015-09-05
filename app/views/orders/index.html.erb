@@ -8,7 +8,7 @@
         <li class=""><a href="#submitted_orders" data-toggle="tab" aria-expanded="false">Submitted<span class="badge"> <%= @paid.count %></span></a></li>
         <li class=""><a href="#pending_orders" data-toggle="tab" aria-expanded="false">Pending<span class="badge"> <%= @pending.count %></span></a></li>
         <li class=""><a href="#saved_orders" data-toggle="tab" aria-expanded="false">Saved<span class="badge"> <%= @suspended.count %></span></a></li>
-        <% if current_user.admin? || current_user.merchant_approved? %> 
+        <% if current_user.admin? || current_user.account_approved? %> 
           <li class=""><a href="#store_orders" data-toggle="tab" aria-expanded="false">Store Orders <span class="badge"> <%= @orders.count %></span></a></li>
         <% end %>
       </ul>
@@ -696,7 +696,7 @@
       </div>
     </div>
     <div class="tab-pane fade" id="store_orders">
-      <% if current_user.admin? || current_user.merchant_approved? %>
+      <% if current_user.admin? || current_user.account_approved? %>
         <div class="row">
           <div class='container'>  
             <h1>Store Orders</h1> 

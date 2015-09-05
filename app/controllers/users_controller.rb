@@ -40,8 +40,12 @@ class UsersController < ApplicationController
           
           ch = Stripe::Charge.retrieve(@charge.id)
           refund = ch.refunds.create
-          flash[:notice] = "User Information Updated"
-          redirect_to request.referrer
+          flash[:notice] = "Start Your Application!"
+          if !current_user.roles.map(&:title).include?('buyer')
+            redirect_to plans_path
+          else
+            redirect_to request.referrer
+          end
           return
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
@@ -54,7 +58,7 @@ class UsersController < ApplicationController
         end
       end
       
-      if !current_user.stripe_account_id? && current_user.merchant_ready? && !current_user.merchant_id?        
+      if !current_user.stripe_account_id? && current_user.account_ready?
         begin 
 
           merchant = User.create_merchant(current_user, request.remote_ip, browser.user_agent )
@@ -63,7 +67,7 @@ class UsersController < ApplicationController
           @merchant_secret_key = @crypt.encrypt_and_sign(merchant.keys.secret)
           @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
 
-          current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
+          current_user.update_attributes(account_approved: false, stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
           flash[:notice] = "User Information Updated"
           redirect_to request.referrer
           return
@@ -92,7 +96,7 @@ private
      params.require(:user).permit(:shipping_address, :return_policy, :address, :currency, :address_country, 
                                   :address_state, :address_zip, :address_city, :stripe_account_type, :dob_day, 
                                   :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, 
-                                  :merchant_approved, :support_phone, :support_email, :business_url, :merchant_id, :business_name,
+                                  :account_approved, :support_phone, :support_email, :business_url, :merchant_id, :business_name,
                                   :stripe_recipient_id, :name, :username, :legal_name, :card_number, :exp_month, 
                                   :exp_year, :cvc_number, :tax_id, :account_number, :routing_number, :country_name, 
                                   :tax_rate,:bank_currency, shipping_addresses_attributes: [:id, :street, :city, :state, :region, :zip, :_destroy],

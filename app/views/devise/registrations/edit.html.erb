@@ -4,17 +4,17 @@
   <div class="tab-v2">
     <div class='row'>
       <ul class="nav nav-pills">
-        <% if current_user.admin? || current_user.merchant_approved? %> 
-          <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Basic Information </a></li>
-          <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
-          <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
-          <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Seller Information</a></li>
+        <% if current_user.admin? || current_user.account_approved? %> 
           <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
           <li class=""><a href="#team" data-toggle="tab" aria-expanded="false">Team Members</a></li>
+          <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Business/Fundraising</a></li>
           <% if current_user.text_lists.present? %>
             <li class=""><a href="#text_list" data-toggle="tab" aria-expanded="false">Text List</a></li>
           <% end %>
         <% else %>
+          <% if !current_user.account_approved? && current_user.stripe_plan_id %>
+            <li class=""><a href="#merchant" data-toggle="tab" aria-expanded="false">Business/Fundraising</a></li>
+          <% end %>
           <li class=""><a href="#basic_info" data-toggle="tab" aria-expanded="false">Account Info </a></li>
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
@@ -279,109 +279,129 @@
         <div class="tab-content">
           <div class="tab-pane fade" id="business_info">
             <div class='row'>  
-              <% if current_user.merchant_approved? || current_user.admin? %>  
-                <h3 class='text-center'>Business Information</h3>
-                <%= form_for(current_user) do |f| %>
-                  <div class="form-group text-center">
-                    <%= f.label :first_name, 'First Name' %>
-                    <%= f.text_field :first_name, class: 'form-control text-center', placeholder: "John"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :last_name, 'Last Name' %>
-                    <%= f.text_field :last_name, class: 'form-control text-center', placeholder: "Doe"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :return_policy, 'Return Policy' %>
-                    <%= f.text_area :return_policy, class: 'form-control text-center', placeholder: "You will be responsible for handling returns of your managed products.  Please outline the policy on which you will and will not accept returns and refunds.", minlength: 100, size: '10x10'%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :dob_day, 'Birth Day (2 Digits)' %>
-                    <%= f.text_field :dob_day, class: 'form-control text-center', placeholder: "01", minlength: 2, maxlength: 2%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :dob_month, 'Birth Month (2 Digits)' %>
-                    <%= f.text_field :dob_month, class: 'form-control text-center', placeholder: "09", minlength: 2, maxlength: 2%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :dob_year, 'Birth Year (4 Digits)' %>
-                    <%= f.text_field :dob_year, class: 'form-control text-center', placeholder: "#{Time.now.year}", minlength: 4, maxlength: 4%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :business_name, 'Business Name' %>
-                    <%= f.text_field :business_name, class: 'form-control text-center', placeholder: "Enter Business Name or Legal Name", value: "#{current_user.business_name}"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :address, 'Business Street' %>
-                    <%= f.text_field :address, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address}"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :address_city, 'Business City' %>
-                    <%= f.text_field :address_city, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address_city}"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :address_zip, 'Business Zip' %>
-                    <%= f.text_field :address_zip, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address_zip}", minlength: 5 %>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :address_state, 'Business State' %>
-                    <%= f.text_field :address_state, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address_state}",maxlength: 2 %>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :business_url, 'Business URL' %>
-                    <%= f.text_field :business_url, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "http://localhost:3000/merchants/#{current_user.slug}"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :support_email, 'Support Email' %>
-                    <%= f.text_field :support_email, class: 'form-control text-center', placeholder: "Enter email for customer support", value: "#{current_user.email}"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :support_phone, 'Support Phone' %>
-                    <%= f.text_field :support_phone, class: 'form-control text-center', placeholder: "Customer Service Phone Number"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :support_url, 'Support URL' %>
-                    <%= f.text_field :support_url, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "http://localhost:3000/merchants/#{current_user.slug}"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :tax_rate, 'Desired Tax Rate' %>
-                    <%= f.text_field :tax_rate, class: 'form-control text-center', placeholder: "2.090"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.label :statement_descriptor, 'Statement Descriptor' %>
-                    <%= f.text_field :statement_descriptor, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.username} via MarketplaceBase"%>
-                  </div>
-                  <div class="form-group text-center">
-                    <%= f.submit "Update", class: 'btn btn-success' %>
-                  </div>
-                <% end %>
+              <h3 class='text-center'>Business Information</h3>
+              <%= form_for(current_user) do |f| %>
+                <div class="form-group text-center">
+                  <%= f.label :first_name, 'First Name' %>
+                  <%= f.text_field :first_name, class: 'form-control text-center', placeholder: "John"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :last_name, 'Last Name' %>
+                  <%= f.text_field :last_name, class: 'form-control text-center', placeholder: "Doe"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :return_policy, 'Return Policy' %>
+                  <%= f.text_area :return_policy, class: 'form-control text-center', placeholder: "You will be responsible for handling returns of your managed products.  Please outline the policy on which you will and will not accept returns and refunds.", minlength: 100, size: '10x10'%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :dob_day, 'Birth Day (2 Digits)' %>
+                  <%= f.text_field :dob_day, class: 'form-control text-center', placeholder: "01", minlength: 2, maxlength: 2%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :dob_month, 'Birth Month (2 Digits)' %>
+                  <%= f.text_field :dob_month, class: 'form-control text-center', placeholder: "09", minlength: 2, maxlength: 2%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :dob_year, 'Birth Year (4 Digits)' %>
+                  <%= f.text_field :dob_year, class: 'form-control text-center', placeholder: "#{Time.now.year}", minlength: 4, maxlength: 4%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :business_name, 'Business Name' %>
+                  <%= f.text_field :business_name, class: 'form-control text-center', placeholder: "Enter Business Name or Legal Name", value: "#{current_user.business_name}"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :address, 'Business Street' %>
+                  <%= f.text_field :address, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address}"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :address_city, 'Business City' %>
+                  <%= f.text_field :address_city, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address_city}"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :address_zip, 'Business Zip' %>
+                  <%= f.text_field :address_zip, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address_zip}", minlength: 5 %>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :address_state, 'Business State' %>
+                  <%= f.text_field :address_state, class: 'form-control text-center', placeholder: "526 West Wilson suite B", value: "#{current_user.address_state}",maxlength: 2 %>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :business_url, 'Business URL' %>
+                  <%= f.text_field :business_url, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "http://localhost:3000/merchants/#{current_user.slug}"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :support_email, 'Support Email' %>
+                  <%= f.text_field :support_email, class: 'form-control text-center', placeholder: "Enter email for customer support", value: "#{current_user.email}"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :support_phone, 'Support Phone' %>
+                  <%= f.text_field :support_phone, class: 'form-control text-center', placeholder: "Customer Service Phone Number"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :support_url, 'Support URL' %>
+                  <%= f.text_field :support_url, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "http://localhost:3000/merchants/#{current_user.slug}"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :tax_rate, 'Desired Tax Rate' %>
+                  <%= f.text_field :tax_rate, class: 'form-control text-center', placeholder: "2.090"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :statement_descriptor, 'Statement Descriptor' %>
+                  <%= f.text_field :statement_descriptor, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.username} via MarketplaceBase"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.submit "Update", class: 'btn btn-success' %>
+                </div>
               <% end %>
             </div>
           </div>
           <div class="tab-pane fade" id="bank_account">
             <%= form_for(current_user) do |f| %>
               <h3 class='text-center'>Bank Account Info</h3>
-              <div class="form-group text-center">
-                <%= f.select :stripe_account_type, ['individual', 'company']%>
-              </div>
-              <div class="form-group text-center">
-                <%= f.label :account_number, 'Account Number  (Encrypted)' %>
-                <% if current_user.account_number? %>
-                  <%= f.text_field :account_number, maxlength: 16, class: 'form-control text-center', placeholder: "Enter account number",value: @crypt.decrypt_and_verify(current_user.account_number)  %>
-                <% else %>
-                  <%= f.text_field :account_number, maxlength: 16, class: 'form-control text-center', placeholder: "Enter account number" %>
-                <% end %>
-              </div>
-              <div class="form-group text-center">
-                <%= f.label :routing_number, 'Routing Number' %>
-                <%= f.text_field :routing_number, class: 'form-control text-center', placeholder: "Enter routing number"%>
-              </div>
-              <div class="form-group text-center">
-                <%= f.label :bank_currency, 'Bank Account Currency' %>
-                <%= f.text_field :bank_currency, class: 'form-control text-center', placeholder: "Currency To Convert Your Purchases To"%>
-              </div>
-              <div class="form-group text-center">
-                <%= f.submit "Update", class: 'btn btn-success' %>
-              </div>
+              <% if !current_user.account_approved? %>
+                <div class="form-group text-center">
+                  <%= f.select :stripe_account_type, ['individual', 'company']%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :account_number, 'Account Number  (Encrypted)' %>
+                  <% if current_user.account_number? %>
+                    <%= f.text_field :account_number, maxlength: 16, class: 'form-control text-center', placeholder: "000123456789",value: @crypt.decrypt_and_verify(current_user.account_number)  %>
+                  <% else %>
+                    <%= f.text_field :account_number, maxlength: 16, class: 'form-control text-center', placeholder: "000123456789" %>
+                  <% end %>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :routing_number, 'Routing Number' %>
+                  <%= f.text_field :routing_number, class: 'form-control text-center', placeholder: "110000000"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :bank_currency, 'Bank Account Currency' %>
+                  <%= f.text_field :bank_currency, class: 'form-control text-center', placeholder: "USD"%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.submit "Update", class: 'btn btn-success' %>
+                </div>
+              <% else %>
+                <div class="form-group text-center">
+                  <%= f.label :account_number, 'Account Number  (Encrypted)' %>
+                  <% if current_user.account_number? %>
+                    <%= f.text_field :account_number, maxlength: 16, class: 'form-control text-center', placeholder: "000123456789",value: @crypt.decrypt_and_verify(current_user.account_number), disabled: true  %>
+                  <% else %>
+                    <%= f.text_field :account_number, maxlength: 16, class: 'form-control text-center', placeholder: "000123456789", disabled: true %>
+                  <% end %>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :routing_number, 'Routing Number' %>
+                  <%= f.text_field :routing_number, class: 'form-control text-center', placeholder: "110000000", disabled: true%>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.label :bank_currency, 'Bank Account Currency' %>
+                  <%= f.text_field :bank_currency, class: 'form-control text-center', placeholder: "USD", disabled: true%>
+                </div>
+                <div class='form-group text-center'>
+                  <h1>Need To Update Bank Account? <%= mail_to 'mail@gmail.com', "Email Us"%></h1>
+                </div>
+              <% end %>
             <% end %>
           </div>
           <% if current_user.stripe_plan_id %>  

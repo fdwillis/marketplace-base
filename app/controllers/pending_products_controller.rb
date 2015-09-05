@@ -8,6 +8,6 @@ class PendingProductsController < ApplicationController
     @instance = Product.find(params[:id])
     @instance.update_attributes(active: true)
     flash[:notice] = 'Item Approved'
-    redirect_to pending_products_path
+    redirect_to request.referrer
   end
 end

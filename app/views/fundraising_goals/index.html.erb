@@ -2,7 +2,7 @@
 
 <div class='container'>
 	<% if policy(FundraisingGoal.new).new? %>
-	  <%= link_to 'New Fundraising goal', new_fundraising_goal_path %> <<< Change Policy to be only fundraiser?..users need many roles and check to see if role includes 'role'
+	  <%= link_to 'New Fundraising goal', new_fundraising_goal_path %>
 	<% end %>
 	<div class='row'>	
 		<%= search_form_for @search do |f| %>

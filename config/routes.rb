@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+
+  resources :pending_goals, only: :index
   resources :orders
   resources :fundraising_goals
 
@@ -27,6 +29,7 @@ Rails.application.routes.draw do
   get 'donate' => 'donate#donate'
 
   put 'approve_product' => 'pending_products#approve_product'
+  put 'approve_goal' => 'pending_goals#approve_goal'
   put 'approve_merchant' => 'merchants#approve_merchant'
   put 'active_order' => 'orders#active_order'
   put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'

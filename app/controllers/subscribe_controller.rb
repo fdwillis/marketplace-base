@@ -59,7 +59,7 @@ before_filter :authenticate_user!
       subscription.save
 
       current_user.update_attributes(stripe_plan_name: plan.name, bitly_link: @bitly_link )
-      current_user.roles.find_or_create_by(title: 'merchant')
+      current_user.roles.find_or_create_by(title: 'donations')
       redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
       return
     elsif current_user.card?
@@ -73,8 +73,8 @@ before_filter :authenticate_user!
           end
         end
 
-        current_user.update_attributes(slug: @username = params[:user][:username], stripe_plan_id: subscription.id , stripe_plan_name: plan.name, bitly_link: @bitly_link)
-        current_user.roles.find_or_create_by(title: 'merchant')
+        current_user.update_attributes(stripe_plan_id: subscription.id , stripe_plan_name: plan.name, account_approved: false)
+        current_user.roles.find_or_create_by(title: 'donations')
 
         flash[:notice] = "Welcome Back! You Joined The #{plan.name} Plan"
         redirect_to edit_user_registration_path
@@ -90,7 +90,7 @@ before_filter :authenticate_user!
                                          username: @username = params[:user][:username], card_number: @card_number, exp_year: @exp_year, 
                                          exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: subscription.id,
                                          stripe_plan_name: subscription.plan.name, bitly_link: @bitly_link)
-          current_user.roles.find_or_create_by(title: 'merchant')
+          current_user.roles.find_or_create_by(title: 'donations')
 
           flash[:notice] = "Happy To Have You! You've Joined The #{plan.name} Plan"
           redirect_to edit_user_registration_path
@@ -120,7 +120,12 @@ before_filter :authenticate_user!
         p.update_attributes(active: false)
       end
     end
-    
+
+    if current_user.fundraising_goals.present?
+      current_user.fundraising_goals.each do |goal|
+        goal.update_attributes(active: false)
+      end
+    end
     merchant_orders = Order.all.where(merchant_id: current_user.id)
     User.merchant_cancled(current_user, (merchant_orders.map(&:total_price).sum - merchant_orders.map(&:refund_amount).sum))
 

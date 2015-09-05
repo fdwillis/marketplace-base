@@ -1,14 +1,14 @@
 class MerchantsController < ApplicationController
   def index
-    no_buyers = User.all.where.not(role:'buyer')
-    @merchants = no_buyers.where(merchant_approved: true)
-    @pending = no_buyers.where(merchant_approved: false)
+    no_buyers = User.joins(:roles).where.not(roles: {title: 'buyer'})
+    @merchants = no_buyers.where(account_approved: true)
+    @pending = no_buyers.where(account_approved: false)
   end
 
   def show
     #Track for Merchant and Admin
     @name = User.friendly.find(params[:id]).name
-    if User.friendly.find(params[:id]).merchant_approved? || User.friendly.find(params[:id]).admin?
+    if User.friendly.find(params[:id]).account_approved? || User.friendly.find(params[:id]).admin?
       @merchant = User.friendly.find(params[:id])
       @products = @merchant.products.where(active:true)
       if current_user != @merchant || !current_user
@@ -26,8 +26,8 @@ class MerchantsController < ApplicationController
 
   def approve_merchant
     @merchant = User.find_by(username: params[:username])
-    @merchant.update_attributes(merchant_approved: true )
+    @merchant.update_attributes(account_approved: true )
     redirect_to merchants_path
-    flash[:notice] = "Merchant #{@merchant.username} Was Approved"
+    flash[:notice] = "#{@merchant.username.capitalize}'s Account Was Approved"
   end
 end

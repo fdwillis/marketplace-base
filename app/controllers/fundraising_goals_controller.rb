@@ -6,7 +6,7 @@ class FundraisingGoalsController < ApplicationController
   # GET /fundraising_goals.json
   def index
     @search = FundraisingGoal.search(params[:q])
-    @fundraising_goals = @search.result
+    @fundraising_goals = @search.result.where(active: true).page(params[:page]).per_page(5)
   end
 
   # GET /fundraising_goals/1
@@ -30,16 +30,20 @@ class FundraisingGoalsController < ApplicationController
   def create
     @fundraising_goal = current_user.fundraising_goals.build(fundraising_goal_params)
 
-    respond_to do |format|
       if @fundraising_goal.save
-        format.html { redirect_to @fundraising_goal, notice: 'Fundraising goal was successfully created.' }
-        format.json { render :show, status: :created, location: @fundraising_goal }
+        if !current_user.admin?
+          @fundraising_goal.update_attributes(active: false)
+          flash[:alert] ="Goal #{@fundraising_goal.title} is now pending"
+        else
+          @fundraising_goal.update_attributes(active: true)
+          flash[:notice] ='Goal created'
+        end
       else
-        format.html { render :new }
-        format.json { render json: @fundraising_goal.errors, status: :unprocessable_entity }
+        flash[:error] = "Error creating Goal. Try again"
+        render :new
       end
-    end
     authorize @fundraising_goal
+    redirect_to request.referrer
   end
 
   # PATCH/PUT /fundraising_goals/1

@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   has_many :purchases
   has_many :donation_plans
   has_many :team_members
-  has_many :roles
+  has_many :roles, dependent: :destroy
   has_many :text_lists
   has_many :donations, dependent: :destroy
   has_many :transfers
@@ -23,7 +23,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :business_name, :username, allow_blank: true
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -81,7 +81,7 @@ class User < ActiveRecord::Base
     bank_currency.present? && routing_number.present? && account_number.present? && stripe_account_type.present?
   end
 
-  def merchant_ready?
+  def account_ready?
     card?.present? && merchant_bank_account?.present?
   end
 
