@@ -93,7 +93,7 @@ class PurchasesController < ApplicationController
         @fund = FundraisingGoal.find_by(uuid: params[:uuid])
         if params[:donate][:donation_type] 
           if params[:donate][:donation_type] == "One Time"
-            if params[:donate][:donation].to_i > 0
+            if params[:donate][:donation].to_i >= 1
               begin
                 if @merchant.role == 'admin'
                   @charge = User.charge_for_admin(current_user, @price, @token.id)
@@ -118,6 +118,7 @@ class PurchasesController < ApplicationController
             else
               redirect_to fundraising_goal_path(id: @fund.slug)
               flash[:error] = "Please Specify A Valid Donation Amount"
+              return
             end
             Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'web', false)
           else
@@ -144,6 +145,7 @@ class PurchasesController < ApplicationController
         else
           redirect_to fundraising_goal_path(id: @fund.slug)
           flash[:error] = "Please Specify A Donation Type"
+          return
         end
         @fund.increment!(:backers, by = 1)
       else

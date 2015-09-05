@@ -67,11 +67,12 @@ namespace :payout do
                   :description => "Transfer for MarketplaceBase revenue"
                 )
                 if member.name.downcase == 'hacknvest'
+                  debugger
                   Keen.publish("Hacknvest", {
                     income: transfer.amount
                     })
+                  # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
                 end
-                # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
                 puts "Team Paid"
             else
               puts "No Team Payout"
@@ -86,9 +87,9 @@ namespace :payout do
               :destination => Stripe::Account.retrieve.bank_accounts.data[0].id,
               :description => "Transfer for MarketplaceBase revenue"
             )
-            puts "Non-Team Paid"
+            puts "Solo Paid"
           else
-            puts "No non-team payout"
+            puts "No Solo payout"
           end
         end
       else

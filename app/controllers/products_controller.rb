@@ -47,11 +47,12 @@ class ProductsController < ApplicationController
         flash[:notice] ='Product created'
       end
       redirect_to @product
+      authorize @product
+      return
     else
       flash[:error] = "Error creating Product. Try again"
       render :new
     end
-    authorize @product
   end
 
   def update

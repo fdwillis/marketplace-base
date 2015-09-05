@@ -38,12 +38,13 @@ class FundraisingGoalsController < ApplicationController
           @fundraising_goal.update_attributes(active: true)
           flash[:notice] ='Goal created'
         end
+        redirect_to fundraising_goals_path
+        authorize @fundraising_goal
+        return
       else
         flash[:error] = "Error creating Goal. Try again"
         render :new
       end
-    authorize @fundraising_goal
-    redirect_to fundraising_goals_path
   end
 
   # PATCH/PUT /fundraising_goals/1
