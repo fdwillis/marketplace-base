@@ -41,7 +41,7 @@ class UsersController < ApplicationController
           ch = Stripe::Charge.retrieve(@charge.id)
           refund = ch.refunds.create
           flash[:notice] = "User Information Updated"
-          redirect_to edit_user_registration_path
+          redirect_to request.referrer
           return
         rescue Stripe::CardError => e
           redirect_to edit_user_registration_path
@@ -65,7 +65,7 @@ class UsersController < ApplicationController
 
           current_user.update_attributes(stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
           flash[:notice] = "User Information Updated"
-          redirect_to edit_user_registration_path
+          redirect_to request.referrer
           return
         rescue Stripe::CardError => e
           flash[:error] = "#{e}"
@@ -83,7 +83,7 @@ class UsersController < ApplicationController
       return
     end
     flash[:notice] = "User Information Updated"
-    redirect_to edit_user_registration_path
+    redirect_to request.referrer
     return
   end
 

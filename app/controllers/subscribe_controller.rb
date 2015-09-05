@@ -58,7 +58,8 @@ before_filter :authenticate_user!
       subscription.plan = plan.id
       subscription.save
 
-      current_user.update_attributes(role: 'merchant', stripe_plan_name: plan.name, bitly_link: @bitly_link )
+      current_user.update_attributes(stripe_plan_name: plan.name, bitly_link: @bitly_link )
+      current_user.roles.find_or_create_by(title: 'merchant')
       redirect_to root_path, notice: "You Updated Your Plan To: #{plan.name}"
       return
     elsif current_user.card?
@@ -72,8 +73,8 @@ before_filter :authenticate_user!
           end
         end
 
-        current_user.update_attributes(slug: @username = params[:user][:username], stripe_plan_id: subscription.id , stripe_plan_name: plan.name,
-                                       role: 'merchant', bitly_link: @bitly_link)
+        current_user.update_attributes(slug: @username = params[:user][:username], stripe_plan_id: subscription.id , stripe_plan_name: plan.name, bitly_link: @bitly_link)
+        current_user.roles.find_or_create_by(title: 'merchant')
 
         flash[:notice] = "Welcome Back! You Joined The #{plan.name} Plan"
         redirect_to edit_user_registration_path
@@ -85,10 +86,11 @@ before_filter :authenticate_user!
 
           User.new_paying_merchant(request.location.data, request.remote_ip, subscription.plan.amount, current_user)
           
-          current_user.update_attributes(slug: @username = params[:user][:username], marketplace_stripe_id: subscription.customer, role: 'merchant', 
+          current_user.update_attributes(slug: @username = params[:user][:username], marketplace_stripe_id: subscription.customer, 
                                          username: @username = params[:user][:username], card_number: @card_number, exp_year: @exp_year, 
                                          exp_month: @exp_month, cvc_number: @cvc_number, stripe_plan_id: subscription.id,
                                          stripe_plan_name: subscription.plan.name, bitly_link: @bitly_link)
+          current_user.roles.find_or_create_by(title: 'merchant')
 
           flash[:notice] = "Happy To Have You! You've Joined The #{plan.name} Plan"
           redirect_to edit_user_registration_path

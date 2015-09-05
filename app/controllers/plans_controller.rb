@@ -1,4 +1,7 @@
 class PlansController < ApplicationController
+	def index
+		
+	end
   def create
   	
   	amount = (params[:dplan][:amount].gsub(/[^0-9]/i, '').to_i)

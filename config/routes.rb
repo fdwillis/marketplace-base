@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resources :merchants, only: [:index, :show]
   resources :pending_products, only: [:index, :show]
 
-  resources :plans, only: [:create, :destroy]
+  resources :plans, only: [:create, :destroy, :index]
   resources :bank_accounts, only: [:create, :destroy, :update]
 
   resources :purchases, only: [:create, :update]

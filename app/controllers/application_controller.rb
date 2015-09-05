@@ -18,7 +18,14 @@ class ApplicationController < ActionController::Base
   protected
 
   def after_sign_in_path_for(resource)
-    Keen.publish("Sign Ins", {
+    if current_user.merchant_approved? || current_user.admin?
+      reports_path
+    else
+      session[:previous_url] || root_path
+    end
+
+    if current_user.sign_in_count == 1
+      Keen.publish("Sign Ups", {
       current_user_role: current_user.role,
       current_user: current_user.id,
       current_user_ip_address: request.remote_ip,
@@ -34,11 +41,9 @@ class ApplicationController < ActionController::Base
       minute: Time.now.strftime("%M").to_i,
       timestamp: Time.now,
       })
-    if current_user.merchant_approved? || current_user.admin?
-      reports_path
-    else
-      session[:previous_url] || root_path
+      edit_user_registration_path
     end
+
   end
   
  

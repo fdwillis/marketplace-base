@@ -105,7 +105,7 @@ class NotificationsController < ApplicationController
       number.delete
     end
     redirect_to request.referrer
-    flash[:notice] = "You removed #{numbers.count} from notifications"
+    flash[:notice] = "You removed your number from #{numbers.count} text lists"
   end
 
   def import_numbers
