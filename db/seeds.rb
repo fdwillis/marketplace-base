@@ -43,9 +43,6 @@ merchant = User.create!(
               name: "Merchant", 
               email: 'merch@test.com', 
               password: 'pa', 
-              roles: {
-                title: 'merchant'
-              },
               username: 'merchant',
               card_number: @crypt.encrypt_and_sign('4000000000000077'),
               cvc_number: '433',
@@ -94,15 +91,16 @@ a = User.create!(
   country_name: "United States",
   support_phone: 4143997341
   )
-
 a.skip_confirmation!
 a.save!
 
 admin.skip_confirmation!
 admin.save!
+admin.roles.create(title: 'admin')
 
 merchant.skip_confirmation!
 merchant.save!
+merchant.roles.create([{title: 'donations'}, {title: 'merchant'}])
 
 20.times do
   Product.create!(
