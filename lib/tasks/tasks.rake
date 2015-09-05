@@ -30,7 +30,11 @@ namespace :email do
 end
 
 namespace :payout do
-  task teams: :environment do
+  include ActionView::Helpers::NumberHelper
+
+  twilio_text = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
+  
+  task all: :environment do
     User.all.each do |user|
       crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       
@@ -41,7 +45,7 @@ namespace :payout do
           if trans_amount > 10000
             
             Stripe::Transfer.create(
-              :amount => trans_amount,
+              :amount => Stripe::Balance.retrieve()['available'][0].amount,
               :currency => "usd",
               :destination => crypt.decrypt_and_verify(user.stripe_account_id),
               :description => "Transfer for MarketplaceBase revenue"
@@ -55,7 +59,7 @@ namespace :payout do
           bal = Stripe::Balance.retrieve()['available'][0].amount
           user.team_members.each_with_index do |member, index|
             if  bal > 10000  
-              amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
+              amounts = user.team_members.map{|t| ((Stripe::Balance.retrieve()['available'][0].amount * t.percent.to_i) / 100 )}
               
                 Stripe::Transfer.create(
                   :amount => amounts[index],
@@ -81,6 +85,17 @@ namespace :payout do
           else
             puts "No non-team payout"
           end
+        end
+      else
+        bal = Stripe::Balance.retrieve()['available'][0].amount
+        if bal >= 10000  
+          transfer = Stripe::Transfer.create(
+            :amount => Stripe::Balance.retrieve()['available'][0].amount,
+            :currency => "usd",
+            :recipient => "self",
+          )
+          message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency(transfer.amount/100)}"
+          puts message.body
         end
       end
       Stripe.api_key = Rails.configuration.stripe[:secret_key]

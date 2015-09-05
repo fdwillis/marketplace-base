@@ -27,8 +27,8 @@
             <ul class="dropdown-menu">
               <li><%= link_to "Text Blast", "#text_blast", 'data-toggle' => 'modal' %></li>
               <li role="separator" class="divider"></li>
-              <li><a href="#">Email Blast</a></li>
-            </ul>
+<!--               <li><a href="#">Email Blast</a></li>
+ -->            </ul>
           </div>
         <% end %>
         <div class="btn-group">
@@ -44,7 +44,9 @@
             <li><%= link_to "Reports", reports_path %></li>
             <li role="separator" class="divider"></li>
             <li><%= link_to "Create Donation Plan",  "#create_dplan", 'data-toggle' => 'modal' %></li>
-            <li><%= link_to "Create Team Member",  "#create_member", 'data-toggle' => 'modal' %></li>
+            <% if current_user.stripe_account_id.present? %>
+              <li><%= link_to "Create Team Member",  "#create_member", 'data-toggle' => 'modal' %></li>
+            <% end %>
           </ul>
         </div>
       <% end %>
@@ -75,31 +77,49 @@
             <%= form_for :member, url: bank_accounts_path, method: :post do |f| %>
               <div class="modal-body">
                 <div class="container-fluid">  
-                  <div class='col-md-4 col-md-offset-4'>
-                    <div class='form-group'>  
-                      <h4 class='text-center'>Name Of Member</h4>
-                      <%= f.text_field :name, class: 'form-control text-center', required: true, placeholder: 'Jane G Doe' %>
+                  <h5 class='text-center'>Team members are for organizations that need to split revenue amonsts themselves, employees,<br> or departments. Each 'Team Member' will have their own bank account in which the <br>percentage of revenue designated below will be transferred.</h5>
+                  <hr>
+                  <div class='row'>
+                    <div class='col-md-6'>  
+                      <div class='form-group'>  
+                        <h4 class='text-center'>Name Of Member</h4>
+                        <%= f.text_field :name, class: 'form-control text-center', required: true, placeholder: 'Jane G Doe' %>
+                      </div>
                     </div>
-                    <div class='form-group'>  
-                      <h4 class='text-center'>Members Role</h4>
-                      <%= f.text_field :role, class: 'form-control text-center', required: true, placeholder: 'Head Of Marketing' %>
+                    <div class='col-md-6'>  
+                      <div class='form-group'>  
+                        <h4 class='text-center'>Members Role</h4>
+                        <%= f.text_field :role, class: 'form-control text-center', required: true, placeholder: 'Head Of Marketing' %>
+                      </div>
                     </div>
-                    <div class='form-group'>  
-                      <h4 class='text-center'>Account Number</h4>
-                      <%= f.text_field :acct_num, class: 'form-control text-center', required: true, placeholder: '000123456789' %>
+                  </div>
+                  <div class='row'>
+                    <div class='col-md-6'>  
+                      <div class='form-group'>  
+                        <h4 class='text-center'>Account Number</h4>
+                        <%= f.text_field :acct_num, class: 'form-control text-center', required: true, placeholder: '000123456789' %>
+                      </div>
                     </div>
-                    <div class='form-group'>  
-                      <h4 class='text-center'>Routing Number</h4>
-                      <%= f.text_field :rout_num, class: 'form-control text-center', required: true, placeholder: '110000000' %>
+                    <div class='col-md-6'>  
+                      <div class='form-group'>  
+                        <h4 class='text-center'>Routing Number</h4>
+                        <%= f.text_field :rout_num, class: 'form-control text-center', required: true, placeholder: '110000000' %>
+                      </div>
                     </div>
-                    <div class='form-group'>  
-                      <h4 class='text-center'>Country Code</h4>
-                      <%= f.text_field :country, class: 'form-control text-center', required: true, placeholder: 'US', maxlength: 2 %>
+                  </div>
+                  <div class='row'>
+                    <div class='col-md-6'>  
+                      <div class='form-group'>  
+                        <h4 class='text-center'>Country Code</h4>
+                        <%= f.text_field :country, class: 'form-control text-center', required: true, placeholder: 'US', maxlength: 2 %>
+                      </div>
                     </div>
-                    <div class='form-group'>  
-                      <h4 class='text-center'>Percent Of Revenue</h4>
-                      <%= f.number_field :percent, class: 'form-control text-center', required: true, placeholder: '25', step: 'any' %>
-                      <%= f.hidden_field :uuid, class: 'form-control text-center', value: SecureRandom.uuid %>
+                    <div class='col-md-6'>  
+                      <div class='form-group'>  
+                        <h4 class='text-center'>Percent Of Revenue</h4>
+                        <%= f.number_field :percent, class: 'form-control text-center', required: true, placeholder: '25', step: 'any' %>
+                        <%= f.hidden_field :uuid, class: 'form-control text-center', value: SecureRandom.uuid %>
+                      </div>
                     </div>
                   </div>
               </div>

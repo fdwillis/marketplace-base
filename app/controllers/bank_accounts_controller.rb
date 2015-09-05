@@ -3,7 +3,7 @@ class BankAccountsController < ApplicationController
   	begin
 	  	member = params[:member]
 	  	token = User.bank_token(member[:country], member[:acct_num], member[:rout_num])
-
+	  	debugger
 		  bank_account = User.new_member(current_user, current_user.stripe_account_id, token.id, member[:percent].to_f, member)
 
 		  if !bank_account.nil?

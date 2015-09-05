@@ -6,7 +6,9 @@
       <ul class="nav nav-pills">
         <% if current_user.admin? || current_user.account_approved? %> 
           <li class=""><a href="#donation_plans" data-toggle="tab" aria-expanded="false">Donation Plans</a></li>
-          <li class=""><a href="#team" data-toggle="tab" aria-expanded="false">Team Members</a></li>
+          <% if current_user.team_members.present? %>
+            <li class=""><a href="#team" data-toggle="tab" aria-expanded="false">Team Members</a></li>
+          <% end %>
           <li class=""><a href="#account" data-toggle="tab" aria-expanded="false">Business/Fundraising</a></li>
           <% if current_user.text_lists.present? %>
             <li class=""><a href="#text_list" data-toggle="tab" aria-expanded="false">Text List</a></li>
@@ -19,7 +21,9 @@
           <li class=""><a href="#payment_info" data-toggle="tab" aria-expanded="false">Payment Source</a></li>
           <li class=""><a href="#shipping" data-toggle="tab" aria-expanded="false">Shipping Addresses</a></li>
         <% end %>
-        <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">My Donations</a></li>
+        <% if current_user.donations.present? %>
+          <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">My Donations</a></li>
+        <% end %>
         <% if TextList.all.map(&:phone_number).include?(current_user.support_phone) %>
           <li class=""><a href="#notifications" data-toggle="tab" aria-expanded="false">Text Notifications</a></li>
         <% end %>
