@@ -4,7 +4,7 @@
   <%= link_to 'Delete', products_path(@product), method: :delete %>
 <% end %>
 <h1><%= @product.title %></h1>
-<%= image_tag(@product.product_image.url(:p200x200)) %>
+<%= image_tag(@product.product_image.url(:p500x350)) %>
 
 <% @product.shipping_options.each do |option| %>
   <%= option.title %>

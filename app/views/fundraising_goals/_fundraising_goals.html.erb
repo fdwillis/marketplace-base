@@ -1,4 +1,5 @@
 <% @fundraising_goals.each do |frg| %>
+<%= image_tag(frg.goal_image.url(:p400x400)) %>
 	<div class='row'>  
     <%= link_to "Donate Now", "##{frg.uuid}", class: 'btn btn-info', 'data-toggle' => 'modal' %>
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModal" id="<%= frg.uuid %>">

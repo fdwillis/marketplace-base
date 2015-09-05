@@ -5,6 +5,8 @@ class User < ActiveRecord::Base
 
   extend FriendlyId
   friendly_id :username, use: [:slugged, :finders]
+
+  mount_uploader :logo, PhotoUploader
   
   has_many :orders, dependent: :destroy
   has_many :products

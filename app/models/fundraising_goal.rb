@@ -7,6 +7,8 @@ class FundraisingGoal < ActiveRecord::Base
 	extend FriendlyId
   friendly_id :title, use: [:slugged, :finders]
 
+  mount_uploader :goal_image, PhotoUploader
+
   acts_as_taggable
 
   belongs_to :user

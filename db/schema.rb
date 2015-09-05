@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150905155812) do
+ActiveRecord::Schema.define(version: 20150905163825) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 20150905155812) do
     t.string   "slug"
     t.text     "keywords"
     t.boolean  "active"
+    t.string   "goal_image"
   end
 
   add_index "fundraising_goals", ["slug"], name: "index_fundraising_goals_on_slug", unique: true, using: :btree
@@ -369,6 +370,7 @@ ActiveRecord::Schema.define(version: 20150905155812) do
     t.string   "bitly_link"
     t.string   "bank_currency"
     t.boolean  "account_approved"
+    t.string   "logo"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

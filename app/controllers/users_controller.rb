@@ -1,8 +1,9 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!
+  before_filter :authenticate_user!
 
   def update
     if current_user.update_attributes(user_params)
+
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
 
       if params[:user][:username]
@@ -93,7 +94,7 @@ class UsersController < ApplicationController
 
 private
   def user_params
-     params.require(:user).permit(:shipping_address, :return_policy, :address, :currency, :address_country, 
+     params.require(:user).permit(:logo, :shipping_address, :return_policy, :address, :currency, :address_country, 
                                   :address_state, :address_zip, :address_city, :stripe_account_type, :dob_day, 
                                   :dob_month, :dob_year, :first_name, :last_name, :statement_descriptor, :support_url, 
                                   :account_approved, :support_phone, :support_email, :business_url, :merchant_id, :business_name,

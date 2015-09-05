@@ -43,7 +43,7 @@ class FundraisingGoalsController < ApplicationController
         render :new
       end
     authorize @fundraising_goal
-    redirect_to request.referrer
+    redirect_to fundraising_goals_path
   end
 
   # PATCH/PUT /fundraising_goals/1
@@ -113,6 +113,6 @@ class FundraisingGoalsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def fundraising_goal_params
-      params.require(:fundraising_goal).permit(:title, :description, :goal_amount, :backers, :uuid, :tag_list)
+      params.require(:fundraising_goal).permit(:title, :description, :goal_amount, :backers, :uuid, :tag_list, :goal_image)
     end
 end

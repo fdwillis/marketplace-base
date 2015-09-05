@@ -38,7 +38,7 @@
         <%= f.text_area :description, class: 'form-control pricing', placeholder: "Enter Description", label: false, size: '50x5' %>
       </div>
       <div class="form-group">
-        <%= f.file_field :product_image, as: :file, label: 'Product Image (extensions: .jpeg, .png, .gif)' %>
+        <%= f.file_field :product_image, as: :file, label: 'Product Image' %>
       </div>
       <% if @product.uuid.present? && !@product.uuid.nil? %>
         <%= f.hidden_field :uuid, class: 'form-control', label: false, value: "#{@product.uuid}" %>

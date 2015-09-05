@@ -9,22 +9,22 @@ class PhotoUploader < CarrierWave::Uploader::Base
      %w(jpg jpeg gif png)
   end
 
- version :p50x50 do
-   process :resize_and_pad => [50,50]
+ version :p150x150 do
+   process :resize_and_pad => [150,150]
  end
- version :p200x200 do
-   process :resize_and_pad => [200,200]
+ # version :p200x200 do
+ #   process :resize_and_pad => [200,200]
+ # end
+ version :p400x400 do
+   process :resize_and_pad => [400,400]
  end
- version :p531x157 do
-   process :resize_and_pad => [531,157]
- end
- version :p540x160 do
-   process :resize_to_fit => [540, 160]
-   #process :resize_and_pad => [540,160]
- end
- version :p530x150 do
-   process :resize_and_pad => [530,150]
- end
+ # version :p540x160 do
+ #   process :resize_to_fit => [540, 160]
+ #   #process :resize_and_pad => [540,160]
+ # end
+ # version :p530x150 do
+ #   process :resize_and_pad => [530,150]
+ # end
  version :p500x350 do
    process :resize_and_pad => [500,350]
  end

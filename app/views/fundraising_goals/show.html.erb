@@ -1,3 +1,4 @@
 <%= link_to 'Edit', edit_fundraising_goal_path(@fundraising_goal) %> |
 <%= link_to 'View All', fundraising_goals_path %>
 <h1><%= @fundraising_goal.title %></h1>
+<%= image_tag(@fundraising_goal.goal_image.url(:p500x350)) %>
