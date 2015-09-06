@@ -32,7 +32,7 @@ class ApplicationController < ActionController::Base
       })
       edit_user_registration_path
     else
-      if current_user.admin? || !current_user.roles.map(&:title).include?('buyer')
+      if current_user.admin? || current_user.roles.map(&:title).include?('buyer')
         reports_path
       else
         root_path

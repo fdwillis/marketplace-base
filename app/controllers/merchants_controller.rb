@@ -1,8 +1,8 @@
 class MerchantsController < ApplicationController
   def index
     no_buyers = User.joins(:roles).where.not(roles: {title: 'buyer'})
-    @merchants = no_buyers.where(account_approved: true)
-    @pending = no_buyers.where(account_approved: false)
+    @merchants = no_buyers.where(account_approved: true).uniq
+    @pending = no_buyers.where(account_approved: false).uniq
   end
 
   def show

@@ -188,7 +188,7 @@
                                 <% if d.fundraising_goal %>
                                   Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
                                 <% else %>
-                                  Fundraiser: Text Donation
+                                  Fundraiser: Direct Donation
                                 <% end %>
                               </div>
                             <% end %>
@@ -212,7 +212,7 @@
                                 <% if d.fundraising_goal %>
                                   Fundraiser: <%= link_to "#{d.fundraising_goal.title}", fundraising_goal_path(id: d.fundraising_goal.slug) %>
                                 <% else %>
-                                  Fundraiser: Text Donation
+                                  Direct Donation
                                 <% end %>
                               </div>
                               <div class='form-group'> 

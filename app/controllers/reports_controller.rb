@@ -2,13 +2,22 @@ class ReportsController < ApplicationController
   before_filter :authenticate_user!
   def index
     if current_user.account_approved && !current_user.roles.nil? || current_user.admin? 
-      #Column Chart
+      #Donation Revenue Chart
         #Data
           @donation_revenue = User.donation_revenue_this_year(current_user.id)
         #Chart
           @column = column_chart
+
+      #Donation type comparison Chart
+        #data
+          @donation_compare = User.donation_compare(current_user.id)
+        #chart
+          @pie = pie_chart
+
+
+
+
       @bar = bar_chart
-      @pie = pie_chart
       @area = area_chart
       @funnel = funnel_chart
 
@@ -33,6 +42,17 @@ private
       f.chart(type: "column")
     end
   end
+
+  def pie_chart
+    LazyHighCharts::HighChart.new('pie') do |f|
+      f.chart({:defaultSeriesType=>"pie"} )
+      f.series(:type=> 'pie',
+               :name=> "Donation Types",
+               :data=> @donation_compare.map{|d| [d["donation_type"].capitalize, d["result"]]})
+      f.title(text: "Donation Type Breakdown")
+      f.legend(:layout=> 'vertical',:style=> {:left=> 'auto', :bottom=> 'auto',:right=> '50px',:top=> '100px'}, allowPointSelect: true) 
+    end
+  end
   
   def bar_chart
     LazyHighCharts::HighChart.new('graph') do |f|
@@ -45,31 +65,6 @@ private
       f.yAxis(title: {:text => "View Count"} )
 
       f.chart(type: "bar")
-    end
-  end
-
-  def pie_chart
-    LazyHighCharts::HighChart.new('pie') do |f|
-          f.chart({:defaultSeriesType=>"pie"} )
-          series = {
-                   :type=> 'pie',
-                   :name=> 'Browser share',
-                   :data=> [
-                      ['Firefox',   45.0],
-                      ['IE',       26.8],
-                      {
-                         :name=> 'Chrome',    
-                         :y=> 12.8,
-                         :sliced=> true,
-                         :selected=> true
-                      },
-                      ['Safari',    8.5],
-                      ['Opera',     6.2],
-                      ['Others',   0.7]
-                   ]
-          }
-          f.series(series)
-          f.legend(:layout=> 'vertical',:style=> {:left=> 'auto', :bottom=> 'auto',:right=> '50px',:top=> '100px'}, allowPointSelect: true) 
     end
   end
 

@@ -72,7 +72,6 @@ merchant = User.create!(
               bank_currency: 'USD',
               tax_rate: 2.0,
               legal_name: "Full Test Merch",
-              account_approved: true,
 )
 
 @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])

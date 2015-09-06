@@ -2,7 +2,21 @@
   <h1>
     <%= @merchant.username %>
   </h1>
-  <%= link_to "Donate To #{@merchant.username}!",  "#direct_donate", 'data-toggle' => 'modal', class: 'btn btn-info' %>
+  <%= link_to "One-Time Donate To #{@merchant.username}!",  "#direct_donate", 'data-toggle' => 'modal', class: 'btn btn-info' %>
+  <%= form_for :donate, url: purchases_path(merchant_id: @merchant.id), method: :post do |f| %>
+    <% if !current_user.donations.map(&:fundraiser_stripe_account_id).include?(@merchant.merchant_secret_key) %>
+      <h3>Monthly Donation</h3>
+      <% @merchant.donation_plans.each do |plan| %>
+        <% if !current_user.donations.where(active: true).map(&:stripe_subscription_id).include?(plan.uuid) %>
+          <div class='row'>
+            <%= f.radio_button(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
+          </div>
+        <% end %>
+      <% end %>
+      <%= f.submit "Donate Monthly", class: 'btn btn-primary' %>
+    <% end %>
+  <% end %>
+
   <h4>
     <%= link_to @merchant.bitly_link, @merchant.bitly_link, 'target' => "_blank"  %>
   </h4>
@@ -19,6 +33,8 @@
     </p>
   <% end %>
 </div>
+
+
 
 
 <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='direct_donate'>

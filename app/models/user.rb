@@ -117,6 +117,23 @@ class User < ActiveRecord::Base
       )
     end
 
+    def self.donation_compare(id)
+      Keen.count("Donations", 
+        timeframe: "this_year", 
+        group_by: "donation_type", 
+        filters: [
+          {
+            property_name: "marketplace_name",
+            operator: "eq", 
+            property_value: "MarketplaceBase"
+          }, 
+          property_name: "merchant_id", 
+          operator: "eq", 
+          property_value: id
+        ]
+      )
+    end
+
     def self.profile_views(user_id, ip_address, location, merchant)
       Keen.publish("Profile Views", {
         marketplace_name: "MarketplaceBase",

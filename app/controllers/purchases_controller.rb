@@ -149,13 +149,36 @@ class PurchasesController < ApplicationController
         end
         @fund.increment!(:backers, by = 1)
       else
-        if @merchant.admin?
-          @charge = User.charge_for_admin(current_user, @price, @token.id)
-          @donation = current_user.donations.create(donation_type: 'one-time', organization: @merchant.username, amount: @price, uuid: SecureRandom.uuid)
-        else
-          @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id)
-          Stripe.api_key = Rails.configuration.stripe[:secret_key]
-          @donation = current_user.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(@charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: @merchant.username, amount: @price, uuid: SecureRandom.uuid)
+        if params[:donate][:donation_type]
+          
+          @donation_plan = DonationPlan.find_by(uuid: params[:donate][:donation_type])
+          begin
+            if @merchant.role == 'admin'
+              @subscription = User.subscribe_to_admin(current_user, @token.id, @donation_plan.uuid)
+              @donation = current_user.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @merchant.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
+            else
+              @subscription = User.subscribe_to_fundraiser(@merchant.merchant_secret_key, current_user, @token.id, @merchant_account_id, @donation_plan.uuid)
+              Stripe.api_key = Rails.configuration.stripe[:secret_key]
+              @donation = current_user.donations.create(application_fee: (@subscription.plan.amount * (@subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: @subscription.plan.name, stripe_subscription_id: @donation_plan.uuid ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: @merchant.username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: @merchant.merchant_secret_key)
+            end
+          rescue Stripe::CardError => e
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          rescue => e
+            redirect_to edit_user_registration_path
+            flash[:error] = "#{e}"
+            return
+          end
+        else  
+          if @merchant.admin?
+            @charge = User.charge_for_admin(current_user, @price, @token.id)
+            @donation = current_user.donations.create(donation_type: 'one-time', organization: @merchant.username, amount: @price, uuid: SecureRandom.uuid)
+          else
+            @charge = User.charge_n_process(@merchant.merchant_secret_key, current_user, @price, @token.id, @merchant_account_id)
+            Stripe.api_key = Rails.configuration.stripe[:secret_key]
+            @donation = current_user.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(@charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: @merchant.username, amount: @price, uuid: SecureRandom.uuid)
+          end
         end
         Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'web', true)  
       end
