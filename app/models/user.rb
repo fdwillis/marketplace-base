@@ -97,6 +97,26 @@ class User < ActiveRecord::Base
 
   protected
 
+    def self.donation_revenue_this_year(id)
+      Keen.sum("Donations", 
+        target_property: "donation_amount",
+        timeframe: "this_year",
+        interval: "monthly",
+        filters: [
+          {
+            property_name: "merchant_id",
+            operator: "eq",
+            property_value: id
+          },
+          {
+            property_name: "marketplace_name", 
+            operator: "eq", 
+            property_value: "MarketplaceBase"
+          }
+        ]
+      )
+    end
+
     def self.profile_views(user_id, ip_address, location, merchant)
       Keen.publish("Profile Views", {
         marketplace_name: "MarketplaceBase",
