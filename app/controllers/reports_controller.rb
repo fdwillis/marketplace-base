@@ -2,19 +2,19 @@ class ReportsController < ApplicationController
   before_filter :authenticate_user!
   def index
     if current_user.account_approved && !current_user.roles.nil? || current_user.admin? 
-      #Donation Revenue Chart
+      #Donation column Chart
         #Data
         timeframe = ["this_year", "this_week"]
         timeframe.each_with_index do |time, i|
           if i == 0
-            @column = column_chart(User.donation_revenue(current_user.id, time), Date::MONTHNAMES.slice(1..12), "Donations This Year")
+            @column = column_chart(User.donation_revenue(current_user.id, time, "monthly"), Date::MONTHNAMES.slice(1..12), "Total Donations This Year")
           else
-            @colum = column_chart(User.donation_revenue(current_user.id, time), Date::DAYNAMES, "Donations This Week")
+            @colum = column_chart(User.donation_revenue(current_user.id, time, "daily"), Date::DAYNAMES, "Total Donations This Week")
           end
         end
         #Chart
 
-      #Donation type comparison Chart
+      #Donation pie Chart
         #chart
         group_by = ["donation_type", "day_of_week"]
         group_by.each_with_index do |query, i|
@@ -25,8 +25,19 @@ class ReportsController < ApplicationController
           end
         end
 
+      # Donation area chart  
+        donation_type = [
+          {'name' => "Subscriptions",
+                    'data' => User.donation_rev_by_type(current_user.id, "this_week", "daily", "subscription")},
+          {'name' => "One-Time",
+                    'data' => User.donation_rev_by_type(current_user.id, "this_week", "daily", "one-time")}
+        ]
+        @area = area_chart(donation_type,  Date::DAYNAMES)
+
+
+
+
       @bar = bar_chart
-      @area = area_chart
       @funnel = funnel_chart
 
     else
@@ -64,6 +75,28 @@ private
       f.title(text: title.titleize)
     end
   end
+
+  def area_chart(data, days)
+    debugger
+    LazyHighCharts::HighChart.new('graph') do |f|
+      f.colors([ '#8bbc21', '#910000','#2f7ed8','#1aadce', 
+   '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'])
+      f.chart(type: 'area')
+      f.title(text: "Revenue By Donation Type")
+      f.series(
+        name: data[0]['name'],
+        data: data[0]['data'].map{|d| ["Visits", d['value']]}
+      )
+      f.series(
+        name: data[1]['name'],
+        data: data[1]['data'].map{|d| ["Visits", d['value']]}
+      )
+      f.yAxis(title: {text: "Dollars"})
+      f.xAxis(type: 'datetime', categories: days)
+      f.tooltip(shared: true)
+      f.legend(enabled: true)
+    end
+  end
   
   def bar_chart
     LazyHighCharts::HighChart.new('graph') do |f|
@@ -76,29 +109,6 @@ private
       f.yAxis(title: {:text => "View Count"} )
 
       f.chart(type: "bar")
-    end
-  end
-
-  def area_chart
-    LazyHighCharts::HighChart.new('graph') do |f|
-      f.chart(type: 'area')
-      f.title(text: "Home Page Views This Week")
-      f.series(name: "Bye",data: [
-                ['Visits',   700],
-                ['Downloads',       900],
-            ])
-      f.series(name: "Hi",data: [
-                ['Visits',   900],
-                ['Downloads',       700],
-            ])
-      f.series(name: "hi",data: [
-                ['Visits',   700],
-                ['Downloads', 200],
-            ])
-      f.yAxis(title: {text: "View Count"})
-      f.xAxis(type: 'datetime', categories: @d)
-      f.tooltip(shared: true)
-      f.legend(enabled: true)
     end
   end
 

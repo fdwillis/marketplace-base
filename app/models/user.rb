@@ -97,11 +97,35 @@ class User < ActiveRecord::Base
 
   protected
 
-    def self.donation_revenue(id, timeframe)
+    def self.donation_rev_by_type(id, timeframe, interval, donation_type)
+      Keen.sum("Donations", 
+        target_property: "donation_amount", 
+        timeframe: timeframe,
+        interval: interval,
+        filters: [
+          {
+            property_name: "merchant_id",
+            operator: "eq",
+            property_value: id
+          },
+          {
+            property_name: "donation_type",
+            operator: "eq",
+            property_value: donation_type
+          },
+          {
+            property_name: "marketplace_name", 
+            operator: "eq", 
+            property_value: "MarketplaceBase"
+          }
+        ]  )
+    end
+
+    def self.donation_revenue(id, timeframe, interval)
       Keen.sum("Donations", 
         target_property: "donation_amount",
         timeframe: timeframe,
-        interval: "monthly",
+        interval: interval,
         filters: [
           {
             property_name: "merchant_id",
