@@ -15,6 +15,7 @@
 //= require cocoon
 //= require highcharts
 //= require highcharts/modules/funnel
+= require highcharts/modules/exporting
 //= require turbolinks
 //= require bootstrap
 //= require_tree .

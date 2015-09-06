@@ -1,20 +1,20 @@
 <h1>Donation Revenue</h1>
-<div class='col-md-12 form-group'>
-<!--   <div class='col-md-4'>
-    <%= high_chart("bar_chart", @bar) %>
-  </div>
- -->  <div class='col-md-8'>
+<div class='container'>  
+  <div class='row form-group'>
     <%= high_chart("column_chart", @column) %>
   </div>
-  <div class='col-md-4'>
-    <%= high_chart("bar_chart3", @pie) %>
+  <div class='row form-group'>
+    <div class='col-md-6'>
+      <%= high_chart("bar_chart3", @pie)%>
+    </div>
+    <div class='col-md-6'>
+      <%= high_chart("bar_charZ3", @pe)%>
+    </div>
   </div>
-</div>
-<div class='col-md-12 form-group'>
-  <div class='col-md-6'>
+  <div class='row form-group'>
     <%= high_chart("bar_chart2", @funnel) %>
   </div>
-  <div class='col-md-6'>
+  <div class='row form-group'>
     <%= high_chart("bar_chart4", @area) %>
   </div>
 </div>

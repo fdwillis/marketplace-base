@@ -9,13 +9,15 @@ class ReportsController < ApplicationController
           @column = column_chart
 
       #Donation type comparison Chart
-        #data
-          @donation_compare = User.donation_compare(current_user.id)
         #chart
-          @pie = pie_chart
-
-
-
+        group_by = ["donation_type", "day_of_week"]
+        group_by.each_with_index do |query, i|
+          if i == 0
+            @pie = pie_chart(User.donation_compare(current_user.id, query), query)
+          else
+            @pe = pie_chart(User.donation_compare(current_user.id, query), query)
+          end
+        end
 
       @bar = bar_chart
       @area = area_chart
@@ -38,19 +40,23 @@ private
       f.series(:name => "Revenue", :yAxis => 0, :data => @donation_revenue.map{|d| (d["value"].to_f / 100)})
 
       f.yAxis(title: {:text => "Dollars"} )
-
+      f.legend(enabled: false)
       f.chart(type: "column")
     end
   end
 
-  def pie_chart
+  def pie_chart(data, group)
     LazyHighCharts::HighChart.new('pie') do |f|
-      f.chart({:defaultSeriesType=>"pie"} )
+      f.chart(
+        {
+          :defaultSeriesType=>"pie", 
+          
+        }
+      )
       f.series(:type=> 'pie',
                :name=> "Donation Types",
-               :data=> @donation_compare.map{|d| [d["donation_type"].capitalize, d["result"]]})
+               :data=> data.map{|d| [d[group].capitalize, d["result"]]})
       f.title(text: "Donation Type Breakdown")
-      f.legend(:layout=> 'vertical',:style=> {:left=> 'auto', :bottom=> 'auto',:right=> '50px',:top=> '100px'}, allowPointSelect: true) 
     end
   end
   
@@ -87,7 +93,7 @@ private
       f.yAxis(title: {text: "View Count"})
       f.xAxis(type: 'datetime', categories: @d)
       f.tooltip(shared: true)
-      f.legend(enabled: false)
+      f.legend(enabled: true)
     end
   end
 

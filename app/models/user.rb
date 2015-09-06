@@ -117,10 +117,10 @@ class User < ActiveRecord::Base
       )
     end
 
-    def self.donation_compare(id)
+    def self.donation_compare(id, group_by)
       Keen.count("Donations", 
         timeframe: "this_year", 
-        group_by: "donation_type", 
+        group_by: group_by, 
         filters: [
           {
             property_name: "marketplace_name",
