@@ -71,6 +71,10 @@ namespace :payout do
                     income: transfer.amount
                     })
                   # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
+                else
+                  Keen.publish("Payout", {
+                    income: transfer.amount
+                    })
                 end
                 puts "Team Paid"
             else
