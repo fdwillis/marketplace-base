@@ -97,10 +97,10 @@ class User < ActiveRecord::Base
 
   protected
 
-    def self.donation_revenue_this_year(id)
+    def self.donation_revenue(id, timeframe)
       Keen.sum("Donations", 
         target_property: "donation_amount",
-        timeframe: "this_year",
+        timeframe: timeframe,
         interval: "monthly",
         filters: [
           {
@@ -117,7 +117,7 @@ class User < ActiveRecord::Base
       )
     end
 
-    def self.donation_compare(id, group_by)
+    def self.donation_pie(id, group_by)
       Keen.count("Donations", 
         timeframe: "this_year", 
         group_by: group_by, 

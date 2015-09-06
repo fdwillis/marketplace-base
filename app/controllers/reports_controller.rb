@@ -4,18 +4,24 @@ class ReportsController < ApplicationController
     if current_user.account_approved && !current_user.roles.nil? || current_user.admin? 
       #Donation Revenue Chart
         #Data
-          @donation_revenue = User.donation_revenue_this_year(current_user.id)
+        timeframe = ["this_year", "this_week"]
+        timeframe.each_with_index do |time, i|
+          if i == 0
+            @column = column_chart(User.donation_revenue(current_user.id, time), Date::MONTHNAMES.slice(1..12), "Donations This Year")
+          else
+            @colum = column_chart(User.donation_revenue(current_user.id, time), Date::DAYNAMES, "Donations This Week")
+          end
+        end
         #Chart
-          @column = column_chart
 
       #Donation type comparison Chart
         #chart
         group_by = ["donation_type", "day_of_week"]
         group_by.each_with_index do |query, i|
           if i == 0
-            @pie = pie_chart(User.donation_compare(current_user.id, query), query)
+            @pie = pie_chart(User.donation_pie(current_user.id, query), query, "Donation By Type")
           else
-            @pe = pie_chart(User.donation_compare(current_user.id, query), query)
+            @pe = pie_chart(User.donation_pie(current_user.id, query), query, "Donation By Day Of Week")
           end
         end
 
@@ -32,20 +38,19 @@ class ReportsController < ApplicationController
 
 private
 
-  def column_chart
+  def column_chart(data, timeframe, title)
     LazyHighCharts::HighChart.new('graph') do |f|
-      f.title(:text => "Donation Revenue This Year")
-      f.xAxis(:categories => Date::MONTHNAMES.slice(1..12))
-
-      f.series(:name => "Revenue", :yAxis => 0, :data => @donation_revenue.map{|d| (d["value"].to_f / 100)})
-
+      f.title(:text => title.titleize)
+      f.xAxis(:categories => timeframe)
+      f.series(:name => "Revenue", :yAxis => 0, :data => data.map{|d| d["value"]})
       f.yAxis(title: {:text => "Dollars"} )
       f.legend(enabled: false)
       f.chart(type: "column")
+      f.tooltip(enabled: true)
     end
   end
 
-  def pie_chart(data, group)
+  def pie_chart(data, group, title)
     LazyHighCharts::HighChart.new('pie') do |f|
       f.chart(
         {
@@ -56,7 +61,7 @@ private
       f.series(:type=> 'pie',
                :name=> "Donation Types",
                :data=> data.map{|d| [d[group].capitalize, d["result"]]})
-      f.title(text: "Donation Type Breakdown")
+      f.title(text: title.titleize)
     end
   end
   
