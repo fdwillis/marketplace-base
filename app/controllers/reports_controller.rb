@@ -1,7 +1,7 @@
 class ReportsController < ApplicationController
   before_filter :authenticate_user!
   def index
-    if current_user.account_approved && !current_user.roles.nil? || current_user.admin? 
+    if current_user.account_approved? && !current_user.roles.nil? || current_user.admin? 
       #Donation column Chart
         #Data
         timeframe = ["this_year", "this_week"]
@@ -77,7 +77,7 @@ private
   end
 
   def area_chart(data, days)
-    debugger
+    
     LazyHighCharts::HighChart.new('graph') do |f|
       f.colors([ '#8bbc21', '#910000','#2f7ed8','#1aadce', 
    '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'])

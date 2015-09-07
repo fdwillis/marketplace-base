@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :business_name, :username, allow_blank: true
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -56,6 +56,10 @@ class User < ActiveRecord::Base
 
   def buyer?
     role == 'buyer'
+  end
+
+  def account_approved?
+    merchant_approved == true
   end
 
   def card?
