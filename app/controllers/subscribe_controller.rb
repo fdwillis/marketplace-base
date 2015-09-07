@@ -2,6 +2,7 @@ class SubscribeController < ApplicationController
 before_filter :authenticate_user!
 
   def update
+    debugger
     #Track for admin
     # Create Multiple Records at once
       # Role.create(

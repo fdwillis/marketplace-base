@@ -28,6 +28,7 @@ class Donation < ActiveRecord::Base
 		      timestamp: Time.now,
 		      donate_by: web_or_text,
 		      direct_donation?: true_or_false,
+		      merchant_id: User.find_by(username: donation.organization).id,
 			  })  
 		  else	
 				if !donation.application_fee.nil? 
@@ -232,6 +233,7 @@ class Donation < ActiveRecord::Base
 			    donation_amount: (donation.amount / 100).to_f,
 			    donation_type: donation.donation_type,
 			    ip_address: '0.0.0.0', 
+			    merchant_id: User.find_by(username: donation.organization).id,
 			    customer_id: donation.user_id,
 			    customer_current_zipcode: location["zipcode"],
 		      customer_current_city: location["city"] ,

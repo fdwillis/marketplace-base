@@ -8,7 +8,7 @@
     <div class="row">
       <div class='col-md-4 col-sm-12 col-xs-12'>
         <div class="form-group">
-          <%= form_for current_user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>
+          <%= form_for current_user, :url => subscribe_path("987654345678"), :html => { :method => :put } do |plan| %>
             <div class="text-center">  
               <h1>Basic Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#basicPlan' %>
@@ -56,7 +56,7 @@
       </div>
 <!--       <div class='col-md-4 col-sm-12 col-xs-12'>
         <div class="form-group">
-          <%= form_for current_user, :url => subscribe_path(98765436789087), :html => { :method => :put } do |plan| %>        
+          <%= form_for current_user, :url => subscribe_path("98765436789087"), :html => { :method => :put } do |plan| %>        
             <div class="text-center">  
               <h1>Advanced Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#advPlan' %>
@@ -97,7 +97,7 @@
       </div>
       <div class='col-md-4 col-sm-12 col-xs-12'>
         <div class="form-group">
-          <%= form_for current_user, :url => subscribe_path(34938872387398), :html => { :method => :put } do |plan| %>          
+          <%= form_for current_user, :url => subscribe_path("34938872387398"), :html => { :method => :put } do |plan| %>          
             <div class="text-center"> 
               <h1 class='text-center'>Pro Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#proPlan' %>
@@ -147,7 +147,7 @@
     <div class="row">
       <div class='col-md-4 col-sm-12 col-xs-12'>
         <div class="form-group">
-          <%= form_for :user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>
+          <%= form_for :user, :url => subscribe_path("987654345678"), :html => { :method => :put } do |plan| %>
             <div class="text-center">  
               <h1>Basic Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#basicPlan' %>
@@ -175,7 +175,7 @@
       </div>
 <!--       <div class='col-md-4 col-sm-12 col-xs-12'>
         <div class="form-group">
-          <%= form_for :user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>        
+          <%= form_for :user, :url => subscribe_path("987654345678"), :html => { :method => :put } do |plan| %>        
             <div class="text-center">  
               <h1>Advanced Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#advPlan' %>
@@ -209,7 +209,7 @@
       </div>
       <div class='col-md-4 col-sm-12 col-xs-12'>
         <div class="form-group">
-          <%= form_for :user, :url => subscribe_path(987654345678), :html => { :method => :put } do |plan| %>          
+          <%= form_for :user, :url => subscribe_path("987654345678"), :html => { :method => :put } do |plan| %>          
             <div class="text-center"> 
               <h1 class='text-center'>Pro Plan</h1>
               <%= link_to "Choose Plan", '', class: 'btn btn-info btn-lg', 'data-toggle' => 'modal', 'data-target'=> '#proPlan' %>
