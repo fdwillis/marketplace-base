@@ -101,7 +101,7 @@ class User < ActiveRecord::Base
 
   protected
 
-    def self.donation_rev_by_type(id, timeframe, interval, donation_type)
+    def self.donation_rev_by_type(id, timeframe, interval, property_name, property_value)
       Keen.sum("Donations", 
         target_property: "donation_amount", 
         timeframe: timeframe,
@@ -113,9 +113,9 @@ class User < ActiveRecord::Base
             property_value: id
           },
           {
-            property_name: "donation_type",
+            property_name: property_name,
             operator: "eq",
-            property_value: donation_type
+            property_value: property_value
           },
           {
             property_name: "marketplace_name", 
@@ -126,7 +126,7 @@ class User < ActiveRecord::Base
     end
 
     def self.donation_revenue(id, timeframe, interval)
-      Keen.sum("Donations", 
+      Keen.sum("Donations",
         target_property: "donation_amount",
         timeframe: timeframe,
         interval: interval,
@@ -146,7 +146,7 @@ class User < ActiveRecord::Base
     end
 
     def self.donation_pie(id, group_by)
-      Keen.count("Donations", 
+      Keen.count("Donations",
         timeframe: "this_year", 
         group_by: group_by, 
         filters: [
