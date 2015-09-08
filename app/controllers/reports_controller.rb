@@ -104,14 +104,11 @@ private
                :name=> "Donation Types",
                :data=> data.map{|d| [d[group].capitalize, d["result"]]})
       f.title(text: title.titleize)
+      f.tooltip(shared: true)
     end
   end
 
-<<<<<<< HEAD
-  def area_chart(data, days)
-=======
   def area_chart(data)
->>>>>>> 7eb087e4d85e1a5630bbea9118587f1649af38b7
     
     LazyHighCharts::HighChart.new('graph') do |f|
       f.colors([ '#434348', '#7CB5EC','#90ED7D'])

@@ -106,6 +106,7 @@ class User < ActiveRecord::Base
         target_property: "donation_amount", 
         timeframe: timeframe,
         interval: interval,
+        max_age: 600,
         filters: [
           {
             property_name: "merchant_id",
@@ -130,6 +131,7 @@ class User < ActiveRecord::Base
         target_property: "donation_amount",
         timeframe: timeframe,
         interval: interval,
+        max_age: 600,
         filters: [
           {
             property_name: "merchant_id",
@@ -149,6 +151,7 @@ class User < ActiveRecord::Base
       Keen.count("Donations",
         timeframe: "this_year", 
         group_by: group_by, 
+        max_age: 600,
         filters: [
           {
             property_name: "marketplace_name",

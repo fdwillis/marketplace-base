@@ -27,29 +27,28 @@ class NotificationsController < ApplicationController
     puts params[:FromCity]
     puts location
         
-    if text_message[0].to_f >= 1
-      phone_number = params[:From][2,params[:From].length]
-      raiser_username = text_message[1].downcase
-      amount = (text_message[0].gsub(/[^0-9]/i, '').to_i)
-      if text_message[0].include?(".")
-        stripe_amount = amount
-      else
-        stripe_amount = amount * 100
-      end
-      if text_message[2]  
-        donation_type = text_message[2].downcase
-        
-        the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
-        if the_plan
-          donation_plan = the_plan.uuid
-        else
-          puts "There Is No Monthly Plan For That Amount Assigned To #{raiser_username}"
-          return
-        end
-      end
-      donater = User.find_by(support_phone: phone_number)
-      fundraiser = User.find_by(username: raiser_username)
+    phone_number = params[:From][2,params[:From].length]
+    raiser_username = text_message[1].downcase
+    amount = (text_message[0].gsub(/[^0-9]/i, '').to_i)
+    if text_message[0].include?(".")
+      stripe_amount = amount
+    else
+      stripe_amount = amount * 100
+    end
+    if text_message[2]  
+      donation_type = text_message[2].downcase
       
+      the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
+      if the_plan
+        donation_plan = the_plan.uuid
+      else
+        puts "There Is No Monthly Plan For That Amount Assigned To #{raiser_username}"
+        return
+      end
+    end
+    donater = User.find_by(support_phone: phone_number)
+    fundraiser = User.find_by(username: raiser_username)
+    if stripe_amount >= 100
       if fundraiser  
         if donater && donater.card?
           token = User.new_token(donater, crypt.decrypt_and_verify(donater.card_number))
@@ -119,7 +118,7 @@ end
   # Tracking
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
-    # curl -X POST -d 'Body=900000 merchant&From=+14143997341' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=900 admin&From=+14143997341' http://localhost:3000/notifications/twilio
     # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' https://marketplace-base.herokuapp.com/notifications/twilio
 
 # Send Twilio Message
