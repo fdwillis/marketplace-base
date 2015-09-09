@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :username, allow_blank: false
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -56,6 +56,10 @@ class User < ActiveRecord::Base
 
   def buyer?
     role == 'buyer'
+  end
+
+  def account_approved?
+    merchant_approved == true
   end
 
   def card?
@@ -102,6 +106,7 @@ class User < ActiveRecord::Base
         target_property: "donation_amount", 
         timeframe: timeframe,
         interval: interval,
+        max_age: 600,
         filters: [
           {
             property_name: "merchant_id",
@@ -126,6 +131,7 @@ class User < ActiveRecord::Base
         target_property: "donation_amount",
         timeframe: timeframe,
         interval: interval,
+        max_age: 600,
         filters: [
           {
             property_name: "merchant_id",
@@ -145,6 +151,7 @@ class User < ActiveRecord::Base
       Keen.count("Donations",
         timeframe: "this_year", 
         group_by: group_by, 
+        max_age: 600,
         filters: [
           {
             property_name: "marketplace_name",

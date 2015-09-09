@@ -34,6 +34,7 @@ ActiveRecord::Schema.define(version: 20150905163825) do
     t.string   "organization"
     t.decimal  "amount",                       precision: 12, scale: 2
     t.string   "uuid"
+    t.string   "fundraising_goal"
     t.integer  "user_id"
     t.datetime "created_at",                                            null: false
     t.datetime "updated_at",                                            null: false
@@ -369,7 +370,7 @@ ActiveRecord::Schema.define(version: 20150905163825) do
     t.decimal  "tax_rate",                           precision: 12, scale: 2
     t.string   "bitly_link"
     t.string   "bank_currency"
-    t.boolean  "account_approved"
+    t.boolean  "merchant_approved",                                           default: false
     t.string   "logo"
   end
 

@@ -24,9 +24,8 @@ class NotificationsController < ApplicationController
       stripe_amount = amount * 100
     end
 
-
     if stripe_amount >= 100
-      if User.all.map(&:username).include?(text_message[1].downcase)
+      if text_message[1] && User.all.map(&:username).include?(text_message[1].downcase)
         raiser_username = text_message[1].downcase
       
         location = {
@@ -124,7 +123,7 @@ end
   # Tracking
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
-    # curl -X POST -d 'Body=900000 merchant&From=+14143997341' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=900 admin&From=+14143997341' http://localhost:3000/notifications/twilio
     # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' https://marketplace-base.herokuapp.com/notifications/twilio
 
 # Send Twilio Message

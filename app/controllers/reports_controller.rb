@@ -1,7 +1,7 @@
 class ReportsController < ApplicationController
   before_filter :authenticate_user!
   def index
-    if current_user.account_approved && !current_user.roles.nil? || current_user.admin? 
+    if current_user.account_approved? && !current_user.roles.nil? || current_user.admin? 
       #Donation column Chart
         #Data
         year_data = [
@@ -104,6 +104,7 @@ private
                :name=> "Donation Types",
                :data=> data.map{|d| [d[group].capitalize, d["result"]]})
       f.title(text: title.titleize)
+      f.tooltip(shared: true)
     end
   end
 
