@@ -121,7 +121,8 @@ private
         pie: {
           dataLabels: {
             enabled: true,
-          }
+          }, 
+          showInLegend: true
         }
       )
     end
@@ -133,7 +134,7 @@ private
       
       f.colors([ '#434348', '#7CB5EC','#90ED7D'])
       f.chart(type: 'area')
-      f.title(text: title,
+      f.title(text: title)
       f.series(
         name: data[0]['name'],
         data: data[0]['data'].map{|d| d['value']}
