@@ -1,8 +1,8 @@
 class MerchantsController < ApplicationController
   def index
     no_buyers = User.joins(:roles).where.not(roles: {title: 'buyer'})
-    @accounts = no_buyers.where(merchant_approved: true).uniq
-    @pending = no_buyers.where(merchant_approved: false).uniq
+    @accounts = no_buyers.where(account_approved: true).uniq
+    @pending = no_buyers.where(account_approved: false).uniq
   end
 
   def show
@@ -26,7 +26,7 @@ class MerchantsController < ApplicationController
 
   def approve_account
     @account = User.find(params[:id])
-    @account.update_attributes(merchant_approved: true )
+    @account.update_attributes(account_approved: true )
     redirect_to merchants_path
     email = Notify.account_approved(@account).deliver
     flash[:notice] = "#{@account.username.capitalize}'s Account Was Approved"

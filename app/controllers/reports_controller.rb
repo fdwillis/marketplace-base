@@ -122,9 +122,12 @@ private
           dataLabels: {
             enabled: true,
           }, 
-          showInLegend: true
+          showInLegend: true,
+          allowPointSelect: true,
+          cursor: 'pointer',
         }
       )
+      f.legend(layout: "horizontal")
     end
   end
 

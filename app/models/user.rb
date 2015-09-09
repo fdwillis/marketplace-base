@@ -59,7 +59,7 @@ class User < ActiveRecord::Base
   end
 
   def account_approved?
-    merchant_approved == true
+    account_approved == true
   end
 
   def card?
