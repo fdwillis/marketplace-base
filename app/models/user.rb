@@ -103,10 +103,10 @@ class User < ActiveRecord::Base
 
     def self.donation_rev_by_type(id, timeframe, interval, property_name, property_value)
       Keen.sum("Donations", 
-        target_property: "donation_amount", 
+        max_age: 300,
         timeframe: timeframe,
+        target_property: "donation_amount", 
         interval: interval,
-        max_age: 600,
         filters: [
           {
             property_name: "merchant_id",
@@ -128,10 +128,10 @@ class User < ActiveRecord::Base
 
     def self.donation_revenue(id, timeframe, interval)
       Keen.sum("Donations",
-        target_property: "donation_amount",
+        max_age: 300,
         timeframe: timeframe,
+        target_property: "donation_amount",
         interval: interval,
-        max_age: 600,
         filters: [
           {
             property_name: "merchant_id",
@@ -149,9 +149,9 @@ class User < ActiveRecord::Base
 
     def self.donation_pie(id, group_by)
       Keen.count("Donations",
+        max_age: 300,
         timeframe: "this_year", 
         group_by: group_by, 
-        max_age: 600,
         filters: [
           {
             property_name: "marketplace_name",

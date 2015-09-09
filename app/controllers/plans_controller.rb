@@ -16,8 +16,10 @@ class PlansController < ApplicationController
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
 
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    Stripe.api_key = @crypt.decrypt_and_verify(current_user.merchant_secret_key)
 
+	  if !current_user.admin?	
+	  	User.decrypt_and_verify(current_user.merchant_secret_key)
+	  end
 	  begin  
 		  exitsting_plans = Stripe::Plan.all.data
 		  if !exitsting_plans.map(&:amount).include? stripe_amount
@@ -43,12 +45,15 @@ class PlansController < ApplicationController
 	  	redirect_to request.referrer
 	  	flash[:error] = "#{e}"
 	  end
+	  Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
   def destroy
     Stripe.api_key = Rails.configuration.stripe[:secret_key]
     @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
-    Stripe.api_key = @crypt.decrypt_and_verify(current_user.merchant_secret_key)
+    if !current_user.admin?	
+	  	User.decrypt_and_verify(current_user.merchant_secret_key)
+	  end
 
   	plan = Stripe::Plan.retrieve(params[:id])
 		plan.delete

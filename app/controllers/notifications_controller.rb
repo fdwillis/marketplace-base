@@ -51,7 +51,7 @@ class NotificationsController < ApplicationController
         donater = User.find_by(support_phone: phone_number)
         fundraiser = User.find_by(username: raiser_username)
 
-        if fundraiser && fundraiser.merchant_secret_key?
+        if (fundraiser && fundraiser.merchant_secret_key?) || fundraiser.admin?
           if donater && donater.card?
             token = User.new_token(donater, crypt.decrypt_and_verify(donater.card_number))
             if !fundraiser.admin?

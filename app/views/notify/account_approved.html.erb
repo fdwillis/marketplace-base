@@ -5,6 +5,6 @@
   </head>
   <body>
   	<h3 class='text-center'>Account Approved!</h3>
-		<p><%= @user.legal_name %> Your Business/fundraising account has been approved. You may begin selling/fundrasing any time you wish. Your Free Trial Ends On <em><strong><%= Time.at(Stripe::Customer.retrieve(@user.marketplace_stripe_id).subscriptions.data[0].current_period_end).to_date %></strong></em></p>
+		<p>Your Business/fundraising account has been approved. You may begin selling/fundrasing any time you wish. Your Free Trial Ends On <em><strong><%= Time.at(Stripe::Customer.retrieve(@user.marketplace_stripe_id).subscriptions.data[0].current_period_end).to_date %></strong></em></p>
   </body>
 </html>

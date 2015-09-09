@@ -2,21 +2,7 @@
   <h1>
     <%= @merchant.username %>
   </h1>
-  <%= link_to "One-Time Donate To #{@merchant.username}!",  "#direct_donate", 'data-toggle' => 'modal', class: 'btn btn-info' %>
-  <%= form_for :donate, url: purchases_path(merchant_id: @merchant.id), method: :post do |f| %>
-    <% if !current_user.donations.map(&:fundraiser_stripe_account_id).include?(@merchant.merchant_secret_key) %>
-      <h3>Monthly Donation</h3>
-      <% @merchant.donation_plans.each do |plan| %>
-        <% if !current_user.donations.where(active: true).map(&:stripe_subscription_id).include?(plan.uuid) %>
-          <div class='row'>
-            <%= f.radio_button(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
-          </div>
-        <% end %>
-      <% end %>
-      <%= f.submit "Donate Monthly", class: 'btn btn-primary' %>
-    <% end %>
-  <% end %>
-
+  <%= link_to "Donate To #{@merchant.username}!",  "#direct_donate", 'data-toggle' => 'modal', class: 'btn btn-info' %>
   <h4>
     <%= link_to @merchant.bitly_link, @merchant.bitly_link, 'target' => "_blank"  %>
   </h4>
@@ -44,41 +30,41 @@
         <h1 class='text-center'> Direct Donation To <%= @merchant.username %></h1>
       </div>
       <%= form_for :donate, :url => purchases_path(merchant_id: @merchant.id), method: :post do |f| %>
-            <% if current_user %>  
-              <div class="modal-body">
-                <div class="container-fluid">  
-                  <div class="col-md-4 col-md-offset-4 text-center">
-                    <h4>One Time Donation</h4>
-                    <div class='form-group'>  
-                      <%= f.radio_button(:donation_type, "One Time")%>   One Time Donation<br>
-                    </div>
-                    <div class='form-group'>  
-                      <%= f.number_field :donation, min: 0, class: 'form-control text-center', placeholder: "Enter Donation Amount" %>
-                    </div>
-                    <% if @merchant.donation_plans.present? %>
-                      <div class='form-group'>  
+        <% if current_user %>  
+          <div class="modal-body">
+            <div class="container-fluid">  
+              <div class="col-md-4 col-md-offset-4 text-center">
+                <h4>One Time Donation</h4>
+                <div class='form-group'>  
+                  <%= f.radio_button(:donation_type, "One Time")%>   One Time Donation<br>
+                </div>
+                <div class='form-group'>  
+                  <%= f.number_field :donation, min: 0, class: 'form-control text-center', placeholder: "Enter Donation Amount" %>
+                </div>
+                <% if @merchant.donation_plans.present? %>
+                  <div class='form-group'>  
+                    <% @merchant.donation_plans.each do |plan| %>
+                      <% if !current_user.donations.where(active: true).map(&:stripe_subscription_id).include?(plan.uuid) %>
                         <h1>Or</h1>
                         <h4>Monthly Donation</h4>
-                        <% @merchant.donation_plans.each do |plan| %>
-                          <% if !current_user.donations.where(active: true).map(&:stripe_subscription_id).include?(plan.uuid) %>
-                            <div class='row'>
-                              <%= f.radio_button(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
-                            </div>
-                          <% end %>
-                        <% end %>
-                      </div>
+                        <div class='row'>
+                          <%= f.radio_button(:donation_type, "#{plan.uuid}")%>  <%= number_to_currency(plan.amount, precision: 2) %>/month
+                        </div>
+                      <% end %>
                     <% end %>
                   </div>
-                </div>
+                <% end %>
               </div>
-              <div class="modal-footer actions">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                <%= f.submit "Donate Now", class: 'btn btn-primary' %>
-              </div>
-            <% else %>
-              <h1>Please Sign-up to Donate</h1>
-            <% end %>
-          <% end %>
+            </div>
+          </div>
+          <div class="modal-footer actions">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            <%= f.submit "Donate Now", class: 'btn btn-primary' %>
+          </div>
+        <% else %>
+          <h1>Please Sign-up to Donate</h1>
+        <% end %>
+      <% end %>
     </div>
   </div>
 </div>

@@ -2,7 +2,13 @@ class ReportsController < ApplicationController
   before_filter :authenticate_user!
   include ActionView::Helpers::NumberHelper
   def index
-    if current_user.account_approved? && !current_user.roles.nil? || current_user.admin? 
+    if (current_user.account_approved? && !current_user.roles.nil?) || current_user.admin? 
+      if current_user.admin?
+        @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+      else
+        User.decrypt_and_verify(current_user.merchant_secret_key)
+        @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+      end
       #Donation column Chart
         #Data
         year_data = [
@@ -86,6 +92,7 @@ class ReportsController < ApplicationController
       flash[:error] = "You dont have permission to access reports. You must signup"
       return
     end
+    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
 private
@@ -162,45 +169,44 @@ private
     end
   end
   
-  def bar_chart
-    LazyHighCharts::HighChart.new('graph') do |f|
-      f.title(:text => "Population vs GDP For 5 Big Countries [2009]")
-      f.xAxis(:categories => ["United States", "Japan", "China", "Germany", "France"])
+  # def bar_chart
+  #   LazyHighCharts::HighChart.new('graph') do |f|
+  #     f.title(:text => "Population vs GDP For 5 Big Countries [2009]")
+  #     f.xAxis(:categories => ["United States", "Japan", "China", "Germany", "France"])
 
-      f.series(:name => "GDP in Bill", :yAxis => 0, :data => [100, 90, 100, 100, 100])
-      f.series(:name => "Pop in Mill", :yAxis => 0, :data => [110, 100, 95, 99, 97])
+  #     f.series(:name => "GDP in Bill", :yAxis => 0, :data => [100, 90, 100, 100, 100])
+  #     f.series(:name => "Pop in Mill", :yAxis => 0, :data => [110, 100, 95, 99, 97])
 
-      f.yAxis(title: {:text => "View Count"} )
+  #     f.yAxis(title: {:text => "View Count"} )
 
-      f.chart(type: "bar")
-    end
-  end
+  #     f.chart(type: "bar")
+  #   end
+  # end
 
-  def funnel_chart
-    LazyHighCharts::HighChart.new('graph') do |f|
-      f.chart(type: 'funnel', marginRight: 100)
-      f.title(text: "Conversion/Campaign/Sales Funnel", x: -50)
-      f.series({
-            name: 'Unique users',
-            data: [
-                ['Visits',   15654],
-                ['Downloads',       4064],
-                ['Requested Price List', 1987],
-                ['Invoice sent',    976],
-                ['Finalized',    946]
-            ]
-        })
-      f.plotOptions(
-        series:{
-          dataLabels: {
-            enabled: true,
-                      enabled: true,
-                    format: '<b>{point.name}</b> ({point.y:,.0f})',
-                    softConnector: false
-                },
-                neckWidth: '30%',
-                neckHeight: '25%'
-          })
-    end
-  end
+  # def funnel_chart
+  #   LazyHighCharts::HighChart.new('graph') do |f|
+  #     f.chart(type: 'funnel', marginRight: 100)
+  #     f.title(text: "Conversion/Campaign/Sales Funnel", x: -50)
+  #     f.series({
+  #           name: 'Unique users',
+  #           data: [
+  #               ['Visits',   15654],
+  #               ['Downloads',       4064],
+  #               ['Requested Price List', 1987],
+  #               ['Invoice sent',    976],
+  #               ['Finalized',    946]
+  #           ]
+  #       })
+  #     f.plotOptions(
+  #       series:{
+  #         dataLabels: {
+  #           enabled: true,
+  #           format: '<b>{point.name}</b> ({point.y:,.0f})',
+  #           softConnector: false
+  #         },
+  #         neckWidth: '30%',
+  #         neckHeight: '25%'
+  #         })
+  #   end
+  # end
 end

@@ -81,7 +81,9 @@ namespace :payout do
               puts "No Team Payout"
             end
           end
+          Stripe.api_key = ENV['SECRET_KEY_TEST']
         else
+          Stripe.api_key = ENV['SECRET_KEY_TEST']
           amount = Stripe::Balance.retrieve()['available'][0].amount
           if  amount > 10000  
             Stripe::Transfer.create(
@@ -94,9 +96,10 @@ namespace :payout do
           else
             puts "No Solo payout"
           end
-          
         end
+        Stripe.api_key = ENV['SECRET_KEY_TEST']
       else
+        Stripe.api_key = ENV['SECRET_KEY_TEST']
         if user.admin?  
           bal = Stripe::Balance.retrieve()['available'][0].amount
           if bal >= 10000  
@@ -113,7 +116,36 @@ namespace :payout do
           end
         end
       end
-      Stripe.api_key = Rails.configuration.stripe[:secret_key]
     end
   end
+  Stripe.api_key = ENV['SECRET_KEY_TEST']
+end
+
+namespace :stripe do
+  desc "Sum active subscriptions directly from stripe"
+  task monthly: :environment do
+    User.all.each do |user|
+      if user.merchant_secret_key.present?
+        User.decrypt_and_verify(user.merchant_secret_key)
+        Keen.publish("Subscription Revenue", {
+          merchant_id: user.id, 
+          marketplace_name: "MarketplaceBase",
+          platform_for: 'donations',
+          revenue: (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+        })
+        Stripe.api_key = ENV['SECRET_KEY_TEST']
+      else
+        Stripe.api_key = ENV['SECRET_KEY_TEST']
+        if user.admin?
+          Keen.publish("Subscription Revenue", {
+            merchant_id: user.id, 
+            marketplace_name: "MarketplaceBase",
+            platform_for: 'donations',
+            revenue: (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+          })
+        end
+      end
+    end
+  end
+  Stripe.api_key = ENV['SECRET_KEY_TEST']
 end

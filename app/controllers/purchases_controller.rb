@@ -89,6 +89,7 @@ class PurchasesController < ApplicationController
         return
       end
 
+
       if params[:uuid]
         @fund = FundraisingGoal.find_by(uuid: params[:uuid])
         if params[:donate][:donation_type] 
@@ -149,8 +150,7 @@ class PurchasesController < ApplicationController
         end
         @fund.increment!(:backers, by = 1)
       else
-        if params[:donate][:donation_type]
-          
+        if params[:donate][:donation_type] != "One Time"
           @donation_plan = DonationPlan.find_by(uuid: params[:donate][:donation_type])
           begin
             if @merchant.role == 'admin'
@@ -180,6 +180,7 @@ class PurchasesController < ApplicationController
             @donation = current_user.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(@charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: @merchant.username, amount: @price, uuid: SecureRandom.uuid)
           end
         end
+
         Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'web', true)  
       end
 

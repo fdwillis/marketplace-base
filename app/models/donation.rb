@@ -116,115 +116,143 @@ class Donation < ActiveRecord::Base
 						  })  
 						end
 				else
-				  Keen.publish("Donations", {
-				    marketplace_name: "MarketplaceBase",
-				    platform_for: 'donations',
-				    donation_amount: (donation.amount / 100).to_f,
-				    donation_type: donation.donation_type,
-				    ip_address: ip_address, 
-				    customer_id: donation.user_id,
-				    fundraising_goal_uuid: donation.fundraising_goal.uuid,
-				    merchant_id: donation.fundraising_goal.user_id,
-				    customer_current_zipcode: location["zipcode"],
-			      customer_current_city: location["city"] ,
-			      customer_current_state: location["region_name"],
-			      customer_current_country: location["country_code"],
-			      customer_sign_in_count: donation.user.sign_in_count,
-			      year: Time.now.strftime("%Y").to_i,
-			      month: DateTime.now.to_date.strftime("%B"),
-			      day: Time.now.strftime("%d").to_i,
-			      day_of_week: DateTime.now.to_date.strftime("%A"),
-			      hour: Time.now.strftime("%H").to_i,
-			      minute: Time.now.strftime("%M").to_i,
-			      donation_plan_uuid: donation.stripe_subscription_id,
-			      timestamp: Time.now,
-			      donate_by: web_or_text,
-			      direct_donation?: true_or_false,
-			    })
+					if donation.fundraising_goal.present?
+					  Keen.publish("Donations", {
+					    marketplace_name: "MarketplaceBase",
+					    platform_for: 'donations',
+					    donation_amount: (donation.amount / 100).to_f,
+					    donation_type: donation.donation_type,
+					    ip_address: ip_address, 
+					    customer_id: donation.user_id,
+					    fundraising_goal_uuid: donation.fundraising_goal.uuid,
+					    merchant_id: donation.fundraising_goal.user_id,
+					    customer_current_zipcode: location["zipcode"],
+				      customer_current_city: location["city"] ,
+				      customer_current_state: location["region_name"],
+				      customer_current_country: location["country_code"],
+				      customer_sign_in_count: donation.user.sign_in_count,
+				      year: Time.now.strftime("%Y").to_i,
+				      month: DateTime.now.to_date.strftime("%B"),
+				      day: Time.now.strftime("%d").to_i,
+				      day_of_week: DateTime.now.to_date.strftime("%A"),
+				      hour: Time.now.strftime("%H").to_i,
+				      minute: Time.now.strftime("%M").to_i,
+				      donation_plan_uuid: donation.stripe_subscription_id,
+				      timestamp: Time.now,
+				      donate_by: web_or_text,
+				      direct_donation?: true_or_false,
+				    })
+					else
+						Keen.publish("Donations", {
+					    marketplace_name: "MarketplaceBase",
+					    platform_for: 'donations',
+					    donation_amount: (donation.amount / 100).to_f,
+					    donation_type: donation.donation_type,
+					    ip_address: ip_address, 
+					    customer_id: donation.user_id,
+					    merchant_id: User.find_by(username: donation.organization).id,
+					    customer_current_zipcode: location["zipcode"],
+				      customer_current_city: location["city"] ,
+				      customer_current_state: location["region_name"],
+				      customer_current_country: location["country_code"],
+				      customer_sign_in_count: donation.user.sign_in_count,
+				      year: Time.now.strftime("%Y").to_i,
+				      month: DateTime.now.to_date.strftime("%B"),
+				      day: Time.now.strftime("%d").to_i,
+				      day_of_week: DateTime.now.to_date.strftime("%A"),
+				      hour: Time.now.strftime("%H").to_i,
+				      minute: Time.now.strftime("%M").to_i,
+				      donation_plan_uuid: donation.stripe_subscription_id,
+				      timestamp: Time.now,
+				      donate_by: web_or_text,
+				      direct_donation?: true_or_false,
+				    })
+
+					end
 				end
 			end
 	  end
 
-	  def self.monthly_canceled(donation)
-	  	if !donation.application_fee.nil?
-			  if donation.fundraising_goal	
-			  	Keen.publish("Cancel Monthly Donation", {
-			  		marketplace_name: "MarketplaceBase",
-		        platform_for: 'donations',
-		        donation_amount: (donation.amount / 100).to_f,
-				    donation_type: donation.donation_type,
-				    customer_id: donation.user_id,
-				    fundraising_goal_uuid: donation.fundraising_goal.uuid,
-				    merchant_id: donation.fundraising_goal.user_id,
-			      year: Time.now.strftime("%Y").to_i,
-			      month: DateTime.now.to_date.strftime("%B"),
-			      day: Time.now.strftime("%d").to_i,
-			      day_of_week: DateTime.now.to_date.strftime("%A"),
-			      hour: Time.now.strftime("%H").to_i,
-			      minute: Time.now.strftime("%M").to_i,
-			      donation_plan_uuid: donation.stripe_subscription_id,
-			      application_fee: donation.application_fee,
-			      timestamp: Time.now,
-			  		})
+	  # def self.monthly_canceled(donation)
+		  # 	if !donation.application_fee.nil?
+				#   if donation.fundraising_goal	
+				#   	Keen.publish("Cancel Monthly Donation", {
+				#   		marketplace_name: "MarketplaceBase",
+			 #        platform_for: 'donations',
+			 #        donation_amount: (donation.amount / 100).to_f,
+				# 	    donation_type: donation.donation_type,
+				# 	    customer_id: donation.user_id,
+				# 	    fundraising_goal_uuid: donation.fundraising_goal.uuid,
+				# 	    merchant_id: donation.fundraising_goal.user_id,
+				#       year: Time.now.strftime("%Y").to_i,
+				#       month: DateTime.now.to_date.strftime("%B"),
+				#       day: Time.now.strftime("%d").to_i,
+				#       day_of_week: DateTime.now.to_date.strftime("%A"),
+				#       hour: Time.now.strftime("%H").to_i,
+				#       minute: Time.now.strftime("%M").to_i,
+				#       donation_plan_uuid: donation.stripe_subscription_id,
+				#       application_fee: donation.application_fee,
+				#       timestamp: Time.now,
+				#   		})
 
-			  else
-			  	Keen.publish("Cancel Monthly Donation", {
-			  		marketplace_name: "MarketplaceBase",
-		        platform_for: 'donations',
-		        donation_amount: (donation.amount / 100).to_f,
-				    donation_type: donation.donation_type,
-				    customer_id: donation.user_id,
-				    merchant_id: User.find_by(merchant_secret_key: donation.fundraiser_stripe_account_id).id,
-			      year: Time.now.strftime("%Y").to_i,
-			      month: DateTime.now.to_date.strftime("%B"),
-			      day: Time.now.strftime("%d").to_i,
-			      day_of_week: DateTime.now.to_date.strftime("%A"),
-			      hour: Time.now.strftime("%H").to_i,
-			      minute: Time.now.strftime("%M").to_i,
-			      donation_plan_uuid: donation.stripe_subscription_id,
-			      application_fee: donation.application_fee,
-			      timestamp: Time.now,
-			  		})
+				#   else
+				#   	Keen.publish("Cancel Monthly Donation", {
+				#   		marketplace_name: "MarketplaceBase",
+			 #        platform_for: 'donations',
+			 #        donation_amount: (donation.amount / 100).to_f,
+				# 	    donation_type: donation.donation_type,
+				# 	    customer_id: donation.user_id,
+				# 	    merchant_id: User.find_by(merchant_secret_key: donation.fundraiser_stripe_account_id).id,
+				#       year: Time.now.strftime("%Y").to_i,
+				#       month: DateTime.now.to_date.strftime("%B"),
+				#       day: Time.now.strftime("%d").to_i,
+				#       day_of_week: DateTime.now.to_date.strftime("%A"),
+				#       hour: Time.now.strftime("%H").to_i,
+				#       minute: Time.now.strftime("%M").to_i,
+				#       donation_plan_uuid: donation.stripe_subscription_id,
+				#       application_fee: donation.application_fee,
+				#       timestamp: Time.now,
+				#   		})
 
-			  end
-		  elsif donation.fundraising_goal
-		  	Keen.publish("Cancel Monthly Donation", {
-		  		marketplace_name: "MarketplaceBase",
-	        platform_for: 'donations',
-	        donation_amount: (donation.amount / 100).to_f,
-			    donation_type: donation.donation_type,
-			    customer_id: donation.user_id,
-			    fundraising_goal_uuid: donation.fundraising_goal.uuid,
-			    merchant_id: donation.fundraising_goal.user_id,
-		      year: Time.now.strftime("%Y").to_i,
-		      month: DateTime.now.to_date.strftime("%B"),
-		      day: Time.now.strftime("%d").to_i,
-		      day_of_week: DateTime.now.to_date.strftime("%A"),
-		      hour: Time.now.strftime("%H").to_i,
-		      minute: Time.now.strftime("%M").to_i,
-		      donation_plan_uuid: donation.stripe_subscription_id,
-		      timestamp: Time.now,
-		  		})
-		  else
-		  	Keen.publish("Cancel Monthly Donation", {
-		  		marketplace_name: "MarketplaceBase",
-	        platform_for: 'donations',
-	        donation_amount: (donation.amount / 100).to_f,
-			    donation_type: donation.donation_type,
-			    customer_id: donation.user_id,
-			    fundraising_goal_uuid: 0,
-			    merchant_id: DonationPlan.find_by(name: donation.stripe_plan_name).user_id,
-		      year: Time.now.strftime("%Y").to_i,
-		      month: DateTime.now.to_date.strftime("%B"),
-		      day: Time.now.strftime("%d").to_i,
-		      day_of_week: DateTime.now.to_date.strftime("%A"),
-		      hour: Time.now.strftime("%H").to_i,
-		      minute: Time.now.strftime("%M").to_i,
-		      donation_plan_uuid: donation.stripe_subscription_id,
-		      timestamp: Time.now,
-		  		})
-		  end
-	  end
+				#   end
+			 #  elsif donation.fundraising_goal
+			 #  	Keen.publish("Cancel Monthly Donation", {
+			 #  		marketplace_name: "MarketplaceBase",
+		  #       platform_for: 'donations',
+		  #       donation_amount: (donation.amount / 100).to_f,
+				#     donation_type: donation.donation_type,
+				#     customer_id: donation.user_id,
+				#     fundraising_goal_uuid: donation.fundraising_goal.uuid,
+				#     merchant_id: donation.fundraising_goal.user_id,
+			 #      year: Time.now.strftime("%Y").to_i,
+			 #      month: DateTime.now.to_date.strftime("%B"),
+			 #      day: Time.now.strftime("%d").to_i,
+			 #      day_of_week: DateTime.now.to_date.strftime("%A"),
+			 #      hour: Time.now.strftime("%H").to_i,
+			 #      minute: Time.now.strftime("%M").to_i,
+			 #      donation_plan_uuid: donation.stripe_subscription_id,
+			 #      timestamp: Time.now,
+			 #  		})
+			 #  else
+			 #  	Keen.publish("Cancel Monthly Donation", {
+			 #  		marketplace_name: "MarketplaceBase",
+		  #       platform_for: 'donations',
+		  #       donation_amount: (donation.amount / 100).to_f,
+				#     donation_type: donation.donation_type,
+				#     customer_id: donation.user_id,
+				#     fundraising_goal_uuid: 0,
+				#     merchant_id: DonationPlan.find_by(name: donation.stripe_plan_name).user_id,
+			 #      year: Time.now.strftime("%Y").to_i,
+			 #      month: DateTime.now.to_date.strftime("%B"),
+			 #      day: Time.now.strftime("%d").to_i,
+			 #      day_of_week: DateTime.now.to_date.strftime("%A"),
+			 #      hour: Time.now.strftime("%H").to_i,
+			 #      minute: Time.now.strftime("%M").to_i,
+			 #      donation_plan_uuid: donation.stripe_subscription_id,
+			 #      timestamp: Time.now,
+			 #  		})
+			 #  end
+	  # end
 
 	  def self.text_donation(donation, location, text)
 	  	Keen.publish("Donations", {
