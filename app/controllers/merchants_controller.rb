@@ -30,6 +30,5 @@ class MerchantsController < ApplicationController
     redirect_to merchants_path
     email = Notify.account_approved(@account).deliver
     flash[:notice] = "#{@account.username.capitalize}'s Account Was Approved"
-    debugger
   end
 end
