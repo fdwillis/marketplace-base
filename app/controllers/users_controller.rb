@@ -69,7 +69,7 @@ class UsersController < ApplicationController
           @merchant_publishable_key = @crypt.encrypt_and_sign(merchant.keys.publishable)
 
           current_user.update_attributes(account_approved: false, stripe_account_id:  @stripe_account_id , merchant_secret_key: @merchant_secret_key, merchant_publishable_key: @merchant_publishable_key, bitly_link: @bitly_link )
-          flash[:notice] = "User Information Updated"
+          flash[:notice] = "Application Submitted For Approval"
           redirect_to request.referrer
           return
         rescue Stripe::CardError => e

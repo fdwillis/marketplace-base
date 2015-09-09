@@ -30,7 +30,7 @@ Rails.application.routes.draw do
 
   put 'approve_product' => 'pending_products#approve_product'
   put 'approve_goal' => 'pending_goals#approve_goal'
-  put 'approve_merchant' => 'merchants#approve_merchant'
+  put 'approve_account' => 'merchants#approve_account'
   put 'active_order' => 'orders#active_order'
   put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'
   put 'create_user' => 'donate#create_user'

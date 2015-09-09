@@ -20,4 +20,13 @@ class Notify < ApplicationMailer
 		  format.html
 		end
   end
+
+  def account_approved(user)
+    @user = user
+
+    @mail = mail(to: user.email, subject: "Business/Fundraising Account Approved") do |format|
+      format.text
+      format.html
+    end
+  end
 end

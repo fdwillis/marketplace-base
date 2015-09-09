@@ -68,12 +68,12 @@ namespace :payout do
                 )
                 if member.name.downcase == 'hacknvest'
                   Keen.publish("Hacknvest", {
-                    income: transfer.amount
+                    income: ((transfer.amount.to_f) / 100)
                     })
                   # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
                 else
                   Keen.publish("Payout", {
-                    income: transfer.amount
+                    income: ((transfer.amount.to_f) / 100)
                     })
                 end
                 puts "Team Paid"
@@ -94,18 +94,19 @@ namespace :payout do
           else
             puts "No Solo payout"
           end
+          
         end
       else
         if user.admin?  
           bal = Stripe::Balance.retrieve()['available'][0].amount
           if bal >= 10000  
             transfer = Stripe::Transfer.create(
-              :amount => Stripe::Balance.retrieve()['available'][0].amount - (Stripe::Balance.retrieve()['available'][0].amount * 0.0051).to_i,
+              :amount => Stripe::Balance.retrieve()['available'][0].amount - 100,
               :currency => "usd",
               :recipient => "self",
             )
             Keen.publish("Hacknvest", {
-              income: transfer.amount
+              income: ((transfer.amount.to_f) / 100)
             })
             # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
             # puts message.body

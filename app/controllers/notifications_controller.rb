@@ -17,83 +17,88 @@ class NotificationsController < ApplicationController
     crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
     text_message = params[:Body].split
 
-    location = {
-      'city' => params[:FromCity],
-      'region_name' => params[:FromState],
-      'zipcode' => params[:FromZip],
-      'country_code' => params[:FromCountry],
-    }
+    amount = (text_message[0].gsub(/[^0-9]/i, '').to_i)
+    if text_message[0].include?(".")
+      stripe_amount = amount
+    else
+      stripe_amount = amount * 100
+    end
 
-    puts params[:FromCity]
-    puts location
-        
-    if text_message[0].to_f >= 1
-      phone_number = params[:From][2,params[:From].length]
-      raiser_username = text_message[1].downcase
-      amount = (text_message[0].gsub(/[^0-9]/i, '').to_i)
-      if text_message[0].include?(".")
-        stripe_amount = amount
-      else
-        stripe_amount = amount * 100
-      end
-      if text_message[2]  
-        donation_type = text_message[2].downcase
-        
-        the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
-        if the_plan
-          donation_plan = the_plan.uuid
-        else
-          puts "There Is No Monthly Plan For That Amount Assigned To #{raiser_username}"
-          return
-        end
-      end
-      donater = User.find_by(support_phone: phone_number)
-      fundraiser = User.find_by(username: raiser_username)
+
+    if stripe_amount >= 100
+      if User.all.map(&:username).include?(text_message[1].downcase)
+        raiser_username = text_message[1].downcase
       
-      if fundraiser  
-        if donater && donater.card?
-          token = User.new_token(donater, crypt.decrypt_and_verify(donater.card_number))
-          if !fundraiser.admin?
-            stripe_account_id = crypt.decrypt_and_verify(fundraiser.stripe_account_id)
-
-            if donation_type == 'monthly'  
-              subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, token.id, stripe_account_id, donation_plan)
-              @donation = donater.donations.create(application_fee: (subscription.plan.amount * (subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id, organization: raiser_username, amount: subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: fundraiser.merchant_secret_key)
-            else
-              charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, token.id, stripe_account_id )
-              Stripe.api_key = Rails.configuration.stripe[:secret_key]
-              @donation = donater.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
-            end
+        location = {
+          'city' => params[:FromCity],
+          'region_name' => params[:FromState],
+          'zipcode' => params[:FromZip],
+          'country_code' => params[:FromCountry],
+        }
+            
+        phone_number = params[:From][2,params[:From].length]
+        if text_message[2]  
+          donation_type = text_message[2].downcase
+          
+          the_plan = DonationPlan.find_by(amount: (stripe_amount / 100).to_f)
+          if the_plan
+            donation_plan = the_plan.uuid
           else
-            if donation_type == 'monthly'  
-              @subscription = User.subscribe_to_admin(donater, token.id, donation_plan )
-              @donation = donater.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: raiser_username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid)
-            else
-              User.charge_for_admin(donater, stripe_amount, token.id)
-              @donation = donater.donations.create(donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
-            end
+            puts "There Is No Monthly Plan For That Amount Assigned To #{raiser_username}"
+            return
           end
+        end
 
-          Donation.text_donation(@donation, location, 'text')
-          fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+        donater = User.find_by(support_phone: phone_number)
+        fundraiser = User.find_by(username: raiser_username)
 
-          Stripe.api_key = Rails.configuration.stripe[:secret_key]
-          # Twilio message to thank user for donation
-          puts "Thanks for your $#{text_message[0]} donation to #{raiser_username}"
-          return
+        if fundraiser && fundraiser.merchant_secret_key?
+          if donater && donater.card?
+            token = User.new_token(donater, crypt.decrypt_and_verify(donater.card_number))
+            if !fundraiser.admin?
+              stripe_account_id = crypt.decrypt_and_verify(fundraiser.stripe_account_id)
+
+              if donation_type == 'monthly'  
+                subscription = User.subscribe_to_fundraiser(fundraiser.merchant_secret_key, donater, token.id, stripe_account_id, donation_plan)
+                @donation = donater.donations.create(application_fee: (subscription.plan.amount * (subscription.application_fee_percent / 100 ) / 100 ) , stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id, organization: raiser_username, amount: subscription.plan.amount, uuid: SecureRandom.uuid, fundraiser_stripe_account_id: fundraiser.merchant_secret_key)
+              else
+                charge = User.charge_n_process(fundraiser.merchant_secret_key, donater, stripe_amount, token.id, stripe_account_id )
+                Stripe.api_key = Rails.configuration.stripe[:secret_key]
+                @donation = donater.donations.create(application_fee: ((Stripe::ApplicationFee.retrieve(charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
+              end
+            else
+              if donation_type == 'monthly'  
+                @subscription = User.subscribe_to_admin(donater, token.id, donation_plan )
+                @donation = donater.donations.create(stripe_plan_name: @subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: @subscription.id ,organization: raiser_username, amount: @subscription.plan.amount, uuid: SecureRandom.uuid)
+              else
+                User.charge_for_admin(donater, stripe_amount, token.id)
+                @donation = donater.donations.create(donation_type: 'one-time', organization: raiser_username, amount: stripe_amount, uuid: SecureRandom.uuid)
+              end
+            end
+
+            Donation.text_donation(@donation, location, 'text')
+            fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+
+            Stripe.api_key = Rails.configuration.stripe[:secret_key]
+            # Twilio message to thank user for donation
+            puts "Thanks for your $#{text_message[0]} donation to #{raiser_username}"
+            return
+          else
+            # Link to enter card info and create user profile
+            puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number, donation_plan: donation_plan}"
+            return
+          end
         else
-          # Link to enter card info and create user profile
-          puts "Please follow link to enter CC details #{url_for controller: :donate, action: :donate, fundraiser_name: raiser_username, amount: stripe_amount, phone_number: phone_number, donation_plan: donation_plan}"
+          #Twilio message back to donater
+          puts "Please enter a dollar amount first, then username of the fundraiser"
           return
         end
       else
-        # twilio message to donater to check the username
-        puts "Please enter a valid username to donate to"
+        puts "Please enter a valid username to donate to. Example: 90000 valid_username"
         return
       end
     else
-      #Twilio message back to donater
-      puts "Please enter a dollar amount first, then username of the fundraiser"
+      puts "Please enter a minimum dollar amount of 1 first then a valid username to donate to. Example: 90000 valid_username"
       return
     end
   end

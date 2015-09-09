@@ -37,16 +37,21 @@
             <div class="col-md-8 col-md-offset-2">
               <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :patch }) do |f| %>
                 <%= devise_error_messages! %>
-                <div class="form-group text-center">
-                  <%= f.label :email %>
-                  <%= f.email_field :email, class: 'form-control text-center', placeholder: "Enter email" %>
-                </div>
                 <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
                   <div class="form-group text-center">
                     <p>Waiting confirmation for:</p>
                     <%= resource.unconfirmed_email %>
                   </div>
                 <% end %>
+                <div class="form-group text-center">
+                  <%= f.label :email %>
+                  <%= f.email_field :email, class: 'form-control text-center', placeholder: "Enter email" %>
+                </div>
+                <div class="form-group text-center">
+                  <%= f.password_field :current_password, class: 'form-control text-center', placeholder: "Enter Password for changes" %>
+                  <i>(we need your current password to confirm your changes)</i>
+                </div>
+                <h4 class="text-center">Change Your Password Below</h4>
                 <div class="form-group text-center">
                   <%= f.label :password %>
                   <%= f.password_field :password, class: 'form-control text-center', placeholder: "Enter current password" %>
@@ -55,10 +60,6 @@
                 <div class="form-group text-center">
                   <%= f.label :password_confirmation, 'Change Password' %>
                   <%= f.password_field :password_confirmation, class: 'form-control text-center', placeholder: "Enter new password" %>
-                </div>
-                <div class="form-group text-center">
-                  <%= f.password_field :current_password, class: 'form-control text-center', placeholder: "Repeat password" %>
-                  <i>(we need your current password to confirm your changes)</i>
                 </div>
                 <div class="form-group text-center">
                   <%= f.submit "Update", class: 'btn btn-success form-control text-center' %>

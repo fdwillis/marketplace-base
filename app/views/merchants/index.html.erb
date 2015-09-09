@@ -1,5 +1,5 @@
 <h1>Merchants</h1>
-<% @merchants.each do |mer| %>
+<% @accounts.each do |mer| %>
   <%= link_to mer.username.capitalize, merchant_path(mer.username) %>
 <% end %>
 
@@ -9,7 +9,7 @@
 		<div class='row'>  
 			<div class='col-md-3'>
 			  <%= mer.username.capitalize %>
-			  <%= link_to "Approve Merchant", approve_merchant_path(username: mer.username), class: 'btn btn-success', method: :put %>
+			  <%= link_to "Approve Merchant", approve_account_path(id: mer.id), class: 'btn btn-success', method: :put %>
 			</div>
 		</div>
 	<% end %>

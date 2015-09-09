@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   has_many :stripe_customer_ids, dependent: :destroy
   has_many :fundraising_goals
 
-  validates_uniqueness_of :business_name, :username, allow_blank: true
+  validates_uniqueness_of :username, allow_blank: false
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable#, :confirmable
@@ -63,7 +63,7 @@ class User < ActiveRecord::Base
     if card_number
       @card = @crypt.decrypt_and_verify(card_number)
     end
-    (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && (legal_name.present? || first_name.present && last_name.present?)
+    (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && (legal_name.present? || first_name.present && last_name.present?) && username.present?
   end
 
   def user_recipient

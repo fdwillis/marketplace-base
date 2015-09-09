@@ -2,7 +2,6 @@ class SubscribeController < ApplicationController
 before_filter :authenticate_user!
 
   def update
-    debugger
     #Track for admin
     # Create Multiple Records at once
       # Role.create(
@@ -93,7 +92,7 @@ before_filter :authenticate_user!
                                          stripe_plan_name: subscription.plan.name, bitly_link: @bitly_link)
           current_user.roles.find_or_create_by(title: 'donations')
 
-          flash[:notice] = "Happy To Have You! You've Joined The #{plan.name} Plan"
+          flash[:notice] = "Happy To Have You! Submit Your Fundraising Application For Approval Below!"
           redirect_to edit_user_registration_path
           return
         rescue Stripe::CardError => e
