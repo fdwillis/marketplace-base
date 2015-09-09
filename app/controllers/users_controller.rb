@@ -41,7 +41,7 @@ class UsersController < ApplicationController
           
           ch = Stripe::Charge.retrieve(@charge.id)
           refund = ch.refunds.create
-          flash[:notice] = "Start Your Application!"
+          flash[:notice] = "Payment source successfully added!"
           if !current_user.roles.map(&:title).include?('buyer')
             redirect_to plans_path
           else
