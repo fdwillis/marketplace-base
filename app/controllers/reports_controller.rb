@@ -1,5 +1,6 @@
 class ReportsController < ApplicationController
   before_filter :authenticate_user!
+  include ActionView::Helpers::NumberHelper
   def index
     if current_user.account_approved? && !current_user.roles.nil? || current_user.admin? 
       #Donation column Chart
@@ -33,9 +34,9 @@ class ReportsController < ApplicationController
           },
         ]
 
-
-        @column = column_chart(year_data, "Donations This Year", Date::MONTHNAMES.slice(1..12))
-        @colum = column_chart(week_data, "Donations This Week", Date::DAYNAMES)
+        
+        @column = column_chart(year_data, "Donations This Year #{number_to_currency(year_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::MONTHNAMES.slice(1..12))
+        @colum = column_chart(week_data, "Donations This Week #{number_to_currency(week_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::DAYNAMES)
         #Chart
 
       #Donation pie Chart
@@ -56,7 +57,7 @@ class ReportsController < ApplicationController
             }
         ]
         @pie_type = pie_chart(pie_type_data, 'donation_type', "Donations By Type")
-        @pie_week = pie_chart(pie_day_data, 'day_of_week', "Donations By Day Of Week")
+        @pie_week = pie_chart(pie_day_data, 'day_of_week', "Donations By Day")
         @pie_city = pie_chart(pie_city_data, 'customer_current_city', "Donations By City")
 
       # Donation area chart  
@@ -74,7 +75,7 @@ class ReportsController < ApplicationController
             'data' => User.donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "text")
           },
         ]
-        @area = area_chart(data)
+        @area = area_chart(data, "Donation Revenue This Month #{number_to_currency(data[0]['data'].map{|d| d['value']}.sum, precision: 2)}")
 
 
       # @bar = bar_chart
@@ -126,12 +127,13 @@ private
     end
   end
 
-  def area_chart(data)
+  def area_chart(data, title)
     
     LazyHighCharts::HighChart.new('graph') do |f|
+      
       f.colors([ '#434348', '#7CB5EC','#90ED7D'])
       f.chart(type: 'area')
-      f.title(text: "Donation Revenue This Month")
+      f.title(text: title,
       f.series(
         name: data[0]['name'],
         data: data[0]['data'].map{|d| d['value']}

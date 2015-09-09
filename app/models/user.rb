@@ -149,7 +149,7 @@ class User < ActiveRecord::Base
 
     def self.donation_pie(id, group_by)
       Keen.count("Donations",
-        timeframe: "this_20_year", 
+        timeframe: "this_year", 
         group_by: group_by, 
         max_age: 600,
         filters: [
