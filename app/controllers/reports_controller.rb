@@ -39,15 +39,25 @@ class ReportsController < ApplicationController
         #Chart
 
       #Donation pie Chart
-        #chart
-        group_by = ["donation_type", "day_of_week"]
-        group_by.each_with_index do |query, i|
-          if i == 0
-            @pie = pie_chart(User.donation_pie(current_user.id, query), query, "Donation By Type")
-          else
-            @pe = pie_chart(User.donation_pie(current_user.id, query), query, "Donation By Day Of Week")
-          end
-        end
+        pie_type_data = [
+          {
+            'data' => User.donation_pie(current_user.id, "donation_type")
+          }
+        ]
+
+        pie_day_data = [
+          {
+            'data' => User.donation_pie(current_user.id, "day_of_week")
+            }
+        ]
+        pie_city_data = [
+          {
+            'data' => User.donation_pie(current_user.id, "customer_current_city")
+            }
+        ]
+        @pie_type = pie_chart(pie_type_data, 'donation_type', "Donations By Type")
+        @pie_week = pie_chart(pie_day_data, 'day_of_week', "Donations By Day Of Week")
+        @pie_city = pie_chart(pie_city_data, 'customer_current_city', "Donations By City")
 
       # Donation area chart  
         data = [
@@ -65,8 +75,10 @@ class ReportsController < ApplicationController
           },
         ]
         @area = area_chart(data)
-      @bar = bar_chart
-      @funnel = funnel_chart
+
+
+      # @bar = bar_chart
+      # @funnel = funnel_chart
 
     else
       redirect_to plans_path
@@ -101,10 +113,16 @@ private
         }
       )
       f.series(:type=> 'pie',
-               :name=> "Donation Types",
-               :data=> data.map{|d| [d[group].capitalize, d["result"]]})
-      f.title(text: title.titleize)
-      f.tooltip(shared: true)
+                name: "Percent",
+               :data=> data[0]['data'].map{|d| [d[group], (d['result'] / data[0]['data'].map{|d| d['result']}.sum.to_f * 100).to_i]})
+      f.title(text: title)
+      f.plotOptions(
+        pie: {
+          dataLabels: {
+            enabled: true,
+          }
+        }
+      )
     end
   end
 
@@ -169,7 +187,8 @@ private
       f.plotOptions(
         series:{
           dataLabels: {
-                    enabled: true,
+            enabled: true,
+                      enabled: true,
                     format: '<b>{point.name}</b> ({point.y:,.0f})',
                     softConnector: false
                 },

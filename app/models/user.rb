@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :username, allow_blank: false
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -149,7 +149,7 @@ class User < ActiveRecord::Base
 
     def self.donation_pie(id, group_by)
       Keen.count("Donations",
-        timeframe: "this_year", 
+        timeframe: "this_20_year", 
         group_by: group_by, 
         max_age: 600,
         filters: [
