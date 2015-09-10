@@ -1,5 +1,6 @@
 class NotificationsController < ApplicationController
   protect_from_forgery :except => [:create, :twilio]
+  include ActionView::Helpers::NumberHelper
 
   def create
     render nothing: true, status: :ok, content_type: "application/json"
@@ -80,7 +81,7 @@ class NotificationsController < ApplicationController
 
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
             # Twilio message to thank user for donation
-            puts "Thanks for your $#{text_message[0]} donation to #{raiser_username}"
+            puts "Thanks for your #{number_to_currency(text_message[0], precision: 2)} donation to #{raiser_username}"
             return
           else
             # Link to enter card info and create user profile
@@ -123,7 +124,7 @@ end
   # Tracking
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
-    # curl -X POST -d 'Body=900 merchant&From=+14143997343' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=900 admin&From=+14143997343' http://localhost:3000/notifications/twilio
     # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' https://marketplace-base.herokuapp.com/notifications/twilio
 
 # Send Twilio Message

@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :username, allow_blank: false
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable#, :confirmable
+         :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   validates_numericality_of :exp_year, greater_than_or_equal_to: Time.now.year, allow_blank: true
   validates_numericality_of :dob_year, :dob_month, :dob_day, :exp_month, :cvc_number, allow_blank: true
@@ -67,7 +67,7 @@ class User < ActiveRecord::Base
     if card_number
       @card = @crypt.decrypt_and_verify(card_number)
     end
-    (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && (legal_name.present? || first_name.present && last_name.present?) && username.present?
+    (@card.present? || card_number.present?) && exp_year.present? && support_phone.present? && exp_month.present? && cvc_number.present? && currency.present? && (legal_name.present? || first_name.present && last_name.present?)
   end
 
   def user_recipient
@@ -88,7 +88,7 @@ class User < ActiveRecord::Base
   end
 
   def account_ready?
-    card?.present? && merchant_bank_account?.present?
+    card?.present? && merchant_bank_account?.present? && username.present?
   end
 
   def merchant_changed

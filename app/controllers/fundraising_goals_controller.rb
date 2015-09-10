@@ -80,8 +80,7 @@ class FundraisingGoalsController < ApplicationController
 
     donation = Donation.find_by(uuid: params[:uuid])
 
-    fundraiser = User.find_by(merchant_secret_key: params[:fundraiser_stripe_account_id])
-    
+    fundraiser = User.find_by(username: params[:fundraiser_username])
     if fundraiser.role != 'admin'
       @crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       stripe_account_secret = @crypt.decrypt_and_verify(params[:fundraiser_stripe_account_id])

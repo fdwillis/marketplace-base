@@ -49,7 +49,7 @@ class DonateController < ApplicationController
             @donation = new_user.donations.create!(stripe_plan_name: subscription.plan.name, stripe_subscription_id: donation_plan ,active: true, donation_type: 'subscription', subscription_id: subscription.id ,organization: fundraiser.username, amount: subscription.plan.amount, uuid: SecureRandom.uuid)
           else
             User.charge_for_admin(new_user, stripe_amount, a_token.id )
-            @donation = new_user.donations.create!(donation_type: 'one-time', organization: fundraiser.username, amount: (stripe_amount / 100).to_f, uuid: SecureRandom.uuid)
+            @donation = new_user.donations.create!(donation_type: 'one-time', organization: fundraiser.username, amount: stripe_amount, uuid: SecureRandom.uuid)
           end
         else
           
@@ -61,7 +61,7 @@ class DonateController < ApplicationController
         	  User.decrypt_and_verify(fundraiser.merchant_secret_key)
         	  charge = User.charge_n_process(fundraiser.merchant_secret_key, new_user, stripe_amount, a_token.id, crypt.decrypt_and_verify(fundraiser.stripe_account_id))
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
-            @donation = new_user.donations.create!(application_fee: ((Stripe::ApplicationFee.retrieve(charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: fundraiser.username, amount: (stripe_amount / 100).to_f, uuid: SecureRandom.uuid)
+            @donation = new_user.donations.create!(application_fee: ((Stripe::ApplicationFee.retrieve(charge.application_fee).amount) / 100).to_f , donation_type: 'one-time', organization: fundraiser.username, amount: stripe_amount, uuid: SecureRandom.uuid)
           end
         end
         
