@@ -10,63 +10,64 @@ class ReportsController < ApplicationController
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
       end
-      #Donation column Chart
-        #Data
-        year_data = [
-          {
-            'name' => "Total Donations",
-            'data' => donation_revenue(current_user.id, "this_year", "monthly")
-          }, 
-          {
-            'name' => "Web Donations",
-            'data' => donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "web")
-          }, 
-          {
-            "name" => "Text Donations",
-            'data' => donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "text")
-          },
-        ]
-        week_data = [
-          {
-            'name' => "Total Donations",
-            'data' => donation_revenue(current_user.id, "this_week", "daily")
-          }, 
-          {
-            'name' => "Web Donations",
-            'data' => donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "web")
-          }, 
-          {
-            "name" => "Text Donations",
-            'data' => donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "text")
-          },
-        ]
         
-        @column = column_chart(year_data, "Donations This Year #{number_to_currency(year_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::MONTHNAMES.slice(1..12))
-        @colum = column_chart(week_data, "Donations This Week #{number_to_currency(week_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::DAYNAMES)
-        #Chart
+        #Donation column Chart
+          #Data
+          year_data = [
+            {
+              'name' => "Total Donations",
+              'data' => donation_revenue(current_user.id, "this_year", "monthly")
+            }, 
+            {
+              'name' => "Web Donations",
+              'data' => donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "web")
+            }, 
+            {
+              "name" => "Text Donations",
+              'data' => donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "text")
+            },
+          ]
+          week_data = [
+            {
+              'name' => "Total Donations",
+              'data' => donation_revenue(current_user.id, "this_week", "daily")
+            }, 
+            {
+              'name' => "Web Donations",
+              'data' => donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "web")
+            }, 
+            {
+              "name" => "Text Donations",
+              'data' => donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "text")
+            },
+          ]
+          
+          @column = column_chart(year_data, "Donations This Year #{number_to_currency(year_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::MONTHNAMES.slice(1..12))
+          @colum = column_chart(week_data, "Donations This Week #{number_to_currency(week_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::DAYNAMES)
+          #Chart
 
-      #Donation pie Chart
-        pie_type_data = [
-          {
-            'data' => donation_pie(current_user.id, "donation_type")
-          }
-        ]
-
-        pie_day_data = [
-          {
-            'data' => donation_pie(current_user.id, "day_of_week")
+        #Donation pie Chart
+          pie_type_data = [
+            {
+              'data' => donation_pie(current_user.id, "donation_type")
             }
-        ]
-        pie_city_data = [
-          {
-            'data' => donation_pie(current_user.id, "customer_current_city")
-            }
-        ]
-        @pie_type = pie_chart(pie_type_data, 'donation_type', "Donations By Type")
-        @pie_week = pie_chart(pie_day_data, 'day_of_week', "Donations By Day")
-        @pie_city = pie_chart(pie_city_data, 'customer_current_city', "Donations By City")
+          ]
 
-      # Donation area chart  
+          pie_day_data = [
+            {
+              'data' => donation_pie(current_user.id, "day_of_week")
+              }
+          ]
+          pie_city_data = [
+            {
+              'data' => donation_pie(current_user.id, "customer_current_city")
+              }
+          ]
+          @pie_type = pie_chart(pie_type_data, 'donation_type', "Donations By Type")
+          @pie_week = pie_chart(pie_day_data, 'day_of_week', "Donations By Day")
+          @pie_city = pie_chart(pie_city_data, 'customer_current_city', "Donations By City")
+
+        # Donation area chart  
         data = [
           {
             'name' => "All Donations",
@@ -82,7 +83,9 @@ class ReportsController < ApplicationController
           },
         ]
         @area = area_chart(data, "Donation Revenue This Month #{number_to_currency(data[0]['data'].map{|d| d['value']}.sum, precision: 2)}")
-
+      # respond_to do |format|
+      #   format.json { render json: [@year_data, @week_data, @pie_city_data, @pie_day_data, @pie_type_data, @data]}
+      # end
     else
       redirect_to plans_path
       flash[:error] = "You dont have permission to access reports. You must signup"
@@ -101,7 +104,7 @@ private
       f.series(:name => data[1]['name'], :yAxis => 0, :data => data[1]['data'].map{|d| d['value'] })
       f.series(:name => data[2]['name'], :yAxis => 0, :data => data[2]['data'].map{|d| d['value'] })
       f.yAxis(title: {:text => "Dollars"} )
-      f.legend(enabled: true)
+      f.legend(layout: "horizontal")
       f.chart(type: "column")
       f.tooltip(shared: true)
     end
@@ -155,7 +158,7 @@ private
       f.yAxis(title: {text: "Dollars"})
       f.xAxis(type: 'datetime', categories: data[0]['data'].map{|d| d['timeframe']['start'].to_date.strftime("%d")})
       f.tooltip(shared: true)
-      f.legend(enabled: true)
+      f.legend(layout: "horizontal")
       f.plotOptions(
         series:{
           fillOpacity: 0.8

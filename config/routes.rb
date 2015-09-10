@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  resources :reports, only: :index
+  resources :reports, only: :index, defaults: { format: 'html' }
   resources :purchases, only: [:create, :update]
   resources :plans, only: [:create, :destroy, :index]
   resources :bank_accounts, only: [:create, :destroy, :update]

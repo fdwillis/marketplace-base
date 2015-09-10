@@ -1,32 +1,34 @@
-<h1>Donation Revenue</h1>
-<div class='dashboard_ana'>  
-  <h1 class="text-center">Monthly Subscription Revenue <%= number_to_currency(@monthly_income, precision: 2) %></h1>
-  <br>
-  <br>
-  <div class='row form-group'>
-    <%= high_chart("bar_chart4", @area) %>
-  </div>
-  <div class='row form-group'>
-    <%= high_chart("colum_chart", @colum) %>
-  </div>
-  <div class='row form-group'>
-    <%= high_chart("column_chart", @column) %>
-  </div>
-  <div class='row form-group'>
-    <div class='col-md-4'>
-      <%= high_chart("chart3", @pie_type) do |c| %>
-        <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
-      <% end %>
+<% cache do %>  
+  <h1>Donation Revenue</h1>
+  <div class='dashboard_ana'>  
+    <h1 class="text-center">Monthly Subscription Revenue <%= number_to_currency(@monthly_income, precision: 2) %></h1>
+    <br>
+    <br>
+    <div class='row form-group'>
+      <%= high_chart("bar_chart4", @area) %>
     </div>
-    <div class='col-md-4'>
-      <%= high_chart("harZ3", @pie_week) do |c| %>
-        <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
-      <% end %>
+    <div class='row form-group'>
+      <%= high_chart("colum_chart", @colum) %>
     </div>
-    <div class='col-md-4'>
-      <%= high_chart("char3", @pie_city) do |c| %>
-        <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
-      <% end %>
+    <div class='row form-group'>
+      <%= high_chart("column_chart", @column) %>
+    </div>
+    <div class='row form-group'>
+      <div class='col-md-4'>
+        <%= high_chart("chart3", @pie_type) do |c| %>
+          <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
+        <% end %>
+      </div>
+      <div class='col-md-4'>
+        <%= high_chart("harZ3", @pie_week) do |c| %>
+          <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
+        <% end %>
+      </div>
+      <div class='col-md-4'>
+        <%= high_chart("char3", @pie_city) do |c| %>
+          <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
+        <% end %>
+      </div>
     </div>
   </div>
-</div>
+<% end %>
