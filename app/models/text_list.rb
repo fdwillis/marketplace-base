@@ -5,7 +5,6 @@ class TextList < ActiveRecord::Base
       row.delete_if {|k, v| v.blank?}
       user.text_lists.find_or_create_by(phone_number: (row['phone_number'] || row['phone_numbers'] || row['phone number']|| row['phone numbers']))
     end
-    debugger
     user.text_lists.where(phone_number: nil).destroy_all
   end
 end
