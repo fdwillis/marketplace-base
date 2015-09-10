@@ -16,13 +16,14 @@ class DonateController < ApplicationController
       cvc_number = params[:create_user][:cvc_number]
       exp_year = params[:create_user][:exp_year]
       exp_month = params[:create_user][:exp_month]
-
+      username = params[:create_user][:username].gsub(" ", "_")
+      
       if user_exists
         new_user = user_exists
       else
         if exp_year.to_i >= Time.now.strftime('%Y').to_i && exp_month.to_i >= 1
           if !User.all.map(&:email).include?(email)
-            new_user = User.create!(currency: 'USD', support_phone: phone_number, email: email, password: params[:create_user][:password], legal_name: legal_name, exp_month: exp_month, exp_year: exp_year.to_i, cvc_number: cvc_number, card_number: crypt.encrypt_and_sign(card_number))
+            new_user = User.create!(username: username, currency: 'USD', support_phone: phone_number, email: email, password: params[:create_user][:password], legal_name: legal_name, exp_month: exp_month, exp_year: exp_year.to_i, cvc_number: cvc_number, card_number: crypt.encrypt_and_sign(card_number))
           else
             redirect_to request.referrer
             flash[:error] = "Email Has Been Taken"
@@ -68,9 +69,9 @@ class DonateController < ApplicationController
         Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text', false)
         fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
-        # Twilio text telling user they can text from now on and will be charged automatically
         redirect_to donate_path
         flash[:notice] = "Thanks For The Donation"
+        # Twilio text telling user they can text from now on and will be charged automatically
         return
       rescue Stripe::CardError => e
         if params[:create_user][:donation_plan].present?
