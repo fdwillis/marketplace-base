@@ -21,10 +21,13 @@
 				<%= u.hidden_field :donation_plan, class: 'form-control', value: params[:donation_plan] %>
 			</div>
 			<div class='form-group'>	
-				<%= u.text_field :email, placeholder: 'Enter Email Address', class: 'form-control', required: true, value: params[:email] %>
+				<%= u.email_field :email, placeholder: 'Enter Email Address', class: 'form-control', required: true, value: params[:email] %>
 			</div>
 			<div class='form-group'>	
-				<%= u.text_field :password, placeholder: 'Enter Desired Password', class: 'form-control', required: true %>
+				<%= u.password_field :password, placeholder: 'Enter Desired Password', class: 'form-control', required: true %>
+			</div>
+			<div class='form-group'>	
+				<%= u.password_field :password_confirm, placeholder: 'Re-enter Desired Password', class: 'form-control', required: true %>
 			</div>
 			<div class='actions form-group'>
 				<%= u.submit "Donate", class: 'btn btn-success' %>
