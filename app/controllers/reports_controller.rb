@@ -8,38 +8,38 @@ class ReportsController < ApplicationController
       else
         User.decrypt_and_verify(current_user.merchant_secret_key)
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+        Stripe.api_key = Rails.configuration.stripe[:secret_key]
       end
       #Donation column Chart
         #Data
         year_data = [
           {
             'name' => "Total Donations",
-            'data' => User.donation_revenue(current_user.id, "this_year", "monthly")
+            'data' => donation_revenue(current_user.id, "this_year", "monthly")
           }, 
           {
             'name' => "Web Donations",
-            'data' => User.donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "web")
+            'data' => donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "web")
           }, 
           {
             "name" => "Text Donations",
-            'data' => User.donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "text")
+            'data' => donation_rev_by_type(current_user.id, "this_year", "monthly", "donate_by", "text")
           },
         ]
         week_data = [
           {
             'name' => "Total Donations",
-            'data' => User.donation_revenue(current_user.id, "this_week", "daily")
+            'data' => donation_revenue(current_user.id, "this_week", "daily")
           }, 
           {
             'name' => "Web Donations",
-            'data' => User.donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "web")
+            'data' => donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "web")
           }, 
           {
             "name" => "Text Donations",
-            'data' => User.donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "text")
+            'data' => donation_rev_by_type(current_user.id, "this_week", "daily", "donate_by", "text")
           },
         ]
-
         
         @column = column_chart(year_data, "Donations This Year #{number_to_currency(year_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::MONTHNAMES.slice(1..12))
         @colum = column_chart(week_data, "Donations This Week #{number_to_currency(week_data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", Date::DAYNAMES)
@@ -48,18 +48,18 @@ class ReportsController < ApplicationController
       #Donation pie Chart
         pie_type_data = [
           {
-            'data' => User.donation_pie(current_user.id, "donation_type")
+            'data' => donation_pie(current_user.id, "donation_type")
           }
         ]
 
         pie_day_data = [
           {
-            'data' => User.donation_pie(current_user.id, "day_of_week")
+            'data' => donation_pie(current_user.id, "day_of_week")
             }
         ]
         pie_city_data = [
           {
-            'data' => User.donation_pie(current_user.id, "customer_current_city")
+            'data' => donation_pie(current_user.id, "customer_current_city")
             }
         ]
         @pie_type = pie_chart(pie_type_data, 'donation_type', "Donations By Type")
@@ -70,29 +70,24 @@ class ReportsController < ApplicationController
         data = [
           {
             'name' => "All Donations",
-            'data' => User.donation_revenue(current_user.id, "this_month", "daily")
+            'data' => donation_revenue(current_user.id, "this_month", "daily")
           },
           {
             'name' => "Web Donations",
-            'data' => User.donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "web")
+            'data' => donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "web")
           }, 
           {
             "name" => "Text Donations",
-            'data' => User.donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "text")
+            'data' => donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "text")
           },
         ]
         @area = area_chart(data, "Donation Revenue This Month #{number_to_currency(data[0]['data'].map{|d| d['value']}.sum, precision: 2)}")
-
-
-      # @bar = bar_chart
-      # @funnel = funnel_chart
 
     else
       redirect_to plans_path
       flash[:error] = "You dont have permission to access reports. You must signup"
       return
     end
-    Stripe.api_key = Rails.configuration.stripe[:secret_key]
   end
 
 private
@@ -168,45 +163,67 @@ private
       )
     end
   end
-  
-  # def bar_chart
-  #   LazyHighCharts::HighChart.new('graph') do |f|
-  #     f.title(:text => "Population vs GDP For 5 Big Countries [2009]")
-  #     f.xAxis(:categories => ["United States", "Japan", "China", "Germany", "France"])
 
-  #     f.series(:name => "GDP in Bill", :yAxis => 0, :data => [100, 90, 100, 100, 100])
-  #     f.series(:name => "Pop in Mill", :yAxis => 0, :data => [110, 100, 95, 99, 97])
+  def donation_rev_by_type(id, timeframe, interval, property_name, property_value)
+    Keen.sum("Donations", 
+      max_age: 300,
+      timeframe: timeframe,
+      target_property: "donation_amount", 
+      interval: interval,
+      filters: [
+        {
+          property_name: "merchant_id",
+          operator: "eq",
+          property_value: id
+        },
+        {
+          property_name: property_name,
+          operator: "eq",
+          property_value: property_value
+        },
+        {
+          property_name: "marketplace_name", 
+          operator: "eq", 
+          property_value: "MarketplaceBase"
+        }
+      ]  )
+  end
 
-  #     f.yAxis(title: {:text => "View Count"} )
-
-  #     f.chart(type: "bar")
-  #   end
-  # end
-
-  # def funnel_chart
-  #   LazyHighCharts::HighChart.new('graph') do |f|
-  #     f.chart(type: 'funnel', marginRight: 100)
-  #     f.title(text: "Conversion/Campaign/Sales Funnel", x: -50)
-  #     f.series({
-  #           name: 'Unique users',
-  #           data: [
-  #               ['Visits',   15654],
-  #               ['Downloads',       4064],
-  #               ['Requested Price List', 1987],
-  #               ['Invoice sent',    976],
-  #               ['Finalized',    946]
-  #           ]
-  #       })
-  #     f.plotOptions(
-  #       series:{
-  #         dataLabels: {
-  #           enabled: true,
-  #           format: '<b>{point.name}</b> ({point.y:,.0f})',
-  #           softConnector: false
-  #         },
-  #         neckWidth: '30%',
-  #         neckHeight: '25%'
-  #         })
-  #   end
-  # end
+  def donation_revenue(id, timeframe, interval)
+    Keen.sum("Donations",
+      max_age: 300,
+      timeframe: timeframe,
+      target_property: "donation_amount",
+      interval: interval,
+      filters: [
+        {
+          property_name: "merchant_id",
+          operator: "eq",
+          property_value: id
+        },
+        {
+          property_name: "marketplace_name", 
+          operator: "eq", 
+          property_value: "MarketplaceBase"
+        }
+      ]
+    )
+  end
+  def donation_pie(id, group_by)
+    Keen.count("Donations",
+      max_age: 300,
+      timeframe: "this_year", 
+      group_by: group_by, 
+      filters: [
+        {
+          property_name: "marketplace_name",
+          operator: "eq", 
+          property_value: "MarketplaceBase"
+        }, 
+        property_name: "merchant_id", 
+        operator: "eq", 
+        property_value: id
+      ]
+    )
+  end
 end

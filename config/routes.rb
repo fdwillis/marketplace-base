@@ -1,25 +1,22 @@
 Rails.application.routes.draw do
 
+  resources :reports, only: :index
+  resources :purchases, only: [:create, :update]
+  resources :plans, only: [:create, :destroy, :index]
+  resources :bank_accounts, only: [:create, :destroy, :update]
+  resources :subscribe, only: [:update,:destroy]
 
   resources :pending_goals, only: :index
-  resources :orders
   resources :fundraising_goals
 
-  resources :charges, only: [:create]
+  resources :orders
   resources :notifications, only: [:create, :update]
 
   resources :merchants, only: [:index, :show]
   resources :pending_products, only: [:index, :show]
-
-  resources :plans, only: [:create, :destroy, :index]
-  resources :bank_accounts, only: [:create, :destroy, :update]
-
-  resources :purchases, only: [:create, :update]
   resources :refunds, only: [:index, :create, :update]
   
-  resources :reports, only: :index
   resources :notifications, only: [:create, :destroy]
-  resources :subscribe, only: [:update,:destroy]
   
   devise_for :users
   resources :users, only: [:update]

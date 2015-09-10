@@ -14,17 +14,17 @@
   </div>
   <div class='row form-group'>
     <div class='col-md-4'>
-      <%= high_chart("bar_chart3", @pie_type) do |c| %>
+      <%= high_chart("chart3", @pie_type) do |c| %>
         <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
       <% end %>
     </div>
     <div class='col-md-4'>
-      <%= high_chart("bar_charZ3", @pie_week) do |c| %>
+      <%= high_chart("harZ3", @pie_week) do |c| %>
         <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
       <% end %>
     </div>
     <div class='col-md-4'>
-      <%= high_chart("bar_char3", @pie_city) do |c| %>
+      <%= high_chart("char3", @pie_city) do |c| %>
         <%= raw "options.tooltip.formatter = function() {return '<b>' + this.point.name +'</b>: '+ this.y +' %';}" %>
       <% end %>
     </div>
