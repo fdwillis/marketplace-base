@@ -3,7 +3,6 @@ class DonateController < ApplicationController
   end
 
   def create_user
-
     if params[:create_user][:password] == params[:create_user][:password_confirm]
     	crypt = ActiveSupport::MessageEncryptor.new(ENV['SECRET_KEY_BASE'])
       phone_number = params[:create_user][:phone_number]
@@ -11,29 +10,18 @@ class DonateController < ApplicationController
     	fundraiser = User.find_by(username: params[:create_user][:fundraiser_name])
       card_number = params[:create_user][:card_number]
       legal_name = params[:create_user][:legal_name]
-      user_exists = User.find_by(support_phone: phone_number, legal_name: legal_name)
       email = params[:create_user][:email]
       cvc_number = params[:create_user][:cvc_number]
       exp_year = params[:create_user][:exp_year]
       exp_month = params[:create_user][:exp_month]
       username = params[:create_user][:username].gsub(" ", "_")
       
-      if user_exists
-        new_user = user_exists
-      else
-        if exp_year.to_i >= Time.now.strftime('%Y').to_i && exp_month.to_i >= 1
-          if !User.all.map(&:email).include?(email)
-            new_user = User.create!(username: username, currency: 'USD', support_phone: phone_number, email: email, password: params[:create_user][:password], legal_name: legal_name, exp_month: exp_month, exp_year: exp_year.to_i, cvc_number: cvc_number, card_number: crypt.encrypt_and_sign(card_number))
-          else
-            redirect_to request.referrer
-            flash[:error] = "Email Has Been Taken"
-            return
-          end
-        else
-          redirect_to request.referrer
-          flash[:error] = "Expiration Year Or Month Was Invalid. Please Try Again"
-          return
-        end
+      begin
+        new_user = User.create!(username: username, currency: 'USD', support_phone: phone_number, email: email, password: params[:create_user][:password], legal_name: legal_name, exp_month: exp_month, exp_year: exp_year.to_i, cvc_number: cvc_number, card_number: crypt.encrypt_and_sign(card_number))
+      rescue Exception => e
+        redirect_to :back
+        flash[:error] = "#{e}"
+        return
       end
 
       begin

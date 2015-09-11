@@ -26,7 +26,7 @@ class NotificationsController < ApplicationController
     end
 
     if stripe_amount >= 100
-      if text_message[1] && User.all.map(&:username).include?(text_message[1].downcase)
+      if text_message[1] && (User.find_by(username: text_message[1].downcase).merchant_secret_key? || User.find_by(username: text_message[1].downcase).admin?)
         raiser_username = text_message[1].downcase
       
         location = {

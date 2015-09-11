@@ -59,9 +59,9 @@ namespace :payout do
           bal = Stripe::Balance.retrieve()['available'][0].amount
           user.team_members.each_with_index do |member, index|
             if  bal > 10000  
-              amounts = user.team_members.map{|t| ((Stripe::Balance.retrieve()['available'][0].amount * t.percent.to_i) / 100 )}
+              amounts = user.team_members.map{|t| ((bal * t.percent.to_i) / 100 )}
                 transfer = Stripe::Transfer.create(
-                  :amount => amounts[index] - (Stripe::Balance.retrieve()['available'][0].amount * 0.0051).to_i,
+                  :amount => amounts[index] - (amounts[index] * 0.0051).to_i,
                   :currency => "usd",
                   :destination => member.stripe_bank_id,
                   :description => "Transfer for MarketplaceBase revenue"
@@ -86,6 +86,7 @@ namespace :payout do
           Stripe.api_key = ENV['SECRET_KEY_TEST']
         else
           Stripe.api_key = ENV['SECRET_KEY_TEST']
+          User.decrypt_and_verify(user.merchant_secret_key)          
           amount = Stripe::Balance.retrieve()['available'][0].amount
           if  amount > 10000  
             Stripe::Transfer.create(
