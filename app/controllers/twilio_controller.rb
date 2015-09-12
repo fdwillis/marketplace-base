@@ -23,4 +23,8 @@ class TwilioController < ApplicationController
       flash[:error] = "You Need At Least 50 Numbers For Text Blasts"
     end
   end
+
+  def email_blast
+
+  end
 end

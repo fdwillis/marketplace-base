@@ -32,9 +32,11 @@ Rails.application.routes.draw do
   put 'cancel_donation_plan' => 'fundraising_goals#cancel_donation_plan'
   put 'create_user' => 'donate#create_user'
   put 'twilio/text_blast' => 'twilio#text_blast'
+  put 'twilio/email_blast' => 'twilio#email_blast'
   
   post 'notifications/twilio' => 'notifications#twilio'
   post 'notifications/import_numbers' => 'notifications#import_numbers'
+  post 'notifications/import_emails' => 'notifications#import_emails'
   post 'notifications/remove_not' => 'notifications#remove_not'
 
   root to: 'products#index'

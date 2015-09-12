@@ -17,7 +17,6 @@
 
       Hello <%= link_to (current_user.email), edit_user_registration_path %>!
       <% if current_user.account_approved? || current_user.admin? %>
-        <% if current_user.text_lists.present?  %>
           <div class="btn-group">
             <button type="button" class="btn btn-info">Message Blasts</button>
             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -25,11 +24,15 @@
               <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu">
+            <% if current_user.text_lists.present?  %>
               <li><%= link_to "Text Blast", "#text_blast", 'data-toggle' => 'modal' %></li>
               <li role="separator" class="divider"></li>
+            <% end %>
+            <% if current_user.email_lists.present?  %>
+              <li><%= link_to "Email Blast", "#email_blast", 'data-toggle' => 'modal' %></li>
+            <% end %>
             </ul>
           </div>
-        <% end %>
         <div class="btn-group">
           <button type="button" class="btn btn-primary">Shortcuts</button>
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -188,6 +191,63 @@
                   <div class="container-fluid"> 
                     <div class='col-md-4 col-md-offset-4'>
                       <h4 class='text-center'>Import Phone Numbers</h4>
+                      <div class='form-group'>
+                        <%= file_field_tag :file, class: 'form-control' %>
+                      </div>
+                      <div class='form-group'>
+                        <%= submit_tag "Import", class: 'btn btn-primary form-control'  %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id='email_blast'>
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header text-center">
+              <h1> Email Blast (<%= current_user.email_lists.count %>)</h1>
+            </div>
+            <div class='row'> 
+              <%= form_for :email_blast, url: twilio_email_blast_path, method: :put do |f| %>
+                <div class="modal-body">
+                  <div class="container-fluid">  
+                    <div class='col-md-8 col-md-offset-2'>
+                      <div class="row">  
+                        <div class='col-md-6'>  
+                          <div class='form-group'>
+                            <h4 class='text-center'>From</h4>
+                            <%= f.text_field :email_from, class: 'form-control', required: true, disabled: true, value: current_user.support_email %>
+                          </div>
+                        </div>
+                        <div class='col-md-6'>  
+                          <div class='form-group'>
+                            <h4 class='text-center'>Email Subject</h4>
+                            <%= f.text_field :subject, class: 'form-control', required: true %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group">  
+                        <h4 class='text-center'>Email Body</h4>
+                        <%= f.text_area :body, class: 'form-control', required: true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-center actions">
+                  <%= link_to "Cancel", '#', class: 'btn btn-danger', 'data-dismiss' => 'modal'%>
+                  <%= f.submit "Send Email", class: 'btn btn-success' %>
+                </div>
+              <% end %>
+              <%= form_tag notifications_import_emails_path, multipart: true do %>
+                <div class="modal-body">
+                  <hr>
+                  <div class="container-fluid"> 
+                    <div class='col-md-4 col-md-offset-4'>
+                      <h4 class='text-center'>Import Emails</h4>
                       <div class='form-group'>
                         <%= file_field_tag :file, class: 'form-control' %>
                       </div>

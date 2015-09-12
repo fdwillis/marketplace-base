@@ -114,9 +114,25 @@ class NotificationsController < ApplicationController
   end
 
   def import_numbers
-    TextList.import(params[:file], current_user)
-    redirect_to request.referrer
-    flash[:notice] = "Imported Numbers Successfully"
+    numbers = TextList.import(params[:file], current_user)
+    if !numbers.nil? && numbers.count >= 1
+      redirect_to request.referrer
+      flash[:notice] = "Imported #{numbers.count} Phone Numbers Successfully"
+    else
+      redirect_to request.referrer
+      flash[:error] = "No Phone Numbers Imported"
+    end
+  end
+
+  def import_emails
+    emails = EmailList.import(params[:file], current_user)
+    if !emails.nil? && emails.count >= 1
+      redirect_to request.referrer
+      flash[:notice] = "Imported #{emails.count} Emails Successfully"
+    else
+      redirect_to request.referrer
+      flash[:error] = "No Emails Imported"
+    end
   end
 end
 
