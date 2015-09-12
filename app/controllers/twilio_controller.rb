@@ -25,6 +25,11 @@ class TwilioController < ApplicationController
   end
 
   def email_blast
-
+    subject = params[:email_blast][:subject]
+    body = params[:email_blast][:body]
+    email_list = current_user.email_lists.map(&:email)
+    count = Notify.email_blast(current_user.email, email_list, subject, body).deliver
+    redirect_to request.referrer
+    flash[:notice] = "Emails Successfully Sent: #{email_list.count}"
   end
 end
