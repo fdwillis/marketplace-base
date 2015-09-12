@@ -31,12 +31,6 @@ class ApplicationController < ActionController::Base
         timestamp: Time.now,
       })
       edit_user_registration_path
-    else
-      if current_user.admin? || current_user.roles.map(&:title).include?('buyer')
-        reports_path
-      else
-        root_path
-      end
     end
   end
   
