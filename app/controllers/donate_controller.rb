@@ -56,6 +56,7 @@ class DonateController < ApplicationController
         
         Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'text', false)
         fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+        fundraiser.email_lists.find_or_create_by(email: email)
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
         redirect_to donate_path
         flash[:notice] = "Thanks For The Donation"

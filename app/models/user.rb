@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
   has_many :team_members
   has_many :roles, dependent: :destroy
   has_many :text_lists
+  has_many :email_lists
   has_many :donations, dependent: :destroy
   has_many :transfers
   has_many :shipping_addresses
