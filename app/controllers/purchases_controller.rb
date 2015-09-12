@@ -184,6 +184,7 @@ class PurchasesController < ApplicationController
         Donation.donations_to_keen(@donation, request.remote_ip, request.location.data, 'web', true)  
       end
 
+      email_lists = @merchant.email_lists.find_or_create_by(email: current_user.email )
       Stripe.api_key = Rails.configuration.stripe[:secret_key]
       redirect_to request.referrer
       flash[:notice] = "#{@merchant.username.capitalize} Thanks You For Your Donation!"

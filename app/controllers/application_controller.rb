@@ -12,7 +12,6 @@ class ApplicationController < ActionController::Base
   protected 
 
   def after_sign_in_path_for(resource)
-
     if current_user.sign_in_count == 1
       Keen.publish("Sign Ups", {
         current_user_role: current_user.role,
@@ -30,8 +29,8 @@ class ApplicationController < ActionController::Base
         minute: Time.now.strftime("%M").to_i,
         timestamp: Time.now,
       })
-      edit_user_registration_path
     end
+    root_path
   end
   
  
