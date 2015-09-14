@@ -24,8 +24,8 @@
         <% if current_user.donations.present? %>
           <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">My Donations</a></li>
         <% end %>
-        <% if TextList.all.map(&:phone_number).include?(current_user.support_phone) %>
-          <li class=""><a href="#notifications" data-toggle="tab" aria-expanded="false">Text Notifications</a></li>
+        <% if TextList.all.map(&:phone_number).include?(current_user.support_phone) || EmailList.all.map(&:email).include?(current_user.email)  %>
+          <li class=""><a href="#notifications" data-toggle="tab" aria-expanded="false">Notifications</a></li>
         <% end %>
       </ul>
     </div>
@@ -500,18 +500,54 @@
         </div>
       </div>
       <div class="tab-pane fade" id="notifications">
-        <h3 class='text-center'>You may receive text notifications from the following</h3>
-        <%= form_tag notifications_remove_not_path, method: :post do |f| %>
-          <% TextList.all.where(phone_number: current_user.support_phone).each do |text| %>
-            <div class='col-md-2 text-center'>  
-              <%= link_to text.user.username, merchant_path(id: text.user.username) %>
-              <%= check_box_tag "text_id[]", text.id, nil %>
-            </div>
-          <% end %>
-          <div class='actions'>
-            <%= submit_tag "Remove", class: 'btn btn-warning' %>
+        <div class="tab-v2">
+          <div class='row'>
+            <ul class="nav nav-pills col-md-6 col-md-offset-4">
+              <% if TextList.all.map(&:phone_number).include?(current_user.support_phone) %>
+                <li class=""><a href="#text_notifi" data-toggle="tab" aria-expanded="false">Text Notifications</a></li>
+              <% end %>
+              <% if EmailList.all.map(&:email).include?(current_user.email) %>
+                <li class=""><a href="#email_notifi" data-toggle="tab" aria-expanded="false">Email Notifications</a></li>
+              <% end %>
+            </ul>
           </div>
-        <% end %>
+        </div>
+        <div class="tab-content">
+          <div class="tab-pane fade" id="text_notifi">
+            <div class='row'>  
+              <h3 class='text-center'>You may receive <em><strong>text</strong></em> notifications from the following organizations</h3>
+              <%= form_tag notifications_remove_text_path, method: :post do |f| %>
+                <% TextList.all.where(phone_number: current_user.support_phone).each do |text| %>
+                  <div class='col-md-2 text-center'>  
+                    <%= link_to text.user.username, merchant_path(id: text.user.username) %>
+                    <%= check_box_tag "text_id[]", text.id, nil %>
+                  </div>
+                <% end %>
+                <div class='actions'>
+                  <%= submit_tag "Remove", class: 'btn btn-warning' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content">
+          <div class="tab-pane fade" id="email_notifi">
+            <div class='row'>  
+              <h3 class='text-center'>You may receive <em><strong>email</strong></em> notifications from the following organizations</h3>
+              <%= form_tag notifications_remove_email_path, method: :post do |f| %>
+                <% EmailList.all.where(email: current_user.email).each do |email| %>
+                  <div class='col-md-2 text-center'>  
+                    <%= link_to email.user.username, merchant_path(id: email.user.username) %>
+                    <%= check_box_tag "email_id[]", email.id, nil %>
+                  </div>
+                <% end %>
+                <div class='actions'>
+                  <%= submit_tag "Remove", class: 'btn btn-warning' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="tab-pane fade" id="text_list">
         <% list = current_user.text_lists.map(&:phone_number) %>
@@ -532,4 +568,12 @@
       </div>
     </div>
   </div>  
+
+
+
+
+
+
+
+
 </div>

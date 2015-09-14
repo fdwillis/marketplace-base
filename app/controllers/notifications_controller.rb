@@ -103,7 +103,7 @@ class NotificationsController < ApplicationController
     end
   end
 
-  def remove_not
+  def remove_text
     numbers = params[:text_id]
     numbers.each do |num|
       number = TextList.find(num.to_i)
@@ -111,6 +111,15 @@ class NotificationsController < ApplicationController
     end
     redirect_to request.referrer
     flash[:notice] = "You removed your number from #{numbers.count} text lists"
+  end
+  def remove_email
+    emails = params[:email_id]
+    emails.each do |email|
+      number = EmailList.find(email.to_i)
+      number.delete
+    end
+    redirect_to request.referrer
+    flash[:notice] = "You removed your email from #{emails.count} email lists"
   end
 
   def import_numbers
