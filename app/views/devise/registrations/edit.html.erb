@@ -24,9 +24,7 @@
         <% if current_user.donations.present? %>
           <li class=""><a href="#donations" data-toggle="tab" aria-expanded="false">My Donations</a></li>
         <% end %>
-        <% if TextList.all.map(&:phone_number).include?(current_user.support_phone) || EmailList.all.map(&:email).include?(current_user.email)  %>
-          <li class=""><a href="#notifications" data-toggle="tab" aria-expanded="false">Notifications</a></li>
-        <% end %>
+        <li class=""><a href="#notifications" data-toggle="tab" aria-expanded="false">Notifications</a></li>
       </ul>
     </div>
     <div class="tab-content">
@@ -500,6 +498,22 @@
         </div>
       </div>
       <div class="tab-pane fade" id="notifications">
+        <h3 class='text-center'>Notifications</h3>
+        <%= form_tag notifications_stop_notifications_path, method: :post do |f| %>
+          <div class='form-group text-center'>  
+            <%= radio_button_tag :stop_notifications, "true" %> Off
+            <%= radio_button_tag :stop_notifications, "false" %> On
+          </div>
+          <div class='actions form-group text-center'>
+            <%= submit_tag "Submit", class: 'btn btn-success' %>
+          </div>
+          <% if current_user.notifications == true %>
+            <h3 class='text-center'>Notifications: On </h3>
+          <% else %>
+            <h3 class='text-center'>Notifications Currently: Off </h3>
+          <% end %>
+
+        <% end %>
         <div class="tab-v2">
           <div class='row'>
             <ul class="nav nav-pills col-md-6 col-md-offset-4">
@@ -516,7 +530,7 @@
           <div class="tab-pane fade" id="text_notifi">
             <div class='row'>  
               <h3 class='text-center'>You may receive <em><strong>text</strong></em> notifications from the following organizations</h3>
-              <%= form_tag notifications_remove_text_path, method: :post do |f| %>
+              <%= form_for notifications_remove_text_path, method: :post do |f| %>
                 <% TextList.all.where(phone_number: current_user.support_phone).each do |text| %>
                   <div class='col-md-2 text-center'>  
                     <%= link_to text.user.username, merchant_path(id: text.user.username) %>
@@ -529,12 +543,10 @@
               <% end %>
             </div>
           </div>
-        </div>
-        <div class="tab-content">
           <div class="tab-pane fade" id="email_notifi">
             <div class='row'>  
               <h3 class='text-center'>You may receive <em><strong>email</strong></em> notifications from the following organizations</h3>
-              <%= form_tag notifications_remove_email_path, method: :post do |f| %>
+              <%= form_for notifications_remove_email_path, method: :post do |f| %>
                 <% EmailList.all.where(email: current_user.email).each do |email| %>
                   <div class='col-md-2 text-center'>  
                     <%= link_to email.user.username, merchant_path(id: email.user.username) %>

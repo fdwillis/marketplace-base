@@ -39,6 +39,7 @@ Rails.application.routes.draw do
   post 'notifications/import_emails' => 'notifications#import_emails'
   post 'notifications/remove_text' => 'notifications#remove_text'
   post 'notifications/remove_email' => 'notifications#remove_email'
+  post 'notifications/stop_notifications' => 'notifications#stop_notifications'
 
   root to: 'products#index'
   resources :products

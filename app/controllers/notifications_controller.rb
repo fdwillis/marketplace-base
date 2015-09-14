@@ -122,6 +122,19 @@ class NotificationsController < ApplicationController
     flash[:notice] = "You removed your email from #{emails.count} email lists"
   end
 
+  def stop_notifications
+    if params[:stop_notifications] == 'true'
+      current_user.update_attributes(notifications: false)
+      EmailList.all.where(email: current_user.email).destroy_all
+      TextList.all.where(phone_number: current_user.support_phone).destroy_all
+      flash[:notice] = "Your notifications have been turned off. You will no longer be added to any text or email lists"
+    else
+      current_user.update_attributes(notifications: true)
+      flash[:notice] = "Your notifications have been turned on."
+    end
+    redirect_to request.referrer
+  end
+
   def import_numbers
     TextList.import(params[:file], current_user)
     redirect_to request.referrer
@@ -139,7 +152,7 @@ end
   # Tracking
     # curl -X POST -d "msg[checkpoints][][message]=bar&msg[tracking_number]=1Z0F28171596013711&msg[checkpoints][][tag]=tag&msg[checkpoints][][checkpoint_time]=2014-05-02T16:24:38" http://localhost:3000/notifications
   # twilio
-    # curl -X POST -d 'Body=900 merchant&From=+14143997343' http://localhost:3000/notifications/twilio
+    # curl -X POST -d 'Body=900 admin&From=+14143997341' http://localhost:3000/notifications/twilio
     # curl -X POST -d 'Body=90.30 admin_tes&From=+14143997341' https://marketplace-base.herokuapp.com/notifications/twilio
 
 # Send Twilio Message
