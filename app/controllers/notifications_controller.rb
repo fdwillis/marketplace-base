@@ -77,7 +77,10 @@ class NotificationsController < ApplicationController
             end
 
             Donation.text_donation(@donation, location, 'text')
-            fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+            
+            if donater.notifications == true
+              fundraiser.text_lists.find_or_create_by(phone_number: phone_number)
+            end
 
             Stripe.api_key = Rails.configuration.stripe[:secret_key]
             # Twilio message to thank user for donation

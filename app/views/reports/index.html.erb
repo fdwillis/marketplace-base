@@ -1,6 +1,11 @@
 <% cache do %>  
   <h1>Donation Revenue</h1>
   <div class='dashboard_ana'>  
+    <% if current_user.admin? %>  
+      <div class='row form-group'>
+        <h1 class='text-center'> Total Volume Of Donations <%= number_to_currency(@admin_total, precision: 2) %></h1>
+      </div>
+    <% end %>
     <h1 class="text-center">Monthly Subscription Revenue <%= number_to_currency(@monthly_income, precision: 2) %></h1>
     <br>
     <br>

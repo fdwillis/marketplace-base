@@ -83,6 +83,7 @@ class ReportsController < ApplicationController
           },
         ]
         @area = area_chart(data, "Donation Revenue This Month #{number_to_currency(data[0]['data'].map{|d| d['value']}.sum, precision: 2)}")
+        @admin_total = admin_total("this_year")
       # respond_to do |format|
       #   format.json { render json: [@year_data, @week_data, @pie_city_data, @pie_day_data, @pie_type_data, @data]}
       # end
@@ -165,6 +166,21 @@ private
         }
       )
     end
+  end
+
+  def admin_total(timeframe)
+    Keen.sum("Donations", 
+      max_age: 300, 
+      target_property: "donation_amount",
+      timeframe: timeframe,
+      filters: [
+       {
+        property_name: "marketplace_name", 
+        operator: "eq", 
+        property_value: "MarketplaceBase"
+       } 
+      ]
+    )
   end
 
   def donation_rev_by_type(id, timeframe, interval, property_name, property_value)
