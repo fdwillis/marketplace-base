@@ -5,9 +5,13 @@ class ReportsController < ApplicationController
     if (current_user.account_approved? && !current_user.roles.nil?) || current_user.admin? 
       if current_user.admin?
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+        @avail = (Stripe::Balance.retrieve.available[0].amount.to_f / 100)
+        @pending = (Stripe::Balance.retrieve.pending[0].amount.to_f / 100)
       else
         User.decrypt_and_verify(current_user.merchant_secret_key)
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
+        @avail = (Stripe::Balance.retrieve.available[0].amount.to_f / 100)
+        @pending = (Stripe::Balance.retrieve.pending[0].amount.to_f / 100)
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
       end
         
