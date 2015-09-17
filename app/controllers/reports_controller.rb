@@ -130,7 +130,7 @@ private
       f.plotOptions(
         pie: {
           dataLabels: {
-            enabled: true,
+            enabled: false,
           }, 
           showInLegend: true,
           allowPointSelect: true,

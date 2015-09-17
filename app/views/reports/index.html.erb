@@ -1,14 +1,17 @@
 <% cache do %>  
   <h1>Donation Revenue</h1>
   <div class='dashboard_ana'>  
+    <h1 class='text-center'> Next Transfer Date <%= (Date.today.monday + 4.days).strftime("%B %d, %Y") %></h1>
     <h1 class='text-center'> Next Transfer Amount <%= number_to_currency(@avail, precision: 2) %></h1>
-    <h1 class='text-center'> Pending Donations<%= number_to_currency(@pending, precision: 2) %></h1>
+    <h1 class='text-center'> Pending Revenue <%= number_to_currency(@pending, precision: 2) %></h1>
     <% if current_user.admin? %>  
+    <!-- signups -->
+    <!-- monthly revenue in graph -->
       <div class='row form-group'>
-        <h1 class='text-center'> Total Volume Of Donations <%= number_to_currency(@admin_total, precision: 2) %></h1>
+        <h1 class='text-center'> Total Volume Of Revenue <%= number_to_currency(@admin_total, precision: 2) %></h1>
       </div>
     <% end %>
-    <h1 class="text-center">Monthly Subscription Revenue <%= number_to_currency(@monthly_income, precision: 2) %></h1>
+    <h1 class="text-center">Monthly Subscription Revenue <%= number_to_currency(@monthly_income, precision: 2) %><small>Stripe Fees Not Included</small></h1>
     <br>
     <br>
     <div class='row form-group'>
