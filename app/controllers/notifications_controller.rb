@@ -25,7 +25,7 @@ class NotificationsController < ApplicationController
       stripe_amount = amount * 100
     end
 
-    if stripe_amount >= 100
+    if stripe_amount >= 100 && stripe_amount < 99999999
       if text_message[1] && (User.find_by(username: text_message[1].downcase).merchant_secret_key? || User.find_by(username: text_message[1].downcase).admin?)
         raiser_username = text_message[1].downcase
       
@@ -93,7 +93,7 @@ class NotificationsController < ApplicationController
           end
         else
           #Twilio message back to donater
-          puts "Please enter a dollar amount first, then username of the fundraiser"
+          puts "Please enter a dollar amount first, then username of the fundraiser. Example: 90000 valid_username"
           return
         end
       else
@@ -101,7 +101,7 @@ class NotificationsController < ApplicationController
         return
       end
     else
-      puts "Please enter a minimum dollar amount of 1 first then a valid username to donate to. Example: 90000 valid_username"
+      puts "Please enter a minimum dollar amount of 1 or max of 999,999.99, then a valid username to donate to. Example: 90000 valid_username"
       return
     end
   end

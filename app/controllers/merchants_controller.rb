@@ -27,6 +27,17 @@ class MerchantsController < ApplicationController
   def approve_account
     @account = User.find(params[:id])
     @account.update_attributes(account_approved: true )
+    Keen.publish("Sign Ups", {
+      user_id: @account.id,
+      year: Time.now.strftime("%Y").to_i,
+      month: DateTime.now.to_date.strftime("%B"),
+      day: Time.now.strftime("%d").to_i,
+      day_of_week: DateTime.now.to_date.strftime("%A"),
+      hour: Time.now.strftime("%H").to_i,
+      minute: Time.now.strftime("%M").to_i,
+      timestamp: Time.now,
+      marketplace_name: "MarketplaceBase"
+    })
     redirect_to merchants_path
     email = Notify.account_approved(@account).deliver
     flash[:notice] = "#{@account.username.capitalize}'s Account Was Approved"

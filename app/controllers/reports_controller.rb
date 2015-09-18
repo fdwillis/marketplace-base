@@ -7,6 +7,27 @@ class ReportsController < ApplicationController
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
         @avail = (Stripe::Balance.retrieve.available[0].amount.to_f / 100)
         @pending = (Stripe::Balance.retrieve.pending[0].amount.to_f / 100)
+        @admin_total = admin_revenue("this_year")
+
+        signup_data = [
+          {
+            'data' => sign_ups("this_month", "daily")
+          }
+        ]
+
+        sign_up_week = [
+          {
+            'data' => sign_ups("this_week", "daily")
+          }
+        ]
+        sign_up_year = [
+          {
+            'data' => sign_ups("this_year", "monthly")
+          }
+        ]
+        @sign_ups_month = area_chart(signup_data, "Sign Ups This Month #{signup_data[0]['data'].map{|d| d['value']}.sum}", "Sign Ups") 
+        @sign_ups_week = area_chart(signup_data, "Sign Ups This Week #{sign_up_week[0]['data'].map{|d| d['value']}.sum}", "Sign Ups") 
+        @sign_ups_year = area_chart(signup_data, "Sign Ups This Year #{sign_up_week[0]['data'].map{|d| d['value']}.sum}", "Sign Ups") 
       else
         User.decrypt_and_verify(current_user.merchant_secret_key)
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
@@ -14,7 +35,6 @@ class ReportsController < ApplicationController
         @pending = (Stripe::Balance.retrieve.pending[0].amount.to_f / 100)
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
       end
-        
         #Donation column Chart
           #Data
           year_data = [
@@ -72,25 +92,36 @@ class ReportsController < ApplicationController
           @pie_city = pie_chart(pie_city_data, 'customer_current_city', "Donations By City")
 
         # Donation area chart  
-        data = [
-          {
-            'name' => "All Donations",
-            'data' => donation_revenue(current_user.id, "this_month", "daily")
-          },
-          {
-            'name' => "Web Donations",
-            'data' => donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "web")
-          }, 
-          {
-            "name" => "Text Donations",
-            'data' => donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "text")
-          },
-        ]
-        @area = area_chart(data, "Donation Revenue This Month #{number_to_currency(data[0]['data'].map{|d| d['value']}.sum, precision: 2)}")
-        @admin_total = admin_total("this_year")
-      # respond_to do |format|
-      #   format.json { render json: [@year_data, @week_data, @pie_city_data, @pie_day_data, @pie_type_data, @data]}
-      # end
+          data = [
+            {
+              'name' => "All Donations",
+              'data' => donation_revenue(current_user.id, "this_month", "daily")
+            },
+            {
+              'name' => "Web Donations",
+              'data' => donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "web")
+            }, 
+            {
+              "name" => "Text Donations",
+              'data' => donation_rev_by_type(current_user.id, "this_month", "daily", "donate_by", "text")
+            },
+          ]
+          @area = area_chart(data, "Donation Revenue This Month #{number_to_currency(data[0]['data'].map{|d| d['value']}.sum, precision: 2)}", "Dollars")
+        
+        # Average donation metrics
+          text_donation_ave_data = [
+            {
+              "data" => donation_average(current_user.id, "donate_by", "text" )
+            }
+          ]
+
+          web_donation_ave_data = [
+            {
+              "data" => donation_average(current_user.id, "donate_by", "web" )
+            }
+          ]
+          @text_donation_ave = text_donation_ave_data[0]['data']
+          @web_donation_ave = web_donation_ave_data[0]['data']
     else
       redirect_to plans_path
       flash[:error] = "You dont have permission to access reports. You must signup"
@@ -105,9 +136,13 @@ private
       f.colors([ '#434348', '#7CB5EC','#90ED7D'])
       f.title(:text => title)
       f.xAxis(:categories => timeframe)
-      f.series(:name => data[0]['name'], :yAxis => 0, :data => data[0]['data'].map{|d| d['value'] })
-      f.series(:name => data[1]['name'], :yAxis => 0, :data => data[1]['data'].map{|d| d['value'] })
-      f.series(:name => data[2]['name'], :yAxis => 0, :data => data[2]['data'].map{|d| d['value'] })
+      data.each do | data|
+        f.series(
+          name: data['name'], 
+          data: data['data'].map{|d| d['value'] },
+          yAxis: 0,
+        )
+      end
       f.yAxis(title: {:text => "Dollars"} )
       f.legend(layout: "horizontal")
       f.chart(type: "column")
@@ -141,26 +176,20 @@ private
     end
   end
 
-  def area_chart(data, title)
+  def area_chart(data, title, axis_title)
     
     LazyHighCharts::HighChart.new('graph') do |f|
       
       f.colors([ '#434348', '#7CB5EC','#90ED7D'])
       f.chart(type: 'area')
       f.title(text: title)
-      f.series(
-        name: data[0]['name'],
-        data: data[0]['data'].map{|d| d['value']}
-      )
-      f.series(
-        name: data[1]['name'],
-        data: data[1]['data'].map{|d| d['value']}
-      )
-      f.series(
-        name: data[2]['name'],
-        data: data[2]['data'].map{|d| d['value']}
-      )
-      f.yAxis(title: {text: "Dollars"})
+      data.each do |data, index|
+        f.series(
+          name: data['name'],
+          data: data['data'].map{|d| d['value']}
+        )
+      end
+      f.yAxis(title: {text: axis_title})
       f.xAxis(type: 'datetime', categories: data[0]['data'].map{|d| d['timeframe']['start'].to_date.strftime("%d")})
       f.tooltip(shared: true)
       f.legend(layout: "horizontal")
@@ -172,7 +201,46 @@ private
     end
   end
 
-  def admin_total(timeframe)
+  def donation_average(id, property_name, property_value)
+    Keen.average("Donations", {
+      max_age: 300, 
+      target_property: "donation_amount",
+      filters: [
+        {
+          property_name: "marketplace_name", 
+          operator: "eq", 
+          property_value: "MarketplaceBase"
+        },
+        {
+          property_name: "merchant_id",
+          operator: "eq",
+          property_value: id
+        },
+        {
+          property_name: property_name,
+          operator: "eq",
+          property_value: property_value
+        },
+      ]  
+    })
+  end
+
+  def sign_ups(timeframe, interval)
+    Keen.count("Sign Ups", 
+      max_age: 300, 
+      timeframe: timeframe, 
+      interval: interval,
+      filters: [
+        {
+          property_name: "marketplace_name", 
+          operator: "eq", 
+          property_value: "MarketplaceBase"
+        }
+      ]
+    )
+  end
+
+  def admin_revenue(timeframe)
     Keen.sum("Donations", 
       max_age: 300, 
       target_property: "donation_amount",
