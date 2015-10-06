@@ -104,7 +104,7 @@ class User < ActiveRecord::Base
 
     def self.profile_views(user_id, ip_address, location, merchant)
       Keen.publish("Profile Views", {
-        marketplace_name: "MarketplaceBase",
+        marketplace_name: ENV["MARKETPLACE_NAME"],
         platform_for: 'apparel', 
         ip_address: ip_address, 
         customer_id: user_id,
@@ -138,7 +138,7 @@ class User < ActiveRecord::Base
     def self.new_customer(token, user)
       #Keen event "New Paying Customers"
       customer = Stripe::Customer.create(
-          :description => "Customer For MarketplaceBase",
+          :description => "Customer For #{ENV["MARKETPLACE_NAME"]}",
           :source => token
         )
       user.stripe_customer_ids.create(business_name: Stripe::Account.retrieve().business_name, 
@@ -173,7 +173,7 @@ class User < ActiveRecord::Base
           amount: @price,
           currency: 'USD',
           customer: @customer_account.customer_id ,
-          description: 'MarketplaceBase',
+          description: ENV["MARKETPLACE_NAME"],
           application_fee: @fee,
         },
         {stripe_account: merchant_account_id}
@@ -187,7 +187,7 @@ class User < ActiveRecord::Base
             amount: @price,
             currency: 'USD',
             customer: @customer.customer_id,
-            description: 'MarketplaceBase',
+            description: ENV["MARKETPLACE_NAME"],
             application_fee: @fee,
             
           },
@@ -206,7 +206,7 @@ class User < ActiveRecord::Base
           amount: price,
           currency: 'USD',
           customer: @customer_account.customer_id ,
-          description: 'MarketplaceBase',
+          description: ENV["MARKETPLACE_NAME"],
         )  
       else
         @customer = User.new_customer(token, user)
@@ -215,7 +215,7 @@ class User < ActiveRecord::Base
           amount: price,
           currency: 'USD',
           customer: @customer.customer_id,
-          description: 'MarketplaceBase',
+          description: ENV["MARKETPLACE_NAME"],
         )
       end
     end
@@ -302,7 +302,7 @@ class User < ActiveRecord::Base
 
     def self.new_paying_merchant(location, ip_address, price, user)
       Keen.publish("New Paying Merchant", {
-        marketplace_name: "MarketplaceBase",
+        marketplace_name: ENV["MARKETPLACE_NAME"],
         platform_for: 'apparel', 
         ip_address: ip_address, 
         customer_current_zipcode: location["zipcode"],
@@ -324,7 +324,7 @@ class User < ActiveRecord::Base
 
     def self.merchant_cancled(merchant, net_revenue )
       Keen.publish("Merchant Cancels", {
-        marketplace_name: "MarketplaceBase",
+        marketplace_name: ENV["MARKETPLACE_NAME"],
         platform_for: 'apparel',
         merchant_id: merchant.email, 
         sign_in_count: merchant.sign_in_count,

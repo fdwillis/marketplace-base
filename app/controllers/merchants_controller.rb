@@ -36,7 +36,7 @@ class MerchantsController < ApplicationController
       hour: Time.now.strftime("%H").to_i,
       minute: Time.now.strftime("%M").to_i,
       timestamp: Time.now,
-      marketplace_name: "MarketplaceBase"
+      marketplace_name: ENV["MARKETPLACE_NAME"]
     })
     redirect_to merchants_path
     email = Notify.account_approved(@account).deliver

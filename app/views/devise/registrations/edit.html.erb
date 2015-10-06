@@ -362,7 +362,7 @@
                 </div>
                 <div class="form-group text-center">
                   <%= f.label :statement_descriptor, 'Statement Descriptor' %>
-                  <%= f.text_field :statement_descriptor, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.username} via MarketplaceBase"%>
+                  <%= f.text_field :statement_descriptor, class: 'form-control text-center', placeholder: "Enter Business URL or Link to Profile Page",value: "Purchased from #{current_user.username} via #{ENV["MARKETPLACE_NAME"]}"%>
                 </div>
                 <div class="form-group text-center">
                   <%= f.submit "Update", class: 'btn btn-success' %>

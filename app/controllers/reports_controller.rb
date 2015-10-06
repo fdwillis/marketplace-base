@@ -4,6 +4,8 @@ class ReportsController < ApplicationController
   def index
     if (current_user.account_approved? && !current_user.roles.nil?) || current_user.admin? 
       if current_user.admin?
+        @hack = StripeCustomerId.where(business_name: "HACKNVEST LLC").count
+        @business_name = StripeCustomerId.where(business_name: current_user.business_name).count
         @monthly_income = (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
         @avail = (Stripe::Balance.retrieve.available[0].amount.to_f / 100)
         @pending = (Stripe::Balance.retrieve.pending[0].amount.to_f / 100)
@@ -36,7 +38,7 @@ class ReportsController < ApplicationController
         Stripe.api_key = Rails.configuration.stripe[:secret_key]
       end
         #Donation column Chart
-          #Data
+          #DataT
           year_data = [
             {
               'name' => "Total Donations",
@@ -209,7 +211,7 @@ private
         {
           property_name: "marketplace_name", 
           operator: "eq", 
-          property_value: "MarketplaceBase"
+          property_value: ENV["MARKETPLACE_NAME"]
         },
         {
           property_name: "merchant_id",
@@ -234,7 +236,7 @@ private
         {
           property_name: "marketplace_name", 
           operator: "eq", 
-          property_value: "MarketplaceBase"
+          property_value: ENV["MARKETPLACE_NAME"]
         }
       ]
     )
@@ -249,7 +251,7 @@ private
        {
         property_name: "marketplace_name", 
         operator: "eq", 
-        property_value: "MarketplaceBase"
+        property_value: ENV["MARKETPLACE_NAME"]
        } 
       ]
     )
@@ -275,7 +277,7 @@ private
         {
           property_name: "marketplace_name", 
           operator: "eq", 
-          property_value: "MarketplaceBase"
+          property_value: ENV["MARKETPLACE_NAME"]
         }
       ]  )
   end
@@ -295,7 +297,7 @@ private
         {
           property_name: "marketplace_name", 
           operator: "eq", 
-          property_value: "MarketplaceBase"
+          property_value: ENV["MARKETPLACE_NAME"]
         }
       ]
     )
@@ -309,7 +311,7 @@ private
         {
           property_name: "marketplace_name",
           operator: "eq", 
-          property_value: "MarketplaceBase"
+          property_value: ENV["MARKETPLACE_NAME"]
         }, 
         property_name: "merchant_id", 
         operator: "eq", 

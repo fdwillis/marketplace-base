@@ -1,6 +1,14 @@
 <% cache do %>  
   <h1>Donation Revenue</h1>
   <div class='dashboard_ana'>  
+    <h1 class='text-center'> Phone Number Count: <%= current_user.text_lists.count %></h1>
+    <h1 class='text-center'> Email Count: <%= current_user.email_lists.count %></h1>
+    <% if current_user.admin? %>
+      
+      <h1 class='text-center'> Donor Count: <%= @hack + @business_name%></h1>
+    <% else %>
+      <h1 class='text-center'> Donor Count: <%= StripeCustomerId.where(business_name: current_user.business_name).count %></h1>
+    <% end %>
     <h1 class='text-center'> Next Transfer Date <%= (Date.today.monday + 4.days).strftime("%B %d, %Y") %></h1>
     <h1 class='text-center'> Next Transfer Amount <%= number_to_currency(@avail, precision: 2) %></h1>
     <h1 class='text-center'> Pending Revenue <%= number_to_currency(@pending, precision: 2) %></h1>

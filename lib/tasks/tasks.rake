@@ -48,7 +48,7 @@ namespace :payout do
               :amount => Stripe::Balance.retrieve()['available'][0].amount,
               :currency => "usd",
               :destination => crypt.decrypt_and_verify(user.stripe_account_id),
-              :description => "Transfer for MarketplaceBase revenue"
+              :description => "Transfer for #{ENV["MARKETPLACE_NAME"]} revenue"
             )
           end
         end
@@ -64,18 +64,18 @@ namespace :payout do
                   :amount => amounts[index] - (amounts[index] * 0.0051).to_i,
                   :currency => "usd",
                   :destination => member.stripe_bank_id,
-                  :description => "Transfer for MarketplaceBase revenue"
+                  :description => "Transfer for #{ENV["MARKETPLACE_NAME"]} revenue"
                 )
                 if member.name.downcase == 'hacknvest'
                   Keen.publish("Hacknvest", {
                     income: ((transfer.amount.to_f) / 100),
-                    marketplace_name: "MarketplaceBase",
+                    marketplace_name: ENV["MARKETPLACE_NAME"],
                     })
                   # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
                 else
                   Keen.publish("Payout", {
                     income: ((transfer.amount.to_f) / 100),
-                    marketplace_name: "MarketplaceBase",
+                    marketplace_name: ENV["MARKETPLACE_NAME"],
                     })
                 end
                 puts "Team Paid"
@@ -93,7 +93,7 @@ namespace :payout do
               :amount => Stripe::Balance.retrieve()['available'][0].amount - (Stripe::Balance.retrieve()['available'][0].amount * 0.0051).to_i,
               :currency => "usd",
               :destination => Stripe::Account.retrieve.bank_accounts.data[0].id,
-              :description => "Transfer for MarketplaceBase revenue"
+              :description => "Transfer for #{ENV["MARKETPLACE_NAME"]} revenue"
             )
             puts "Solo Paid"
           else
@@ -113,7 +113,7 @@ namespace :payout do
             )
             Keen.publish("Hacknvest", {
               income: ((transfer.amount.to_f) / 100),
-              marketplace_name: "MarketplaceBase",
+              marketplace_name: ENV["MARKETPLACE_NAME"],
             })
             # message = twilio_text.messages.create from: ENV['TWILIO_NUMBER'], to: User.find_by(role: 'admin').support_phone, body: "Transferred #{number_to_currency((transfer.amount.to_f) / 100, precision: 2)}"
             puts "admin paid"
@@ -133,7 +133,7 @@ namespace :stripe do
         User.decrypt_and_verify(user.merchant_secret_key)
         Keen.publish("Subscription Revenue", {
           merchant_id: user.id, 
-          marketplace_name: "MarketplaceBase",
+          marketplace_name: ENV["MARKETPLACE_NAME"],
           platform_for: 'donations',
           revenue: (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
         })
@@ -143,7 +143,7 @@ namespace :stripe do
         if user.admin?
           Keen.publish("Subscription Revenue", {
             merchant_id: user.id, 
-            marketplace_name: "MarketplaceBase",
+            marketplace_name: ENV["MARKETPLACE_NAME"],
             platform_for: 'donations',
             revenue: (Stripe::Customer.all.data.map(&:subscriptions).map(&:data).flatten.map(&:plan).map(&:amount).sum.to_f / 100)
           })

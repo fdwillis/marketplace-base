@@ -14,7 +14,7 @@ class HomeController < ApplicationController
       minute: Time.now.strftime("%M"),
       day_of_week: DateTime.now.to_date.strftime("%A"),
       timestamp: Time.now,
-      marketplace_name: "MarketplaceBase"
+      marketplace_name: ENV["MARKETPLACE_NAME"]
     })
   end
 end

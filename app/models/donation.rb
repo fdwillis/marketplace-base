@@ -6,7 +6,7 @@ class Donation < ActiveRecord::Base
 	  	# One time or subscription plan
 			if web_or_text == 'text'
 				Keen.publish("Donations", {
-			    marketplace_name: "MarketplaceBase",
+			    marketplace_name: ENV["MARKETPLACE_NAME"],
 			    platform_for: 'donations',
 			    donation_amount: (donation.amount / 100).to_f,
 			    donation_type: donation.donation_type,
@@ -34,7 +34,7 @@ class Donation < ActiveRecord::Base
 				if !donation.application_fee.nil? 
 					if donation.fundraising_goal
 					  Keen.publish("Donations", {
-					    marketplace_name: "MarketplaceBase",
+					    marketplace_name: ENV["MARKETPLACE_NAME"],
 					    platform_for: 'donations',
 					    donation_amount: (donation.amount / 100).to_f,
 					    donation_type: donation.donation_type,
@@ -64,7 +64,7 @@ class Donation < ActiveRecord::Base
 						if !donation.fundraising_goal.tags.empty?  
 						  donation.fundraising_goal.tags.each do |tag|
 							  Keen.publish("Tags On Fundraising Goals", {
-							  	marketplace_name: "MarketplaceBase", 
+							  	marketplace_name: ENV["MARKETPLACE_NAME"], 
 							  	platform_for: 'donations', 
 							  	tag: tag.name,
 							  	fundraising_goal_uuid: donation.fundraising_goal.uuid,
@@ -77,7 +77,7 @@ class Donation < ActiveRecord::Base
 						else
 						  donation.fundraising_goal.tags.each do |tag|
 							  Keen.publish("Tags On Fundraising Goals", {
-							  	marketplace_name: "MarketplaceBase", 
+							  	marketplace_name: ENV["MARKETPLACE_NAME"], 
 							  	platform_for: 'donations', 
 							  	tag: "None",
 							  	fundraising_goal_uuid: donation.fundraising_goal.uuid,
@@ -90,7 +90,7 @@ class Donation < ActiveRecord::Base
 					  end
 						else
 							Keen.publish("Donations", {
-						    marketplace_name: "MarketplaceBase",
+						    marketplace_name: ENV["MARKETPLACE_NAME"],
 						    platform_for: 'donations',
 						    donation_amount: (donation.amount / 100).to_f,
 						    donation_type: donation.donation_type,
@@ -118,7 +118,7 @@ class Donation < ActiveRecord::Base
 				else
 					if donation.fundraising_goal.present?
 					  Keen.publish("Donations", {
-					    marketplace_name: "MarketplaceBase",
+					    marketplace_name: ENV["MARKETPLACE_NAME"],
 					    platform_for: 'donations',
 					    donation_amount: (donation.amount / 100).to_f,
 					    donation_type: donation.donation_type,
@@ -144,7 +144,7 @@ class Donation < ActiveRecord::Base
 				    })
 					else
 						Keen.publish("Donations", {
-					    marketplace_name: "MarketplaceBase",
+					    marketplace_name: ENV["MARKETPLACE_NAME"],
 					    platform_for: 'donations',
 					    donation_amount: (donation.amount / 100).to_f,
 					    donation_type: donation.donation_type,
@@ -177,7 +177,7 @@ class Donation < ActiveRecord::Base
 		  # 	if !donation.application_fee.nil?
 				#   if donation.fundraising_goal	
 				#   	Keen.publish("Cancel Monthly Donation", {
-				#   		marketplace_name: "MarketplaceBase",
+				#   		marketplace_name: ENV["MARKETPLACE_NAME"],
 			 #        platform_for: 'donations',
 			 #        donation_amount: (donation.amount / 100).to_f,
 				# 	    donation_type: donation.donation_type,
@@ -197,7 +197,7 @@ class Donation < ActiveRecord::Base
 
 				#   else
 				#   	Keen.publish("Cancel Monthly Donation", {
-				#   		marketplace_name: "MarketplaceBase",
+				#   		marketplace_name: ENV["MARKETPLACE_NAME"],
 			 #        platform_for: 'donations',
 			 #        donation_amount: (donation.amount / 100).to_f,
 				# 	    donation_type: donation.donation_type,
@@ -217,7 +217,7 @@ class Donation < ActiveRecord::Base
 				#   end
 			 #  elsif donation.fundraising_goal
 			 #  	Keen.publish("Cancel Monthly Donation", {
-			 #  		marketplace_name: "MarketplaceBase",
+			 #  		marketplace_name: ENV["MARKETPLACE_NAME"],
 		  #       platform_for: 'donations',
 		  #       donation_amount: (donation.amount / 100).to_f,
 				#     donation_type: donation.donation_type,
@@ -235,7 +235,7 @@ class Donation < ActiveRecord::Base
 			 #  		})
 			 #  else
 			 #  	Keen.publish("Cancel Monthly Donation", {
-			 #  		marketplace_name: "MarketplaceBase",
+			 #  		marketplace_name: ENV["MARKETPLACE_NAME"],
 		  #       platform_for: 'donations',
 		  #       donation_amount: (donation.amount / 100).to_f,
 				#     donation_type: donation.donation_type,
@@ -256,7 +256,7 @@ class Donation < ActiveRecord::Base
 
 	  def self.text_donation(donation, location, text)
 	  	Keen.publish("Donations", {
-			    marketplace_name: "MarketplaceBase",
+			    marketplace_name: ENV["MARKETPLACE_NAME"],
 			    platform_for: 'donations',
 			    donation_amount: (donation.amount / 100).to_f,
 			    donation_type: donation.donation_type,

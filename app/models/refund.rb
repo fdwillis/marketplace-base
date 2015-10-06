@@ -11,7 +11,7 @@ class Refund < ActiveRecord::Base
   		order = refund.order
       if order.application_fee.present?
     		Keen.publish("Refunds", {
-          marketplace_name: "MarketplaceBase",
+          marketplace_name: ENV["MARKETPLACE_NAME"],
           platform_for: 'apparel', 
           year: Time.now.strftime("%Y").to_i,
           month: DateTime.now.to_date.strftime("%B"),
@@ -28,7 +28,7 @@ class Refund < ActiveRecord::Base
           })
       else
         Keen.publish("Refunds", {
-    			marketplace_name: "MarketplaceBase",
+    			marketplace_name: ENV["MARKETPLACE_NAME"],
           platform_for: 'apparel', 
           year: Time.now.strftime("%Y").to_i,
           month: DateTime.now.to_date.strftime("%B"),

@@ -34,7 +34,7 @@ class Order < ActiveRecord::Base
 
       if !order.application_fee.nil?        
         Keen.publish("Orders", {
-          marketplace_name: "MarketplaceBase",
+          marketplace_name: ENV["MARKETPLACE_NAME"],
           platform_for: 'apparel',
           ip_address: ip_address,
           customer_current_zipcode: location["zipcode"],
@@ -63,7 +63,7 @@ class Order < ActiveRecord::Base
         })
       else 
         Keen.publish("Orders", {
-          marketplace_name: "MarketplaceBase",
+          marketplace_name: ENV["MARKETPLACE_NAME"],
           platform_for: 'apparel',
           ip_address: ip_address,
           customer_current_zipcode: location["zipcode"],
@@ -93,7 +93,7 @@ class Order < ActiveRecord::Base
 
       order.order_items.each do |oi|
         Keen.publish("Order Items", {
-          marketplace_name: "MarketplaceBase",
+          marketplace_name: ENV["MARKETPLACE_NAME"],
           platform_for: 'apparel',
           ip_address: ip_address,
           customer_zipcode: location["zipcode"],
@@ -125,7 +125,7 @@ class Order < ActiveRecord::Base
         if !Product.find_by(uuid: oi.product_uuid).tags.empty?
           Product.find_by(uuid: oi.product_uuid).tags.each do |tag|
           Keen.publish("Tags On Ordered Items", {
-            marketplace_name: "MarketplaceBase",
+            marketplace_name: ENV["MARKETPLACE_NAME"],
             platform_for: 'apparel',
             tag: tag.name, 
             order_uuid: oi.order.uuid, 
@@ -137,7 +137,7 @@ class Order < ActiveRecord::Base
           end
         else
           @tags = Keen.publish("Tags On Ordered Items", {
-            marketplace_name: "MarketplaceBase",
+            marketplace_name: ENV["MARKETPLACE_NAME"],
             platform_for: 'apparel',
             tag: "None", 
             order_uuid: oi.order.uuid, 
